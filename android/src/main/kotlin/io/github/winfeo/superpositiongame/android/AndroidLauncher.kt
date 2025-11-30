@@ -4,7 +4,7 @@ import android.os.Bundle
 
 import com.badlogic.gdx.backends.android.AndroidApplication
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration
-import io.github.winfeo.superpositiongame.Main
+import io.github.winfeo.superpositiongame.game.Main
 
 /** Launches the Android application. */
 class AndroidLauncher : AndroidApplication() {

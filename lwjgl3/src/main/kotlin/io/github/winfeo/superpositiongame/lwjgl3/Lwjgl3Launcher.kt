@@ -4,7 +4,7 @@ package io.github.winfeo.superpositiongame.lwjgl3
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
-import io.github.winfeo.superpositiongame.Main
+import io.github.winfeo.superpositiongame.game.Main
 
 /** Launches the desktop (LWJGL3) application. */
 fun main() {

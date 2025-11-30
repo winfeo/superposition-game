@@ -1,0 +1,137 @@
+cards.png
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+redcard1
+  rotate: false
+  xy: 0, 0
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+redcard2
+  rotate: false
+  xy: 605, 0
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+redcard3
+  rotate: false
+  xy: 1210, 0
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+redcard4
+  rotate: false
+  xy: 0, 977
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+yellowcard2
+  rotate: false
+  xy: 605, 977
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+redcard5
+  rotate: false
+  xy: 1210, 977
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+greencard1
+  rotate: false
+  xy: 1815, 0
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+redcard6
+  rotate: false
+  xy: 1815, 977
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+redcard7
+  rotate: false
+  xy: 0, 1954
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+yellowcard4
+  rotate: false
+  xy: 605, 1954
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+bluecard2
+  rotate: false
+  xy: 1210, 1954
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+bluecard3
+  rotate: false
+  xy: 1815, 1954
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+bluecard1
+  rotate: false
+  xy: 2420, 0
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+yellowcard3
+  rotate: false
+  xy: 2420, 977
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+yellowcard5
+  rotate: false
+  xy: 2420, 1954
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+yellowcard1
+  rotate: false
+  xy: 3025, 0
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+whitecard1
+  rotate: false
+  xy: 3025, 977
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+whitecard2
+  rotate: false
+  xy: 3025, 1954
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
+yellowcard6
+  rotate: false
+  xy: 0, 2931
+  size: 604, 976
+  orig: 604, 976
+  offset: 0, 0
+  index: -1
