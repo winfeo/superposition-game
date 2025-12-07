@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 
-object CardsAtlasManger {
+object CardsAtlasManager {
     private lateinit var cardsAtlas: TextureAtlas
 
     fun loadAtlas(path: String){
@@ -20,5 +20,5 @@ object CardsAtlasManger {
         return cardsAtlas.createSprite(regionName)
     }
 
-    fun clear() = cardsAtlas.dispose()
+    fun dispose() = cardsAtlas.dispose()
 }

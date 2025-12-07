@@ -1,40 +1,52 @@
 package io.github.winfeo.superpositiongame.ui.screens
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Table
-import io.github.winfeo.superpositiongame.managers.CardsAtlasManger
+import io.github.winfeo.superpositiongame.managers.CardsAtlasManager
 import io.github.winfeo.superpositiongame.ui.GameTable
 import ktx.app.KtxScreen
 
+// Класс для отрисовки игрового поля
 class GameScreen : KtxScreen {
     private val stage = Stage()
-    val batch = SpriteBatch()
+    /// TODO реализовать табличную орисовку UI для слотов карт
+    /// TODO реализовать прокурчивающийся полукругом список карт для выбора игрока
 
-    val card1 = CardsAtlasManger.getSprite("redcard1")
-//    private val gameTable = GameTable
+    init {
+        /// TODO создать отдельный файл/класс с константами
+        CardsAtlasManager.loadAtlas("cards/cards.atlas")
+    }
 
     override fun show() {
         super.show()
 
-        val scale = 0.3f
-        val scaledWidth = (card1?.width ?: 0f) * scale
-        val scaledHeight = (card1?.height ?: 0f) * scale
-        card1?.setBounds(100f, 100f, scaledWidth, scaledHeight)
-        card1?.setOrigin(0f,0f)
+        val gameTable = GameTable()
+        stage.addActor(gameTable)
 
-        card1?.setPosition(1f, 1f)
+
     }
 
     override fun render(delta: Float) {
         super.render(delta)
         Gdx.gl.glClearColor(0f,0f,0f,0f)
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
-        batch.begin()
-        card1?.draw(batch)
-        batch.end()
+        stage.act(delta)
+        stage.draw()
+    }
+
+    override fun resize(width: Int, height: Int) {
+        super.resize(width, height)
+
+        stage.viewport.update(width, height)
+    }
+
+    override fun dispose() {
+        super.dispose()
+
+        stage.dispose()
+        CardsAtlasManager.dispose()
     }
 }

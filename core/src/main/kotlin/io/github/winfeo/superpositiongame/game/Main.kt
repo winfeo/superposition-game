@@ -1,19 +1,14 @@
 package io.github.winfeo.superpositiongame.game
 
-import io.github.winfeo.superpositiongame.managers.CardsAtlasManger
 import io.github.winfeo.superpositiongame.ui.screens.GameScreen
-import kotlinx.coroutines.launch
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
 import ktx.async.KtxAsync
 
 class Main : KtxGame<KtxScreen>() {
-    val cardsAtlasManager = CardsAtlasManger
 
     override fun create() {
         KtxAsync.initiate()
-        /// TODO создать отдельный файл/класс с константами
-        cardsAtlasManager.loadAtlas("cards/cards.atlas")
 
         addScreen(MainScreen())
         addScreen(GameScreen())
