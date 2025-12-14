@@ -2,7 +2,6 @@ package io.github.winfeo.superpositiongame.ui.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.managers.CardsAtlasManager
 import io.github.winfeo.superpositiongame.ui.GameTable
@@ -11,6 +10,7 @@ import ktx.app.KtxScreen
 // Класс для отрисовки игрового поля
 class GameScreen : KtxScreen {
     private val stage = Stage()
+    private lateinit var gameTable: GameTable
     /// TODO реализовать табличную орисовку UI для слотов карт
     /// TODO реализовать прокурчивающийся полукругом список карт для выбора игрока
 
@@ -22,8 +22,12 @@ class GameScreen : KtxScreen {
     override fun show() {
         super.show()
 
-        val gameTable = GameTable()
+
+        gameTable = GameTable(
+            screenWidth = stage.width.also { println("screenWidth = $it") },
+            screenHeight = stage.height.also { println("screenHeight = $it") })
         stage.addActor(gameTable)
+        stage.isDebugAll = true
 
 
     }
