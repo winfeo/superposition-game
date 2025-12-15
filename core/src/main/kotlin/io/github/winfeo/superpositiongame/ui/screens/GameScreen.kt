@@ -3,6 +3,7 @@ package io.github.winfeo.superpositiongame.ui.screens
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.scenes.scene2d.Stage
+import io.github.winfeo.superpositiongame.configs.GameConfig
 import io.github.winfeo.superpositiongame.managers.CardsAtlasManager
 import io.github.winfeo.superpositiongame.ui.GameTable
 import ktx.app.KtxScreen
@@ -22,10 +23,11 @@ class GameScreen : KtxScreen {
     override fun show() {
         super.show()
 
-
-        gameTable = GameTable(
+        GameConfig.init(
             screenWidth = stage.width.also { println("screenWidth = $it") },
             screenHeight = stage.height.also { println("screenHeight = $it") })
+
+        gameTable = GameTable()
         stage.addActor(gameTable)
         stage.isDebugAll = true
 

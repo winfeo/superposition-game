@@ -4,16 +4,17 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import io.github.winfeo.superpositiongame.configs.GameConfig
 import io.github.winfeo.superpositiongame.managers.CardsAtlasManager
 import io.github.winfeo.superpositiongame.models.Card
 
 object CardActorBuilder {
     /// TODO поменять на рандомный выбор из всех карт доступных
     private val cardsList = listOf("bluecard1", "greencard1", "whitecard1", "redcard1", "yellowcard1")
-    /// TODO создать файл с константами?
-    //private const val CARD_SCALE = 0.3f
+    private val cardWidth = GameConfig.cardWidth
+    private val cardHeight = GameConfig.cardHeight
 
-    fun createRandomCard(cardWidth: Float, cardHeight: Float): CardActor {
+    fun createRandomCard(): CardActor {
         val randomType = cardsList.random()
 
         val cardModel = Card(
@@ -26,7 +27,7 @@ object CardActorBuilder {
         return CardActor(cardWidth, cardHeight, cardModel, texture)
     }
 
-    fun createEmptyCard(cardWidth: Float, cardHeight: Float): CardActor {
+    fun createEmptyCard(): CardActor {
         val cardModel = Card(
             id = "empty",
             name = "Empty Slot",

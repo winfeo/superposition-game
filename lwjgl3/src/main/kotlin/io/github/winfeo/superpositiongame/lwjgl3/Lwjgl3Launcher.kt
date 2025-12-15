@@ -25,6 +25,7 @@ fun main() {
 
 
         setWindowedMode(640, 960)
+//        setWindowedMode(1920, 1080)
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         //// They can also be loaded from the root of assets/ .
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))

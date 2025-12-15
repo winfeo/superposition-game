@@ -1,6 +1,5 @@
 package io.github.winfeo.superpositiongame.ui
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
@@ -11,26 +10,18 @@ import io.github.winfeo.superpositiongame.configs.GameConfig
 
 // Класс-ячейка для помещения карты на игровое поле
 // Передаются координаты (позиция) карты в конкретном слоте таблицы
-class SlotActor(
-    val cardWidth: Float,
-    val cardHeight: Float,
-    val row: Int = 0,
-    val col: Int = 0
-): Table() {
-    //private var currentCard: CardActor? = null
-    //private val background: Image = Image().apply { color = Color.DARK_GRAY }
-//    private val WIDTH = 80f //80
-//    private val HEIGHT = 130f //130
-//    private val width = Gdx.graphics.width.toFloat() * GameConfig.CARD_WIDTH_PERCENT
-//    private val height = Gdx.graphics.height.toFloat() * GameConfig.CARD_HEIGHT_RATIO
+class SlotActor(): Table() {
+    ///TODO может быть сделать фабрику объектов? Чтобы каждый раз не тратить ресурсы на каждй новый объект
+    private val cardWidth = GameConfig.cardWidth
+    private val cardHeight = GameConfig.cardHeight
 
     init {
         defaults()
-            .minSize(cardWidth, cardHeight)
-            .prefSize(cardWidth, cardHeight)
-            .maxSize(cardWidth,cardHeight)
+            .minSize(cardWidth + 50f, cardHeight + 50f)
+            .prefSize(cardWidth + 50f, cardHeight + 50f)
+            .maxSize(cardWidth + 50f,cardHeight + 50f)
         pad(5f)
-        background = createBorders()
+        //background = createBorders()
     }
 
     fun placeCard(card: CardActor) {
