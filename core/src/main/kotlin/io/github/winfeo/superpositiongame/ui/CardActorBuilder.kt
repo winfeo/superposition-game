@@ -35,7 +35,7 @@ object CardActorBuilder {
         )
 
         val pixmap = Pixmap(70, 120, Pixmap.Format.RGBA8888)
-        pixmap.setColor(Color(0.5f, 0.5f, 0.5f, 0.8f))
+        pixmap.setColor(Color.CLEAR) //Color(0.5f, 0.5f, 0.5f, 0.8f)
         pixmap.fill()
         val texture = Texture(pixmap)
         pixmap.dispose()
