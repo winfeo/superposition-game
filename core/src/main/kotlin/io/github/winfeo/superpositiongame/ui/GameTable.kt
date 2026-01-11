@@ -41,7 +41,7 @@ class GameTable(): Table() {
         val opponentTaskArea = Table()
         opponentTaskArea.defaults().space(cardsPadding)
 
-        repeat(GameConfig.CARD_ON_TABLE) {
+        repeat(GameConfig.getCardsInHandAmount()) {
             val cardSlot = SlotActor()
             opponentTaskSlots.add(cardSlot)
             opponentTaskArea.add(cardSlot)
@@ -54,7 +54,7 @@ class GameTable(): Table() {
         val playerTaskArea = Table()
         playerTaskArea.defaults().space(cardsPadding)
 
-        repeat(GameConfig.CARD_ON_TABLE) {
+        repeat(GameConfig.getCardsOnTableAmount()) {
             val cardSlot = SlotActor()
             playerTaskSlots.add(cardSlot)
             playerTaskArea.add(cardSlot)
@@ -68,7 +68,7 @@ class GameTable(): Table() {
         playerCardSlots.clear()
         playerCardsArea.defaults().space(cardsPadding)
 
-        repeat(GameConfig.CARDS_IN_HAND) {
+        repeat(GameConfig.getCardsInHandAmount()) {
             val cardSlot = SlotActor()
             playerCardSlots.add(cardSlot)
             playerCardsArea.add(cardSlot)

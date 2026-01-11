@@ -7,9 +7,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 
 object CardsAtlasManager {
     private lateinit var cardsAtlas: TextureAtlas
+    private const val ASSETS_CARDS_PATH = "cards/cards.atlas"
 
-    fun loadAtlas(path: String){
-        cardsAtlas = TextureAtlas(Gdx.files.internal(path))
+    fun loadAtlas(){
+        cardsAtlas = TextureAtlas(Gdx.files.internal(ASSETS_CARDS_PATH))
     }
 
     fun getRegion(regionName: String): TextureRegion? {

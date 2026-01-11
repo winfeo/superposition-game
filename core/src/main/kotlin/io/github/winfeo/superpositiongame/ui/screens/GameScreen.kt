@@ -14,12 +14,10 @@ import ktx.app.KtxScreen
 class GameScreen : KtxScreen {
     private val stage = Stage()
     private lateinit var gameTable: GameTable
-    /// TODO реализовать табличную орисовку UI для слотов карт
     /// TODO реализовать прокурчивающийся полукругом список карт для выбора игрока
 
     init {
-        /// TODO создать отдельный файл/класс с константами
-        CardsAtlasManager.loadAtlas("cards/cards.atlas")
+        CardsAtlasManager.loadAtlas()
     }
 
     override fun show() {
