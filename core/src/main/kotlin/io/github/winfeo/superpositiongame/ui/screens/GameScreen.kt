@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.configs.GameConfig
 import io.github.winfeo.superpositiongame.managers.CardsAtlasManager
 import io.github.winfeo.superpositiongame.ui.GameTable
-import io.github.winfeo.superpositiongame.utils.GraphicsUtils
+//import io.github.winfeo.superpositiongame.utils.GraphicsUtils
 import ktx.app.KtxScreen
 
 // Класс для отрисовки игрового поля
@@ -26,8 +26,6 @@ class GameScreen : KtxScreen {
         GameConfig.init(
             screenWidth = stage.width.also { println("screenWidth = $it") },
             screenHeight = stage.height.also { println("screenHeight = $it") })
-
-        GraphicsUtils.initShapeDrawer(stage.batch as SpriteBatch)
 
         gameTable = GameTable()
         stage.addActor(gameTable)

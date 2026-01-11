@@ -41,7 +41,7 @@ class GameTable(): Table() {
         val opponentTaskArea = Table()
         opponentTaskArea.defaults().space(cardsPadding)
 
-        repeat(GameConfig.getCardsInHandAmount()) {
+        repeat(GameConfig.getCardsOnTableAmount()) {
             val cardSlot = SlotActor()
             opponentTaskSlots.add(cardSlot)
             opponentTaskArea.add(cardSlot)

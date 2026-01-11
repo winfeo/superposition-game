@@ -1,17 +1,11 @@
 package io.github.winfeo.superpositiongame.ui
 
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.Pixmap
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import io.github.winfeo.superpositiongame.configs.GameConfig
 import io.github.winfeo.superpositiongame.graphics.BorderTexture
-import io.github.winfeo.superpositiongame.ui.screens.GameScreen
-import io.github.winfeo.superpositiongame.utils.GraphicsUtils
 
 // Класс-ячейка таблицы для помещения карты на игровое поле
 class SlotActor(): Table() {
@@ -22,13 +16,12 @@ class SlotActor(): Table() {
     private var state = SlotActorStates.NO_ACTION
     private var borderColor = Color.GOLD
 
-    ///TODO подумать, может динамически параметр рассчитывать как-то от размеров
-    val bordersThickness = 2f
-    val cornerRadius = 5f
+    val bordersThickness = GameConfig.getCardBorderThickness()
+    val cornerRadius = GameConfig.getCardBorderRadius()
 
     init {
         defaults()
-            .minSize(cardWidth, cardHeight)
+            .minSize(cardWidth, cardHeight)/*.also { println("Размеры: $cardWidth, $cardHeight") }*/
             .prefSize(cardWidth, cardHeight)
             .maxSize(cardWidth,cardHeight)
         pad(5f) //отступ от границы
@@ -60,7 +53,6 @@ class SlotActor(): Table() {
     }
 
     fun placeCard(card: CardActor) {
-        //currentCard = card
         children.filterIsInstance<Image>().forEach { it.remove() }
         clearChildren()
         add(card).size(card.width, card.height).center()

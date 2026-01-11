@@ -26,19 +26,19 @@ object GameConfig {
     private const val TABLE_PADDING_PERCENT = 0.01f //паддинг между таблицами
     private const val CARD_PADDING_PERCENT = 0.02f //паддинг между картами
 
-    private const val CARD_BORDER_THICKNESS_PERCENT = 0.02f
-    private const val CARD_BORDER_RADIUS_RATIO = 0.08f
+    private const val CARD_BORDER_THICKNESS_PERCENT = 0.02f //толщина границы рамки карты
+    private const val CARD_BORDER_RADIUS_RATIO = 0.06f //скургление границы рамки карты
 
-    private const val CARDS_IN_HAND = 6 //кол-во карт игроков
+    private const val CARDS_IN_HAND = 6 //кол-во карт игрока
     private const val CARD_ON_TABLE = 4 //кол-во слотов на столе (задание)
 
     fun getTablesPadding(): Float = _screenHeight * TABLE_PADDING_PERCENT
 
     fun getCardsPadding(): Float = _screenWidth * CARD_PADDING_PERCENT
 
-    fun getCardBorderThickness(): Float = _screenWidth * CARD_BORDER_THICKNESS_PERCENT
+    fun getCardBorderThickness(): Float = cardWidth * CARD_BORDER_THICKNESS_PERCENT
 
-    fun getCardBorderRadius(): Float = _screenWidth * CARD_BORDER_RADIUS_RATIO
+    fun getCardBorderRadius(): Float = cardHeight * CARD_BORDER_RADIUS_RATIO
 
     fun getCardsInHandAmount(): Int = CARDS_IN_HAND
     fun getCardsOnTableAmount(): Int = CARD_ON_TABLE
