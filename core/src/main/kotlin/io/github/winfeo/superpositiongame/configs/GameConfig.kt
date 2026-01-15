@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.configs
 
 ///TODO Разделить на отдельный файлы констант? или сделать файл состояний с разными конфигурациями?
 object GameConfig {
+    ///TODO сделать просто геттеры для получения значения, а не дублировать переменные?
     private var _screenWidth: Float = 0f
     private var _screenHeight: Float = 0f
     val screenWidth: Float get() = _screenWidth
@@ -31,6 +32,10 @@ object GameConfig {
 
     private const val CARDS_IN_HAND = 6 //кол-во карт игрока
     private const val CARD_ON_TABLE = 4 //кол-во слотов на столе (задание)
+
+    private const val MIN_DRAG_ZONE = 10f //мин. расстояние для начала драга карты
+
+    fun getMinDragZone(): Float = MIN_DRAG_ZONE
 
     fun getTablesPadding(): Float = _screenHeight * TABLE_PADDING_PERCENT
 

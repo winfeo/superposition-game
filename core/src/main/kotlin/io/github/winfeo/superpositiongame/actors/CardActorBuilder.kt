@@ -1,4 +1,4 @@
-package io.github.winfeo.superpositiongame.ui
+package io.github.winfeo.superpositiongame.actors
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
