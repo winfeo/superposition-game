@@ -1,6 +1,6 @@
 package io.github.winfeo.superpositiongame.game
 
-import io.github.winfeo.superpositiongame.ui.screens.GameScreen
+import io.github.winfeo.superpositiongame.ui.screen.GameScreen
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
 import ktx.async.KtxAsync

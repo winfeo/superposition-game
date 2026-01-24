@@ -2,7 +2,7 @@ package io.github.winfeo.superpositiongame.graphics
 
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
-import io.github.winfeo.superpositiongame.configs.GameConfig
+import io.github.winfeo.superpositiongame.config.GameConfig
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt

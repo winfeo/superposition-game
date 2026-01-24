@@ -3,9 +3,9 @@ package io.github.winfeo.superpositiongame.ui
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import io.github.winfeo.superpositiongame.actors.DiceActorBuilder
-import io.github.winfeo.superpositiongame.actors.SlotActor
-import io.github.winfeo.superpositiongame.configs.GameConfig
+import io.github.winfeo.superpositiongame.actor.dice.DiceActorBuilder
+import io.github.winfeo.superpositiongame.actor.SlotActor
+import io.github.winfeo.superpositiongame.config.GameConfig
 
 //Создание структуры слотов для отображения кубитов
 ///TODO переписать с использованием контейнера для одного слота и одного кубита - пара?
