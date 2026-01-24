@@ -27,5 +27,8 @@ object CardsAtlasManager {
         return cardsAtlas.createSprite(regionName)
     }
 
-    fun dispose() = cardsAtlas.dispose()
+    fun dispose() {
+        cardsAtlas.dispose()
+        cardsId.clear()
+    }
 }
