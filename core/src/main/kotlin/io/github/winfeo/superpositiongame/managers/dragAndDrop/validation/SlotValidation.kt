@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Actor
 import io.github.winfeo.superpositiongame.actors.CardActor
 import io.github.winfeo.superpositiongame.actors.SlotActor
+import io.github.winfeo.superpositiongame.actors.SlotActorStates
 import io.github.winfeo.superpositiongame.managers.dragAndDrop.data.CardDragPayload
 import io.github.winfeo.superpositiongame.managers.dragAndDrop.data.ValidationResult
 import io.github.winfeo.superpositiongame.managers.dragAndDrop.interfaces.DropValidation
@@ -31,7 +32,11 @@ class SlotValidation: DropValidation {
         ///TODO добавить сюда правила игры, работа с картами, проверка состояния кубита
         //if (!slot.isEmpty()) = return ValidationResult.invalid("В слоте уже есть карта!")
 
-        return ValidationResult(canPlace = true)
+        return ValidationResult(
+            canPlace = true,
+            //activeColor = Color.GREEN,
+            activeState = SlotActorStates.HOVERED_CAN_PLACE
+            )
 
     }
 

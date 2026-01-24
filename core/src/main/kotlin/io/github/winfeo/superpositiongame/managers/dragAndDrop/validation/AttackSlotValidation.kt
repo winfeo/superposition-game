@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Actor
 import io.github.winfeo.superpositiongame.actors.CardActor
 import io.github.winfeo.superpositiongame.actors.SlotActor
+import io.github.winfeo.superpositiongame.actors.SlotActorStates
 import io.github.winfeo.superpositiongame.managers.dragAndDrop.GameAreas
 import io.github.winfeo.superpositiongame.managers.dragAndDrop.data.CardDragData
 import io.github.winfeo.superpositiongame.managers.dragAndDrop.data.CardDragPayload
@@ -24,23 +25,30 @@ class AttackSlotValidation: DropValidation {
             ?: return ValidationResult(
                 canPlace = false,
                 message = "Отладка. Не карта",
-                activeColor = Color.RED
+                //activeColor = Color.RED
+                activeState = SlotActorStates.HOVERED_CANT_PLACE
             )
 
         val dragData = payload.data as? CardDragData
             ?: return ValidationResult(
                 canPlace = false,
                 message = "Отладка. Нет данных для пер-ния",
-                activeColor = Color.RED
+                //activeColor = Color.RED
+                activeState = SlotActorStates.HOVERED_CANT_PLACE
             )
 
         return if (canAttack(card, dragData.sourceArea)) {
-            ValidationResult(canPlace = true)
+            ValidationResult(
+                canPlace = true,
+                //activeColor = Color.GREEN,
+                activeState = SlotActorStates.HOVERED_CAN_PLACE)
         } else {
             ValidationResult(
                 canPlace = false,
                 message = "Отладка. Нелья исп эту карту",
-                activeColor = Color.RED
+                //activeColor = Color.RED
+                activeState = SlotActorStates.HOVERED_CANT_PLACE
+
             )
         }
     }

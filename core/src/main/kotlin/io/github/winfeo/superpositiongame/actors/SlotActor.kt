@@ -5,27 +5,22 @@ import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import io.github.winfeo.superpositiongame.configs.GameConfig
 import io.github.winfeo.superpositiongame.graphics.BorderTexture
 import ktx.collections.isNotEmpty
+import kotlin.math.sin
 
 // Класс-ячейка таблицы для помещения карты на игровое поле
 class SlotActor(): Table() {
     ///TODO может быть сделать фабрику объектов? Чтобы каждый раз не тратить ресурсы на каждй новый объект
-    private val cardWidth = GameConfig.cardWidth
-    private val cardHeight = GameConfig.cardHeight
-
     private var state = SlotActorStates.NO_ACTION
     private var borderColor = Color.GOLD
+    private var borderTexture = BorderTexture.getBorderTexture()
 
-    val bordersThickness = GameConfig.getCardBorderThickness()
-    val cornerRadius = GameConfig.getCardBorderRadius()
+    private var pulseTime = 0f
+    private val pulseSpeed = 8f
 
     init {
         defaults()
-//            .minSize(cardWidth, cardHeight)/*.also { println("Размеры: $cardWidth, $cardHeight") }*/
-//            .prefSize(cardWidth, cardHeight)
-//            .maxSize(cardWidth,cardHeight)
         touchable = Touchable.enabled
         pad(5f) //отступ от границы
     }
@@ -34,24 +29,31 @@ class SlotActor(): Table() {
         state = newState
         borderColor = when (state) {
             SlotActorStates.NO_ACTION -> Color.GOLD
-            SlotActorStates.HOVERED_CAN_PLACE -> Color.GREEN
+            SlotActorStates.HOVERED_CAN_PLACE -> Color.CYAN
             SlotActorStates.HOVERED_CANT_PLACE -> Color.RED
         }
+    }
+
+    override fun act(delta: Float) {
+        super.act(delta)
+        if (state != SlotActorStates.NO_ACTION) pulseTime += delta * pulseSpeed
     }
 
     override fun draw(batch: Batch, parentAlpha: Float) {
         super.draw(batch, parentAlpha)
 
-        val texture = BorderTexture.getBorderTexture(
-            width,
-            height,
-            cornerRadius,
-            bordersThickness
-        )
-
         val oldColor = batch.color
-        batch.color = Color(borderColor).apply { a *= parentAlpha }
-        batch.draw(texture, x, y, width, height)
+        val newColor = Color(borderColor)
+        if (state != SlotActorStates.NO_ACTION) {
+            val pulseAlpha = 0.7f + 0.3f * sin(pulseTime)
+            newColor.a = pulseAlpha * parentAlpha
+        }
+        else {
+            newColor.a = borderColor.a * parentAlpha
+        }
+
+        batch.color = newColor
+        batch.draw(borderTexture, x, y, width, height)
         batch.color = oldColor
     }
 

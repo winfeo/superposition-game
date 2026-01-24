@@ -6,8 +6,11 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import io.github.winfeo.superpositiongame.actors.CardActor
+import io.github.winfeo.superpositiongame.actors.SlotActor
+import io.github.winfeo.superpositiongame.actors.SlotActorStates
 import io.github.winfeo.superpositiongame.managers.dragAndDrop.data.CardDragData
 import io.github.winfeo.superpositiongame.managers.dragAndDrop.data.CardDragPayload
+import io.github.winfeo.superpositiongame.managers.dragAndDrop.data.ValidationResult
 import io.github.winfeo.superpositiongame.managers.dragAndDrop.interfaces.DragAndDropListener
 import io.github.winfeo.superpositiongame.managers.dragAndDrop.interfaces.DropValidation
 
@@ -41,7 +44,8 @@ class CardsDragAndDropManager {
         val source = object : DragAndDrop.Source(card) {
 
             override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
-                println("Отладка. Старт драга")
+                println("Отладка. Старт драга. Взяли за: x=$x y=$y")
+
                 val dragData = CardDragData(
                     card = (card as CardActor).card,
                     sourceArea = sourceArea
@@ -57,6 +61,8 @@ class CardsDragAndDropManager {
 
                 val dragVisual = createDragVisual(card)
                 payload.dragActor = dragVisual
+
+                libgdxDragDrop.setDragActorPosition(card.width - x, -y)
 
                 card.color.a = 0.3f
 
@@ -79,16 +85,19 @@ class CardsDragAndDropManager {
         libgdxDragDrop.addSource(source)
     }
 
-    fun makeDropTarget(target: Actor, validatorType: String = "default") {
+    fun makeDropTarget(target: SlotActor, validatorType: String = "default") {
         val targetObj = object : DragAndDrop.Target(target) {
 
             override fun drag(source: DragAndDrop.Source, payload: DragAndDrop.Payload,
                               x: Float, y: Float, pointer: Int): Boolean {
                 val dragPayload = payload.`object` as? CardDragPayload ?: return false
-                val validator = validators[validatorType] ?: return false
-                val validation = validator.canAccept(dragPayload, target)
-                val borderColor = validation.activeColor?: Color.WHITE
-                target.color.set(borderColor)
+                val validator: DropValidation = validators[validatorType] ?: return false
+                val validation: ValidationResult = validator.canAccept(dragPayload, target)
+
+//                val borderColor = validation.activeColor?: Color.WHITE
+//                target.color.set(borderColor)
+
+                target.setState(validation.activeState)
 
                 if (!validation.canPlace) {
                     validation.message?.let { message ->
@@ -108,7 +117,7 @@ class CardsDragAndDropManager {
             override fun drop(source: DragAndDrop.Source, payload: DragAndDrop.Payload,
                               x: Float, y: Float, pointer: Int) {
                 val dragPayload = payload.`object` as CardDragPayload
-                target.color.set(1f, 1f, 1f, 1f)
+                //target.color.set(1f, 1f, 1f, 1f)
 
                 val validator = validators[validatorType]
                 validator?.onDrop(dragPayload, target)
@@ -119,7 +128,7 @@ class CardsDragAndDropManager {
             }
 
             override fun reset(source: DragAndDrop.Source?, payload: DragAndDrop.Payload?) {
-                target.color.set(1f, 1f, 1f, 1f)
+                target.setState(SlotActorStates.NO_ACTION)
             }
         }
 

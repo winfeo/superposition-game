@@ -2,19 +2,28 @@ package io.github.winfeo.superpositiongame.graphics
 
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
+import io.github.winfeo.superpositiongame.configs.GameConfig
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
-//объект для отрисовки рамки ячейки карты
+//объект для отрисовки текстуры рамки ячейки карты
 object BorderTexture {
     private const val TEXTURE_SCALE = 2
-    private val textures = mutableMapOf<String, Texture>() //все виды рамок
+    //private val textures = mutableMapOf<String, Texture>() //все виды рамок
+    //одна текстура, размер рамки статический так как?
+    private var texture: Texture? = null
 
-    fun clear() {
-        textures.values.forEach { it.dispose() }
-        textures.clear()
-    }
+    private val bordersThickness = GameConfig.getCardBorderThickness().toInt()
+    private val cornerRadius = GameConfig.getCardBorderRadius().toInt()
+    private val cardWidth = GameConfig.cardWidth.toInt()
+    private val cardHeight = GameConfig.cardHeight.toInt()
+
+
+//    fun clear() {
+//        textures.values.forEach { it.dispose() }
+//        textures.clear()
+//    }
 
     private fun makeKey(
         width: Int,
@@ -25,37 +34,26 @@ object BorderTexture {
         return "${width}_${height}_${radius}_${thickness}"
     }
 
-    fun getBorderTexture(
-        width: Float,
-        height: Float,
-        radius: Float,
-        thickness: Float
-    ): Texture {
-        val w = (width * TEXTURE_SCALE).toInt().coerceAtLeast(4)
-        val h = (height * TEXTURE_SCALE).toInt().coerceAtLeast(4)
-        val r = (radius * TEXTURE_SCALE).toInt()
-        val t = (thickness * TEXTURE_SCALE).toInt().coerceAtLeast(1)
-
-        val key = makeKey(w, h, r, t)
-
-        return textures.getOrPut(key) {
-            createTexture(w, h, r, t)
+    fun getBorderTexture(): Texture {
+        if (texture == null) {
+            texture = createTexture()
         }
+        return texture!!
     }
 
-    private fun createTexture(
-        width: Int,
-        height: Int,
-        radius: Int,
-        thickness: Int
-    ): Texture {
-        val pixmap = Pixmap(width, height, Pixmap.Format.RGBA8888)
+    private fun createTexture(): Texture {
+        val pixmap = Pixmap(cardWidth, cardHeight, Pixmap.Format.RGBA8888)
         pixmap.setColor(0f, 0f, 0f, 0f)
         pixmap.fill()
 
-        for (y in 0..<height) {
-            for (x in 0..<width) {
-                val alpha = calculatePixelAlpha(x, y, width, height, radius, thickness)
+        for (y in 0..<cardHeight) {
+            for (x in 0..<cardWidth) {
+                val alpha = calculatePixelAlpha(
+                    x, y,
+                    cardWidth,
+                    cardHeight,
+                    cornerRadius,
+                    bordersThickness)
                 if (alpha > 0f) {
                     pixmap.setColor(1f, 1f, 1f, alpha)
                     pixmap.drawPixel(x, y)

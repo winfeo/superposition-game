@@ -73,6 +73,7 @@ class GameTable(): Table() {
         // 2. Слоты на столе игрока (обычные)
         playerTaskSlots.forEach { slot ->
             dragController.setupSlot(slot, "slot")
+            ///TODO сделать типы валидаторов состояниями тоже
         }
 
         // 3. Слоты на столе противника (для атак)
