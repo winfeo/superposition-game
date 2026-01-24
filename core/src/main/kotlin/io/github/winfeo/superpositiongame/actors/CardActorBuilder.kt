@@ -9,13 +9,11 @@ import io.github.winfeo.superpositiongame.managers.CardsAtlasManager
 import io.github.winfeo.superpositiongame.models.Card
 
 object CardActorBuilder {
-    /// TODO поменять на рандомный выбор из всех карт доступных
-    private val cardsList = listOf("bluecard1", "greencard1", "whitecard1", "redcard1", "yellowcard1")
     private val cardWidth = GameConfig.cardWidth
     private val cardHeight = GameConfig.cardHeight
 
     fun createRandomCard(): CardActor {
-        val randomType = cardsList.random()
+        val randomType = CardsAtlasManager.getRandomCardId()
 
         val cardModel = Card(
             id = randomType,
