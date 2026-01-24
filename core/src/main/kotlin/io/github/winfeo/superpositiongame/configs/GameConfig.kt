@@ -12,7 +12,6 @@ object GameConfig {
     private var _cardHeight: Float = 0f
     val cardWidth: Float get() = _cardWidth
     val cardHeight: Float get() = _cardHeight
-
     fun init(screenWidth: Float, screenHeight: Float) {
         _screenWidth = screenWidth
         _screenHeight = screenHeight
@@ -22,6 +21,7 @@ object GameConfig {
 
 
     ///TODO сделать инициализацию констант в отдельном методе при старте игры? сделать приватными константы?
+    private const val DICE_SIZE_PERCENT = 0.55f //сторона кубита
     private const val CARD_WIDTH_PERCENT = 0.1f //ширина карт
     private const val CARD_HEIGHT_RATIO = 1.625f //высота карт
     private const val TABLE_PADDING_PERCENT = 0.01f //паддинг между таблицами
@@ -47,6 +47,8 @@ object GameConfig {
 
     fun getCardsInHandAmount(): Int = CARDS_IN_HAND
     fun getCardsOnTableAmount(): Int = CARD_ON_TABLE
+
+    fun getDiceSide(): Float = cardWidth * DICE_SIZE_PERCENT
 
 
 }

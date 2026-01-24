@@ -36,8 +36,8 @@ class GameScreen : KtxScreen {
             screenHeight = stage.viewport.worldHeight.also { println("screenHeight = $it") })
 
         gameTableCard = GameTableCard()
-        gameTableDice = GameTableDice()
         stage.addActor(gameTableCard)
+        gameTableDice = GameTableDice(gameTableCard)
         stage.addActor(gameTableDice)
         //stage.isDebugAll = true
 

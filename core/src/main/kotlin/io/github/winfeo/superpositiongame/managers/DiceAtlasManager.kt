@@ -16,7 +16,9 @@ object DiceAtlasManager {
         }
     }
 
-    fun getRegion(regionName: String): TextureRegion {
+    fun getRandomDiceSide(): String = diceId.random()
+
+    fun getRegion(regionName: String): TextureRegion? {
         return diceAtlas.findRegion(regionName)
     }
 
