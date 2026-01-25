@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.dice.DiceActor
+import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.graphics.BorderTexture
 import ktx.collections.isNotEmpty
 import kotlin.math.sin

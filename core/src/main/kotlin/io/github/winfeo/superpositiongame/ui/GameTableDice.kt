@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.ui
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import io.github.winfeo.superpositiongame.actor.dice.DiceActorBuilder
 import io.github.winfeo.superpositiongame.actor.SlotActor
@@ -15,6 +16,7 @@ class GameTableDice(cardTable: GameTableCard): Table() {
     private val opponentDiceSlots = mutableListOf<SlotActor>()
 
     init {
+        touchable = Touchable.disabled
         createLayouts()
         Gdx.app.postRunnable {
             positionSlots()
@@ -37,21 +39,25 @@ class GameTableDice(cardTable: GameTableCard): Table() {
 
     private fun positionSlots() {
         ///TODO хардкодятся, сделать динамически вместе со слотами карт
-        val playerCardSlotPositions: List<Vector2> = gameCardTable.getPlayerSlotPositions()
-        playerCardSlotPositions.forEachIndexed { index, cardSlot ->
+        val playerCardSlots: List<SlotActor> = gameCardTable.getPlayerSlots()
+        playerCardSlots.forEachIndexed { index, cardSlot ->
             val diceSlot = playerDiceSlots[index]
+            val cardStagePosition = Vector2(0f,0f)
+            cardSlot.localToStageCoordinates(cardStagePosition)
             diceSlot.setPosition(
-                cardSlot.x - diceSlot.width / 2,
-                cardSlot.y + GameConfig.cardHeight - diceSlot.height / 2
+                cardStagePosition.x - diceSlot.width / 2,
+                cardStagePosition.y + cardSlot.height - diceSlot.height / 2
             )
         }
 
-        val opponentCardSlotPositions: List<Vector2> = gameCardTable.getOpponentSlotPositions()
-        opponentCardSlotPositions.forEachIndexed { index, cardSlot ->
+        val opponentCardSlots: List<SlotActor> = gameCardTable.getOpponentSlots()
+        opponentCardSlots.forEachIndexed { index, cardSlot ->
             val diceSlot = opponentDiceSlots[index]
+            val stagePosition = Vector2(0f, 0f)
+            cardSlot.localToStageCoordinates(stagePosition)
             diceSlot.setPosition(
-                cardSlot.x - diceSlot.width / 2,
-                cardSlot.y + GameConfig.cardHeight - diceSlot.height / 2
+                stagePosition.x - diceSlot.width / 2,
+                stagePosition.y + cardSlot.height - diceSlot.height / 2
             )
         }
     }

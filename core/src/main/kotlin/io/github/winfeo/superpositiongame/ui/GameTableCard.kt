@@ -1,6 +1,5 @@
 package io.github.winfeo.superpositiongame.ui
 
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import io.github.winfeo.superpositiongame.actor.card.CardActorBuilder
 import io.github.winfeo.superpositiongame.actor.SlotActor
@@ -126,25 +125,11 @@ class GameTableCard(): Table() {
 
     }
 
-    fun getPlayerSlotPositions(): List<Vector2> {
-        val parentTable = playerTaskSlots.firstOrNull()?.parent as? Table
-        parentTable?.validate()
-
-        return playerTaskSlots.map { slot ->
-            val worldPos = Vector2(0f, 0f)
-            slot.localToStageCoordinates(worldPos)
-            worldPos
-        }
+    fun getPlayerSlots(): List<SlotActor> {
+        return playerTaskSlots
     }
 
-    fun getOpponentSlotPositions(): List<Vector2> {
-        val parentTable = opponentTaskSlots.firstOrNull()?.parent as? Table
-        parentTable?.validate()
-
-        return opponentTaskSlots.map { slot ->
-            val worldPos = Vector2(0f, 0f)
-            slot.localToStageCoordinates(worldPos)
-            worldPos
-        }
+    fun getOpponentSlots(): List<SlotActor> {
+        return opponentTaskSlots
     }
 }

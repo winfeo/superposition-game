@@ -22,6 +22,7 @@ object GameConfig {
 
     ///TODO сделать инициализацию констант в отдельном методе при старте игры? сделать приватными константы?
     private const val DICE_SIZE_PERCENT = 0.55f //сторона кубита
+    private const val DICE_PADDING_PERCENT = 0.1f
     private const val CARD_WIDTH_PERCENT = 0.1f //ширина карт
     private const val CARD_HEIGHT_RATIO = 1.625f //высота карт
     private const val TABLE_PADDING_PERCENT = 0.01f //паддинг между таблицами
@@ -37,9 +38,17 @@ object GameConfig {
 
     fun getMinDragZone(): Float = MIN_DRAG_ZONE
 
-    fun getTablesPadding(): Float = _screenHeight * TABLE_PADDING_PERCENT
+    fun getTablesPadding(): Float {
+        val tablePadding = _screenHeight * TABLE_PADDING_PERCENT
+        val dicePadding = getDiceSide() * DICE_PADDING_PERCENT
+        return tablePadding + dicePadding
+    }
 
-    fun getCardsPadding(): Float = _screenWidth * CARD_PADDING_PERCENT
+    fun getCardsPadding(): Float {
+        val tablePadding = _screenWidth * CARD_PADDING_PERCENT
+        val dicePadding = getDiceSide() / 2 + cardWidth * DICE_PADDING_PERCENT
+        return tablePadding + dicePadding
+    }
 
     fun getCardBorderThickness(): Float = cardWidth * CARD_BORDER_THICKNESS_PERCENT
 
