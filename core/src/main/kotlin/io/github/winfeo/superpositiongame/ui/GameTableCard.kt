@@ -5,7 +5,6 @@ import io.github.winfeo.superpositiongame.actor.card.CardActorBuilder
 import io.github.winfeo.superpositiongame.actor.SlotActor
 import io.github.winfeo.superpositiongame.actor.dice.DiceActorBuilder
 import io.github.winfeo.superpositiongame.config.GameConfig
-import io.github.winfeo.superpositiongame.manager.dragAndDrop.GameAreas
 import io.github.winfeo.superpositiongame.manager.dragAndDrop.GameDragController
 
 // Создание структуры слотов для отображения игральных карт
@@ -31,9 +30,9 @@ class GameTableCard(): Table() {
     }
 
     private fun setUpDragAndDrop() {
-        playerCardSlots.forEachIndexed { index, slot ->
+        playerCardSlots.forEach { slot ->
             slot.getCard()?.let { card ->
-                dragController.setupCard(card, GameAreas.PLAYER_HAND)
+                dragController.setupCard(card)
             }
         }
 

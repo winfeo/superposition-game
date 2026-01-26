@@ -7,52 +7,34 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.SlotActor
 import io.github.winfeo.superpositiongame.actor.SlotActorStates
-import io.github.winfeo.superpositiongame.manager.dragAndDrop.data.CardDragData
-import io.github.winfeo.superpositiongame.manager.dragAndDrop.data.CardDragPayload
-import io.github.winfeo.superpositiongame.manager.dragAndDrop.data.ValidationResult
-import io.github.winfeo.superpositiongame.manager.dragAndDrop.interfaces.DragAndDropListener
-import io.github.winfeo.superpositiongame.manager.dragAndDrop.interfaces.DropValidation
+import io.github.winfeo.superpositiongame.rules.model.ValidationResult
 
-//Логика перетаскивания карт
-class CardsDragAndDropManager {
-    ///TODO реализовать не через интерфейсы, а через колбэки?
+//Логика перетаскивания карт в слоты
+class CardsDragAndDropManager(
+    currentListener: GameDragController
+) {
     private val libgdxDragDrop = DragAndDrop()
-    private val listeners = mutableListOf<DragAndDropListener>()
-    private val validators = mutableMapOf<String, DropValidation>()
+    private val listener: GameDragController = currentListener
+    private val validators = mutableMapOf<String, DropValidator>()
     private var currentPayload: CardDragPayload? = null
 
-    fun addListener(listener: DragAndDropListener) {
-        listeners.add(listener)
-    }
 
-
-    fun removeListener(listener: DragAndDropListener) {
-        listeners.remove(listener)
-    }
-
-    fun registerValidator(type: String, validator: DropValidation) {
+    fun registerValidator(type: String, validator: DropValidator) {
         validators[type] = validator
     }
 
     fun makeCardDraggable(
-        card: Actor,
-        sourceArea: GameAreas,
-        cardData: Any? = null
+        card: Actor
     ) {
 
         val source = object : DragAndDrop.Source(card) {
 
-            override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
+            override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload {
                 println("Отладка. Старт драга. Взяли за: x=$x y=$y")
 
-                val dragData = CardDragData(
-                    card = (card as CardActor).card,
-                    sourceArea = sourceArea
-                )
-
+                ///TODO переделать, просто карту передавать как пэйлоуд?
                 currentPayload = CardDragPayload(
-                    sourceActor = card,
-                    data = dragData
+                    sourceActor = card
                 )
 
                 val payload = DragAndDrop.Payload()
@@ -65,7 +47,7 @@ class CardsDragAndDropManager {
 
                 card.color.a = 0.3f
 
-                listeners.forEach { it.onDragStarted(card) }
+                listener.onDragStarted(card)
 
                 return payload
             }
@@ -75,7 +57,7 @@ class CardsDragAndDropManager {
                 card.color.a = 1f
 
                 val success = target != null
-                listeners.forEach { it.onDragEnded(card, success) }
+                listener.onDragEnded(card, success)
 
                 currentPayload = null
             }
@@ -90,23 +72,18 @@ class CardsDragAndDropManager {
             override fun drag(source: DragAndDrop.Source, payload: DragAndDrop.Payload,
                               x: Float, y: Float, pointer: Int): Boolean {
                 val dragPayload = payload.`object` as? CardDragPayload ?: return false
-                val validator: DropValidation = validators[validatorType] ?: return false
+                val validator: DropValidator = validators[validatorType] ?: return false
                 val validation: ValidationResult = validator.canAccept(dragPayload, target)
-
-//                val borderColor = validation.activeColor?: Color.WHITE
-//                target.color.set(borderColor)
 
                 target.setState(validation.activeState)
 
                 if (!validation.canPlace) {
                     validation.message?.let { message ->
-                        listeners.forEach {
-                            it.onValidationFailed(
-                                source = dragPayload.sourceActor,
-                                target = target,
-                                reason = message
-                            )
-                        }
+                        listener.onValidationFailed(
+                            source = dragPayload.sourceActor,
+                            target = target,
+                            reason = message
+                        )
                     }
                 }
 
@@ -116,14 +93,14 @@ class CardsDragAndDropManager {
             override fun drop(source: DragAndDrop.Source, payload: DragAndDrop.Payload,
                               x: Float, y: Float, pointer: Int) {
                 val dragPayload = payload.`object` as CardDragPayload
-                //target.color.set(1f, 1f, 1f, 1f)
 
                 val validator = validators[validatorType]
                 validator?.onDrop(dragPayload, target)
 
-                listeners.forEach {
-                    it.onDropSuccess(dragPayload.sourceActor, target)
-                }
+                listener.onDropSuccess(
+                    source = dragPayload.sourceActor,
+                    target = target
+                )
             }
 
             override fun reset(source: DragAndDrop.Source?, payload: DragAndDrop.Payload?) {
@@ -144,7 +121,7 @@ class CardsDragAndDropManager {
 
     fun clear() {
         libgdxDragDrop.clear()
-        listeners.clear()
+        listener.dispose()
         validators.clear()
         currentPayload = null
     }

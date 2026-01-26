@@ -1,4 +1,4 @@
-package io.github.winfeo.superpositiongame.manager.dragAndDrop.data
+package io.github.winfeo.superpositiongame.rules.model
 
 import io.github.winfeo.superpositiongame.actor.SlotActorStates
 
