@@ -3,6 +3,7 @@ package io.github.winfeo.superpositiongame.ui
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import io.github.winfeo.superpositiongame.actor.card.CardActorBuilder
 import io.github.winfeo.superpositiongame.actor.SlotActor
+import io.github.winfeo.superpositiongame.actor.dice.DiceActorBuilder
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.manager.dragAndDrop.GameAreas
 import io.github.winfeo.superpositiongame.manager.dragAndDrop.GameDragController
@@ -11,9 +12,8 @@ import io.github.winfeo.superpositiongame.manager.dragAndDrop.GameDragController
 // TODO Передаётся общее количество ячеек (пока 1 ряд из 4 карт)
 class GameTableCard(): Table() {
     private val playerCardSlots = mutableListOf<SlotActor>()
-    private val opponentTaskSlots = mutableListOf<SlotActor>()
-    private val playerTaskSlots = mutableListOf<SlotActor>()
-
+    private val playerSlotContainer = mutableListOf<CardAndDiceContainer>()
+    private val opponentSlotContainer = mutableListOf<CardAndDiceContainer>()
     private val cardsPadding = GameConfig.getCardsPadding()
     private val tablesPadding = GameConfig.getTablesPadding()
 
@@ -24,28 +24,26 @@ class GameTableCard(): Table() {
         createLayouts()
         ///TODO Создать отдельный класс для упралвения действиями в игре
         dealCards()
+        dealDiceSides()
         setUpDragAndDrop()
 
         //debugAll()
     }
 
     private fun setUpDragAndDrop() {
-        // 1. Карты в руке игрока
         playerCardSlots.forEachIndexed { index, slot ->
             slot.getCard()?.let { card ->
                 dragController.setupCard(card, GameAreas.PLAYER_HAND)
             }
         }
 
-        // 2. Слоты на столе игрока (обычные)
-        playerTaskSlots.forEach { slot ->
-            dragController.setupSlot(slot, "slot")
+        playerSlotContainer.forEach { container ->
+            dragController.setupSlot(container.cardSlot, "slot")
             ///TODO сделать типы валидаторов состояниями тоже
         }
 
-        // 3. Слоты на столе противника (для атак)
-        opponentTaskSlots.forEach { slot ->
-            dragController.setupSlot(slot, "attack_slot")
+        opponentSlotContainer.forEach { container ->
+            dragController.setupSlot(container.cardSlot, "attack_slot")
         }
     }
 
@@ -54,7 +52,6 @@ class GameTableCard(): Table() {
         defaults().pad(tablesPadding.also { println("TablePadding: $it") }) //расс-ние между рядами
     }
 
-    //Создание таблиц (1 - Карты противника на столе, 2 - Карты игрока на столе, 3 - Карты игрока на руках)
     private fun createLayouts() {
         ///TODO сделать не через добавление add на сцену, а через добавление доп актора?
         add(createOpponentTaskArea())
@@ -72,9 +69,9 @@ class GameTableCard(): Table() {
         opponentTaskArea.defaults().space(cardsPadding)
 
         repeat(GameConfig.getCardsOnTableAmount()) {
-            val cardSlot = SlotActor()
-            opponentTaskSlots.add(cardSlot)
-            opponentTaskArea.add(cardSlot)
+            val container = CardAndDiceContainer()
+            opponentSlotContainer.add(container)
+            opponentTaskArea.add(container)
         }
 
         return opponentTaskArea
@@ -85,9 +82,9 @@ class GameTableCard(): Table() {
         playerTaskArea.defaults().space(cardsPadding)
 
         repeat(GameConfig.getCardsOnTableAmount()) {
-            val cardSlot = SlotActor()
-            playerTaskSlots.add(cardSlot)
-            playerTaskArea.add(cardSlot)
+            val container = CardAndDiceContainer()
+            playerSlotContainer.add(container)
+            playerTaskArea.add(container)
         }
 
         return playerTaskArea
@@ -113,23 +110,27 @@ class GameTableCard(): Table() {
             slot.placeCard(card)
         }
 
-        playerTaskSlots.forEach { slot ->
+        playerSlotContainer.forEach { slot ->
             val card = CardActorBuilder.createEmptyCard()
-            slot.placeCard(card)
+            slot.cardSlot.placeCard(card)
         }
 
-        opponentTaskSlots.forEach { slot ->
+        opponentSlotContainer.forEach { slot ->
             val card = CardActorBuilder.createEmptyCard()
-            slot.placeCard(card)
+            slot.cardSlot.placeCard(card)
         }
 
     }
 
-    fun getPlayerSlots(): List<SlotActor> {
-        return playerTaskSlots
-    }
+    private fun dealDiceSides() {
+        playerSlotContainer.forEach { container ->
+            val dice = DiceActorBuilder.createRandomDice()
+            container.diceSlot.placeDice(dice)
+        }
 
-    fun getOpponentSlots(): List<SlotActor> {
-        return opponentTaskSlots
+        opponentSlotContainer.forEach { container ->
+            val dice = DiceActorBuilder.createRandomDice()
+            container.diceSlot.placeDice(dice)
+        }
     }
 }

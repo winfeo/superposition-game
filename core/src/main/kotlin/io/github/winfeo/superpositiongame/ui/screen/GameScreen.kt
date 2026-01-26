@@ -8,14 +8,12 @@ import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
 import io.github.winfeo.superpositiongame.ui.GameTableCard
-import io.github.winfeo.superpositiongame.ui.GameTableDice
 import ktx.app.KtxScreen
 
 // Класс для отрисовки игрового поля
 class GameScreen : KtxScreen {
     private val stage = Stage(ScreenViewport())
     private lateinit var gameTableCard: GameTableCard
-    private lateinit var gameTableDice: GameTableDice
     /// TODO реализовать прокурчивающийся полукругом список карт для выбора игрока
     ///TODO переписать на паттерны ECS и FSM? Игровые паттерны
 
@@ -37,8 +35,8 @@ class GameScreen : KtxScreen {
 
         gameTableCard = GameTableCard()
         stage.addActor(gameTableCard)
-        gameTableDice = GameTableDice(gameTableCard)
-        stage.addActor(gameTableDice)
+        //gameTableDice = GameTableDice(gameTableCard)
+        //stage.addActor(gameTableDice)
         //stage.isDebugAll = true
 
 
