@@ -7,38 +7,51 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.model.Card
+import io.github.winfeo.superpositiongame.model.CardInstruction
+import io.github.winfeo.superpositiongame.util.CardNameParser
 
 object CardActorBuilder {
     private val cardWidth = GameConfig.cardWidth
     private val cardHeight = GameConfig.cardHeight
 
     fun createRandomCard(): CardActor {
-        val randomType = CardsAtlasManager.getRandomCardId()
+        val randomName = CardsAtlasManager.getRandomCardId()
 
         val cardModel = Card(
-            id = randomType,
-            name = "Card $randomType",
-            isFaceUp = true
+            id = randomName,
+            name = "Card $randomName",
+            instruction = CardNameParser.createInstructionFromCardName(randomName)
         )
 
-        val texture = CardsAtlasManager.getRegion(randomType)?: throw (IllegalStateException("Не удалось найти текстуру для карты: $randomType"))
-        return CardActor(cardWidth, cardHeight, cardModel, texture)
+        val texture = CardsAtlasManager.getRegion(randomName)?: throw (IllegalStateException("Не удалось найти текстуру для карты: $randomName"))
+        return CardActor(
+            cardWidth = cardWidth,
+            cardHeight = cardHeight,
+            card = cardModel,
+            canDrag = true,
+            texture = texture
+        )
     }
 
     fun createEmptyCard(): CardActor {
         val cardModel = Card(
             id = "empty",
             name = "Empty Slot",
-            isFaceUp = true
+            instruction = CardInstruction()
         )
 
         val pixmap = Pixmap(70, 120, Pixmap.Format.RGBA8888)
-        pixmap.setColor(Color.CLEAR) //Color(0.5f, 0.5f, 0.5f, 0.8f)
+        pixmap.setColor(Color.CLEAR)
         pixmap.fill()
         val texture = Texture(pixmap)
         pixmap.dispose()
 
-        return CardActor(cardWidth, cardHeight, cardModel, TextureRegion(texture))
+        return CardActor(
+            cardWidth = cardWidth,
+            cardHeight = cardHeight,
+            card = cardModel,
+            texture = TextureRegion(texture)
+        )
     }
 
 }

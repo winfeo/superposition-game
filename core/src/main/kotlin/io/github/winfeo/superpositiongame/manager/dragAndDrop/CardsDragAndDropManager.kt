@@ -29,8 +29,13 @@ class CardsDragAndDropManager(
 
         val source = object : DragAndDrop.Source(card) {
 
-            override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload {
+            override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
                 println("Отладка. Старт драга. Взяли за: x=$x y=$y")
+
+                ///TODO переделать проверку условия так, чтобы не заходить в метод
+                //Может быть удалять как-то свойство перетаскивания
+                val cardActor = card as CardActor
+                if (!cardActor.canDrag) return null
 
                 ///TODO переделать, просто карту передавать как пэйлоуд?
                 currentPayload = CardDragPayload(
@@ -101,6 +106,9 @@ class CardsDragAndDropManager(
                     source = dragPayload.sourceActor,
                     target = target
                 )
+
+                val card = dragPayload.sourceActor as CardActor
+                card.canDrag = false
             }
 
             override fun reset(source: DragAndDrop.Source?, payload: DragAndDrop.Payload?) {

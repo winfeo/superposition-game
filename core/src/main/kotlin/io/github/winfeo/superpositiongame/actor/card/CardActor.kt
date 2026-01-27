@@ -9,6 +9,7 @@ class CardActor(
     cardWidth: Float,
     cardHeight: Float,
     val card: Card,
+    var canDrag: Boolean = false,
     texture: TextureRegion
 ): Image(texture) {
 
