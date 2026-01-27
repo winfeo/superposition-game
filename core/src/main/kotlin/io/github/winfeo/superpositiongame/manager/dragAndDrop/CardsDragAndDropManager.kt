@@ -34,6 +34,7 @@ class CardsDragAndDropManager(
 
                 ///TODO переделать проверку условия так, чтобы не заходить в метод
                 //Может быть удалять как-то свойство перетаскивания
+                //Для специальных карт вообще не добавлять свойство
                 val cardActor = card as CardActor
                 if (!cardActor.canDrag) return null
 
@@ -99,13 +100,13 @@ class CardsDragAndDropManager(
                               x: Float, y: Float, pointer: Int) {
                 val dragPayload = payload.`object` as CardDragPayload
 
-                val validator = validators[validatorType]
-                validator?.onDrop(dragPayload, target)
-
                 listener.onDropSuccess(
                     source = dragPayload.sourceActor,
                     target = target
                 )
+
+                val validator = validators[validatorType]
+                validator?.onDrop(dragPayload, target)
 
                 val card = dragPayload.sourceActor as CardActor
                 card.canDrag = false

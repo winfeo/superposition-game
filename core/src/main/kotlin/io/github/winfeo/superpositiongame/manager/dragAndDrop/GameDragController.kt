@@ -28,15 +28,15 @@ class GameDragController() {
     }
 
     fun onDragStarted(actor: Actor) {
-        println("Отладка. Начали перетаскивать: ${actor.javaClass.simpleName}")
+        println("Отладка. Начали перетаскивать: ${(actor as CardActor).card.id}")
     }
 
     fun onDragEnded(actor: Actor, success: Boolean) {
-        println("Отладка. Закончили перетаскивать: $success")
+        println("Отладка. Закончили перетаскивать, результат: $success")
     }
 
     fun onDropSuccess(source: Actor, target: Actor) {
-        println("Отладка. Успешный дроп: ${source.javaClass.simpleName} -> ${target.javaClass.simpleName}")
+        println("Отладка. Успешный дроп: ${(source as CardActor).card.id} -> ${(target as SlotActor).getCard().card.id}")
     }
 
     fun onValidationFailed(source: Actor, target: Actor, reason: String) {

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 
+//Управляет ассетами карт
 object CardsAtlasManager {
     private lateinit var cardsAtlas: TextureAtlas
     private val cardsId: MutableSet<String> = mutableSetOf()

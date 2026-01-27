@@ -75,14 +75,6 @@ class SlotActor(): Table() {
         dice.touchable = Touchable.disabled
         println("Кубит создан: ${dice.width}x${dice.height}, touchable: ${dice.isTouchable}")
     }
-
-    fun getCard(): CardActor? {
-        return if (children.isNotEmpty()) {
-            children.first() as? CardActor
-        } else {
-            null
-        }
-    }
-
+    fun getCard(): CardActor = children.first() as CardActor
 
 }

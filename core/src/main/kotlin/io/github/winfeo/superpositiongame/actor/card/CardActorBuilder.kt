@@ -6,38 +6,41 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
-import io.github.winfeo.superpositiongame.model.Card
-import io.github.winfeo.superpositiongame.model.CardInstruction
-import io.github.winfeo.superpositiongame.util.CardNameParser
+import io.github.winfeo.superpositiongame.model.card.Card
+import io.github.winfeo.superpositiongame.model.card.CardType
 
 object CardActorBuilder {
     private val cardWidth = GameConfig.cardWidth
     private val cardHeight = GameConfig.cardHeight
+    private var idCounter: Int = 0
 
     fun createRandomCard(): CardActor {
-        val randomName = CardsAtlasManager.getRandomCardId()
+        val textureName = CardsAtlasManager.getRandomCardId()
+        val cardType: CardType = CardType.entries.find { it.textureId == textureName }?: throw (IllegalStateException("Не удалось найти тип карты c id: $textureName"))
 
         val cardModel = Card(
-            id = randomName,
-            name = "Card $randomName",
-            instruction = CardNameParser.createInstructionFromCardName(randomName)
+            id = "${textureName}-$idCounter",
+            type = cardType
         )
 
-        val texture = CardsAtlasManager.getRegion(randomName)?: throw (IllegalStateException("Не удалось найти текстуру для карты: $randomName"))
+        val texture = CardsAtlasManager.getRegion(textureName)?: throw (IllegalStateException("Не удалось найти текстуру для карты: $textureName"))
+        idCounter++
         return CardActor(
             cardWidth = cardWidth,
             cardHeight = cardHeight,
             card = cardModel,
-            canDrag = true,
+            canDrag = cardModel.canPlace,
             texture = texture
         )
+
     }
 
+    ///TODO не создавать объект карт для пустых слотов, а просто рамку по размеру отрисовывавть?
+    //Получится ли тогда драг анд дроп реализовать?
     fun createEmptyCard(): CardActor {
         val cardModel = Card(
             id = "empty",
-            name = "Empty Slot",
-            instruction = CardInstruction()
+            type = CardType.EMPTY
         )
 
         val pixmap = Pixmap(70, 120, Pixmap.Format.RGBA8888)
