@@ -1,13 +1,21 @@
 package io.github.winfeo.superpositiongame.manager.dragAndDrop
 
 import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.SlotActor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 
-//Контроллер (слушатель) перетаскивания карт. Удалить?
-class GameDragController() {
+//Контроллер (слушатель) перетаскивания карт
+class GameDragController(
+    private val stage: Stage
+) {
 
     private val dragManager = CardsDragAndDropManager(this)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     init {
         setupValidators()
@@ -22,7 +30,7 @@ class GameDragController() {
     }
 
     private fun setupValidators() {
-        val dropValidator = DropValidator()
+        val dropValidator = DropValidator(stage, scope)
         dragManager.registerValidator("slot", dropValidator)
         dragManager.registerValidator("attack_slot", dropValidator)
     }
@@ -45,5 +53,6 @@ class GameDragController() {
 
     fun dispose() {
         dragManager.clear()
+        scope.cancel()
     }
 }

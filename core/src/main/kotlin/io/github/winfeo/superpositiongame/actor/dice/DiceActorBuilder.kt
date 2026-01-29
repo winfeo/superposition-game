@@ -2,20 +2,23 @@ package io.github.winfeo.superpositiongame.actor.dice
 
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
-import io.github.winfeo.superpositiongame.model.Dice
+import io.github.winfeo.superpositiongame.model.dice.Dice
 
 object DiceActorBuilder {
     private val diceSide = GameConfig.getDiceSide()
+    private var idCounter = 0
 
     fun createRandomDice(): DiceActor {
-        val randomType = DiceAtlasManager.getRandomDiceSide()
+        val randomState = DiceAtlasManager.getRandomDiceState()
 
         val diceModel = Dice(
-            id = randomType,
-            name = "$randomType dice side"
+            id = "${randomState.stateName}_$idCounter",
+            state = randomState,
         )
 
-        val texture = DiceAtlasManager.getRegion(randomType)?: throw (IllegalStateException("Не удалось найти текстуру кубита: $randomType"))
+        val texture = DiceAtlasManager.getStateTexture(randomState.textureId)
+
+        idCounter++
         return DiceActor(
             cardSide = diceSide,
             dice = diceModel,

@@ -1,5 +1,6 @@
 package io.github.winfeo.superpositiongame.ui
 
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import io.github.winfeo.superpositiongame.actor.card.CardActorBuilder
 import io.github.winfeo.superpositiongame.actor.SlotActor
@@ -9,14 +10,16 @@ import io.github.winfeo.superpositiongame.manager.dragAndDrop.GameDragController
 
 // Создание структуры слотов для отображения игральных карт
 // TODO Передаётся общее количество ячеек (пока 1 ряд из 4 карт)
-class GameTableCard(): Table() {
+class GameTableCard(
+    stage: Stage
+): Table() {
     private val playerCardSlots = mutableListOf<SlotActor>()
     private val playerSlotContainer = mutableListOf<CardAndDiceContainer>()
     private val opponentSlotContainer = mutableListOf<CardAndDiceContainer>()
     private val cardsPadding = GameConfig.getCardsPadding()
     private val tablesPadding = GameConfig.getTablesPadding()
 
-    private val dragController = GameDragController()
+    private val dragController = GameDragController(stage)
 
     init {
         setUpTable()
@@ -31,7 +34,7 @@ class GameTableCard(): Table() {
 
     private fun setUpDragAndDrop() {
         playerCardSlots.forEach { slot ->
-            slot.getCard()?.let { card ->
+            slot.getCard().let { card ->
                 dragController.setupCard(card)
             }
         }

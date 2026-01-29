@@ -3,28 +3,24 @@ package io.github.winfeo.superpositiongame.manager
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import io.github.winfeo.superpositiongame.model.dice.DiceState
 
 //Управляет ассетами кубика
 object DiceAtlasManager {
     private lateinit var diceAtlas: TextureAtlas
-    private val diceId: MutableSet<String> = mutableSetOf()
     private const val ASSETS_DICE_PATH = "dice/dice.atlas"
 
     fun loadAtlas() {
         diceAtlas = TextureAtlas(Gdx.files.internal(ASSETS_DICE_PATH))
-        diceAtlas.regions.forEach { region ->
-            diceId.add(region.name)
-        }
     }
 
-    fun getRandomDiceSide(): String = diceId.random()
+    fun getRandomDiceState(): DiceState = DiceState.entries.random()
 
-    fun getRegion(regionName: String): TextureRegion? {
-        return diceAtlas.findRegion(regionName)
+    fun getStateTexture(stateId: String): TextureRegion {
+        return diceAtlas.findRegion(stateId)
     }
 
     fun dispose() {
         diceAtlas.dispose()
-        diceId.clear()
     }
 }

@@ -8,6 +8,7 @@ import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
 import io.github.winfeo.superpositiongame.ui.GameTableCard
+import io.github.winfeo.superpositiongame.graphics.RotateSelectionDialog
 import ktx.app.KtxScreen
 
 // Класс для отрисовки игрового поля
@@ -33,10 +34,14 @@ class GameScreen : KtxScreen {
             screenWidth = stage.viewport.worldWidth.also { println("screenWidth = $it") },
             screenHeight = stage.viewport.worldHeight.also { println("screenHeight = $it") })
 
-        gameTableCard = GameTableCard()
+        gameTableCard = GameTableCard(stage)
         stage.addActor(gameTableCard)
         //gameTableDice = GameTableDice(gameTableCard)
         //stage.addActor(gameTableDice)
+
+        ///TODO перенсти создание диалогового окна? Создать статический скин?
+        RotateSelectionDialog.init(stage)
+
         //stage.isDebugAll = true
 
 
