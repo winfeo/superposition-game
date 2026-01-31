@@ -1,6 +1,7 @@
 package io.github.winfeo.superpositiongame.manager
 
 import com.badlogic.gdx.scenes.scene2d.Stage
+import io.github.winfeo.superpositiongame.actor.SlotActor
 import io.github.winfeo.superpositiongame.actor.dice.DiceActor
 import io.github.winfeo.superpositiongame.model.card.components.AxisRotation
 import io.github.winfeo.superpositiongame.model.dice.DiceState
@@ -116,6 +117,10 @@ object DiceChangerManager {
             }
         }
         return newDicesStates
+    }
+
+    fun measurementCardEffect(slot: SlotActor) {
+        slot.changeFreezeState()
     }
 
 

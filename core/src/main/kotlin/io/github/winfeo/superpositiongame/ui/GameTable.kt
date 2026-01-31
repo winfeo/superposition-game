@@ -33,7 +33,7 @@ class GameTable(): Table() {
 
     private fun setUpCardUsage() {
         playerCardSlots.forEach { slot ->
-            slot.getCard().let { card ->
+            slot.getCardActor().let { card ->
                 if (card.canDrag) dragController.setupCard(card)
                 else touchController.setupCard(card)
 

@@ -17,7 +17,7 @@ import io.github.winfeo.superpositiongame.rules.model.ValidationResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-// Класс устанавливает кубиты в новое состояние
+// Класс устанавливает кубиты в новое состояние (карты, которые играются на игровое поле)
 class DropValidator(
     private val stage: Stage = GameConfig.stage,
     private val scope: CoroutineScope
@@ -37,18 +37,18 @@ class DropValidator(
         payload: CardDragPayload,
         target: Actor
     ) {
-        val cardActor = payload.sourceActor as CardActor
-        val slot = target as SlotActor
-        val dice = slot.getDice()
-        val cardType = cardActor.card.type
+        val sourceCardActor = payload.sourceActor as CardActor
+        val targetSlot = target as SlotActor
+       // val dice = targetSlot.getDiceActor()
+        val cardType = sourceCardActor.card.type
 
-        cardActor.remove()
+        sourceCardActor.remove()
         scope.launch {
-            val newState: Map<DiceActor, DiceState> = defineNewState(cardType, dice)
+            val newState: Map<DiceActor, DiceState>? = defineNewState(cardType, targetSlot)
             Gdx.app.postRunnable {
                 ///TODO сделать чтобы карта клалась в слот до вызова диалогового окна, а не после отрисовывалась
-                slot.placeCard(cardActor)
-                newState.forEach { (diceSlot, diceState) ->
+                targetSlot.placeCard(sourceCardActor)
+                newState?.forEach { (diceSlot, diceState) ->
                     diceSlot.changeState(diceState)
                 }
             }
@@ -67,8 +67,9 @@ class DropValidator(
 
     private suspend fun defineNewState(
         card: CardType,
-        dice: DiceActor
-    ): Map<DiceActor, DiceState> {
+        slot: SlotActor
+    ): Map<DiceActor, DiceState>? {
+        val dice = slot.getDiceActor()
         return when (card) {
             ///TODO сдеать всё через корутины?
             CardType.PAULI_X -> mapOf(dice to DiceChangerManager.pauliGateX(dice.dice.state))
@@ -82,6 +83,11 @@ class DropValidator(
             CardType.ROTATE_Z -> mapOf(dice to DiceChangerManager.rotateGate(stage, AxisRotation.Z, dice.dice.state))
             CardType.PAULI_X3, CardType.PAULI_Y3, CardType.PAULI_Z3, CardType.HADAMARD_H3
                  -> DiceChangerManager.tripleEffectGates(dice, card)
+            ///TODO разделить логику?
+            CardType.MEASUREMENT -> {
+                DiceChangerManager.measurementCardEffect(slot)
+                null
+            }
             ///TODO Никогда не войдёт сюда?
             else -> mapOf(dice to dice.dice.state)
         }

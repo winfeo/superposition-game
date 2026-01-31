@@ -5,7 +5,7 @@ import io.github.winfeo.superpositiongame.manager.DiceSwapManager
 import io.github.winfeo.superpositiongame.model.card.CardType
 import kotlinx.coroutines.CoroutineScope
 
-//Класс для применения соотвествующих эффектов карт
+//Класс для применения соотвествующих эффектов карт (карты, которые играются в сброс)
 class TapValidator(
     private val scope: CoroutineScope
 ) {

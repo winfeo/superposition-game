@@ -18,7 +18,15 @@ object RuleEngine {
     fun checkRules(ruleContext: RuleContext): ValidationResult {
         val card = ruleContext.card
         val cardSlot = ruleContext.targetSlot
-        val diceSlot = cardSlot.getDice()
+        val diceSlot = cardSlot.getDiceActor()
+
+        if (cardSlot.isFrozenSlot()) {
+            return ValidationResult(
+                canPlace = false,
+                message = "Невозможно использовать карту для кубита (кубит заморожен)",
+                activeState = SlotActorStates.HOVERED_CANT_PLACE
+            )
+        }
 
         if (!isCardCompatibleWithArrow(card, diceSlot.dice.state)) {
             return ValidationResult(

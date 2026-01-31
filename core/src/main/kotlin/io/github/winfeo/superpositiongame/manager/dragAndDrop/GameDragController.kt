@@ -1,7 +1,6 @@
 package io.github.winfeo.superpositiongame.manager.dragAndDrop
 
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.SlotActor
 import kotlinx.coroutines.CoroutineScope
@@ -43,7 +42,7 @@ class GameDragController() {
     }
 
     fun onDropSuccess(source: Actor, target: Actor) {
-        println("Отладка. Успешный дроп: ${(source as CardActor).card.id} -> ${(target as SlotActor).getCard().card.id}")
+        println("Отладка. Успешный дроп: ${(source as CardActor).card.id} -> ${(target as SlotActor).getCardActor().card.id}")
     }
 
     fun onValidationFailed(source: Actor, target: Actor, reason: String) {

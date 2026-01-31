@@ -2,7 +2,6 @@ package io.github.winfeo.superpositiongame.actor
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
-import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import io.github.winfeo.superpositiongame.actor.card.CardActor
@@ -15,6 +14,7 @@ import kotlin.math.sin
 class SlotActor(): Table() {
     ///TODO может быть сделать фабрику объектов? Чтобы каждый раз не тратить ресурсы на каждй новый объект
     private var state = SlotActorStates.NO_ACTION
+    private var isFrozen = false
     private var borderColor = Color.GOLD
     private var borderTexture = BorderTexture.getBorderTexture()
 
@@ -33,6 +33,14 @@ class SlotActor(): Table() {
             SlotActorStates.HOVERED_CAN_PLACE -> Color.CYAN
             SlotActorStates.HOVERED_CANT_PLACE -> Color.RED
         }
+    }
+
+    fun changeFreezeState() {
+        isFrozen = isFrozen.not()
+    }
+
+    fun isFrozenSlot(): Boolean {
+        return isFrozen
     }
 
     override fun act(delta: Float) {
@@ -71,10 +79,10 @@ class SlotActor(): Table() {
         add(dice).size(dice.width, dice.height).center()
         println("Кубит создан: ${dice.width}x${dice.height}, touchable: ${dice.isTouchable}, ${dice.dice.id}")
     }
-    fun getCard(): CardActor = children.first() as CardActor
+    fun getCardActor(): CardActor = children.first() as CardActor
 
     ///TODO переделать  (зачем хранить в каждом слоте?)
-    fun getDice(): DiceActor {
+    fun getDiceActor(): DiceActor {
         val container = parent as CardAndDiceContainer
         val diceSlot = container.diceSlot.getChild(0) as DiceActor
         return diceSlot

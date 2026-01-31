@@ -16,11 +16,11 @@ object TripleEffectManager {
         val index = parentTableChildren.indexOf(container)
 
         val previousContainer = parentTableChildren.get(index - 1) as CardAndDiceContainer
-        val previousDiceActor = previousContainer.diceSlot.getDice()
+        val previousDiceActor = previousContainer.diceSlot.getDiceActor()
         diceList.add(previousDiceActor)
 
         val nextContainer = parentTableChildren.get(index + 1) as CardAndDiceContainer
-        val nextDiceActor = nextContainer.diceSlot.getDice()
+        val nextDiceActor = nextContainer.diceSlot.getDiceActor()
         diceList.add(nextDiceActor)
 
         return diceList
