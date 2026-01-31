@@ -1,6 +1,7 @@
 package io.github.winfeo.superpositiongame.actor.card
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import io.github.winfeo.superpositiongame.model.card.Card
 
@@ -10,7 +11,8 @@ class CardActor(
     cardHeight: Float,
     val card: Card,
     var canDrag: Boolean = false,
-    texture: TextureRegion
+    texture: TextureRegion,
+    private var touchable: Touchable = Touchable.enabled
 ): Image(texture) {
 
     init {

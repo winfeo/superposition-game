@@ -7,14 +7,14 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
-import io.github.winfeo.superpositiongame.ui.GameTableCard
+import io.github.winfeo.superpositiongame.ui.GameTable
 import io.github.winfeo.superpositiongame.graphics.RotateSelectionDialog
 import ktx.app.KtxScreen
 
 // Класс для отрисовки игрового поля
 class GameScreen : KtxScreen {
     private val stage = Stage(ScreenViewport())
-    private lateinit var gameTableCard: GameTableCard
+    private lateinit var gameTable: GameTable
     /// TODO реализовать прокурчивающийся полукругом список карт для выбора игрока
     ///TODO переписать на паттерны ECS и FSM? Игровые паттерны
 
@@ -32,10 +32,12 @@ class GameScreen : KtxScreen {
             //screenWidth = stage.width.also { println("screenWidth = $it") },
             //screenHeight = stage.height.also { println("screenHeight = $it") })
             screenWidth = stage.viewport.worldWidth.also { println("screenWidth = $it") },
-            screenHeight = stage.viewport.worldHeight.also { println("screenHeight = $it") })
+            screenHeight = stage.viewport.worldHeight.also { println("screenHeight = $it") },
+            stage = stage
+        )
 
-        gameTableCard = GameTableCard(stage)
-        stage.addActor(gameTableCard)
+        gameTable = GameTable()
+        stage.addActor(gameTable)
         //gameTableDice = GameTableDice(gameTableCard)
         //stage.addActor(gameTableDice)
 

@@ -1,12 +1,10 @@
-package io.github.winfeo.superpositiongame.manager.tap
+package io.github.winfeo.superpositiongame.manager.doubleTap
 
-import com.badlogic.gdx.scenes.scene2d.ui.Image
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import ktx.actors.alpha
 
 //Контроллер (слушатель) использования специальных карт (двойное нажатие на них)
 class GameTapController() {

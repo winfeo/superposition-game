@@ -1,6 +1,8 @@
 package io.github.winfeo.superpositiongame.actor.dice
 
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
@@ -11,8 +13,10 @@ import io.github.winfeo.superpositiongame.model.dice.DiceState
 class DiceActor(
     cardSide: Float,
     var dice: Dice,
-    texture: TextureRegion
+    texture: TextureRegion,
+    private var touchable: Touchable = Touchable.disabled,
 ): Image(texture) {
+    private var isSelectedForSwap = false
 
     init {
         setSize(cardSide,cardSide)
@@ -22,6 +26,14 @@ class DiceActor(
         dice = dice.copy(state = newState)
         val newTexture = DiceAtlasManager.getStateTexture(newState.textureId)
         drawable = TextureRegionDrawable(newTexture)
+    }
+
+    fun enableTouchableEffect(){
+        touchable = Touchable.enabled
+    }
+
+    fun disableTouchableEffect() {
+        touchable = Touchable.disabled
     }
 
 }

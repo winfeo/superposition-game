@@ -23,7 +23,6 @@ class SlotActor(): Table() {
 
     init {
         defaults()
-        //touchable = Touchable.enabled
         pad(5f) //отступ от границы
     }
 
@@ -64,14 +63,12 @@ class SlotActor(): Table() {
         clearChildren()
         println("Карта положена: ${card.width}x${card.height}, touchable: ${card.isTouchable}, ${card.card.id}}")
         add(card).size(card.width, card.height).center()
-        card.touchable = Touchable.enabled
     }
 
     fun placeDice(dice: DiceActor) {
         children.filterIsInstance<Image>().forEach { it.remove() }
         clearChildren()
         add(dice).size(dice.width, dice.height).center()
-        dice.touchable = Touchable.disabled
         println("Кубит создан: ${dice.width}x${dice.height}, touchable: ${dice.isTouchable}, ${dice.dice.id}")
     }
     fun getCard(): CardActor = children.first() as CardActor

@@ -16,7 +16,7 @@ object CardActorBuilder {
 
     fun createRandomCard(): CardActor {
         val textureName = CardsAtlasManager.getRandomCardId()
-//        val textureName = "hadamard_h3"
+//        val textureName = "swap"
         val cardType: CardType = CardType.entries.find { it.textureId == textureName }?: throw (IllegalStateException("Не удалось найти тип карты c id: $textureName"))
 
         val cardModel = Card(
@@ -30,7 +30,7 @@ object CardActorBuilder {
             cardWidth = cardWidth,
             cardHeight = cardHeight,
             card = cardModel,
-            canDrag = cardModel.canPlace,
+            canDrag = cardModel.canDrag,
             texture = texture
         )
 

@@ -10,11 +10,10 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 
 //Контроллер (слушатель) перетаскивания карт
-class GameDragController(
-    private val stage: Stage
-) {
+class GameDragController() {
 
     private val dragManager = CardsDragAndDropManager(this)
+    ///TODO создавать скоуп единично для всех контроллеров где-то?
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     init {
@@ -30,7 +29,7 @@ class GameDragController(
     }
 
     private fun setupValidators() {
-        val dropValidator = DropValidator(stage, scope)
+        val dropValidator = DropValidator(scope = scope)
         dragManager.registerValidator("slot", dropValidator)
         dragManager.registerValidator("attack_slot", dropValidator)
     }

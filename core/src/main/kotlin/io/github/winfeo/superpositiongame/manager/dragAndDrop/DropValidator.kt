@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.actor.SlotActor
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.dice.DiceActor
+import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.manager.DiceChangerManager
 import io.github.winfeo.superpositiongame.model.card.CardType
 import io.github.winfeo.superpositiongame.model.card.components.AxisRotation
@@ -18,7 +19,7 @@ import kotlinx.coroutines.launch
 
 // Класс устанавливает кубиты в новое состояние
 class DropValidator(
-    private val stage: Stage,
+    private val stage: Stage = GameConfig.stage,
     private val scope: CoroutineScope
 ) {
 
@@ -81,7 +82,7 @@ class DropValidator(
             CardType.ROTATE_Z -> mapOf(dice to DiceChangerManager.rotateGate(stage, AxisRotation.Z, dice.dice.state))
             CardType.PAULI_X3, CardType.PAULI_Y3, CardType.PAULI_Z3, CardType.HADAMARD_H3
                  -> DiceChangerManager.tripleEffectGates(dice, card)
-            ///TODO добавить обработку специальных карт
+            ///TODO Никогда не войдёт сюда?
             else -> mapOf(dice to dice.dice.state)
         }
     }

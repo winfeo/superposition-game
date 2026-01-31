@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.manager.dragAndDrop
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import io.github.winfeo.superpositiongame.actor.card.CardActor
@@ -110,6 +111,7 @@ class CardsDragAndDropManager(
 
                 val card = dragPayload.sourceActor as CardActor
                 card.canDrag = false
+                card.touchable = Touchable.disabled
             }
 
             override fun reset(source: DragAndDrop.Source?, payload: DragAndDrop.Payload?) {

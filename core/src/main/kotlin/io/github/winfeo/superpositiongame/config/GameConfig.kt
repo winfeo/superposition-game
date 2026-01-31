@@ -1,5 +1,7 @@
 package io.github.winfeo.superpositiongame.config
 
+import com.badlogic.gdx.scenes.scene2d.Stage
+
 ///TODO Разделить на отдельный файлы констант? или сделать файл состояний с разными конфигурациями?
 object GameConfig {
     ///TODO сделать просто геттеры для получения значения, а не дублировать переменные?
@@ -12,11 +14,16 @@ object GameConfig {
     private var _cardHeight: Float = 0f
     val cardWidth: Float get() = _cardWidth
     val cardHeight: Float get() = _cardHeight
-    fun init(screenWidth: Float, screenHeight: Float) {
+
+    ///TODO убрать из констант? Обновлять во время изменения размера экрана? Сделать приватной
+    lateinit var stage: Stage
+
+    fun init(screenWidth: Float, screenHeight: Float, stage: Stage) {
         _screenWidth = screenWidth
         _screenHeight = screenHeight
         _cardWidth = _screenWidth * CARD_WIDTH_PERCENT
         _cardHeight = _screenWidth * CARD_WIDTH_PERCENT * CARD_HEIGHT_RATIO
+        this.stage = stage
     }
 
 
@@ -35,6 +42,8 @@ object GameConfig {
     private const val CARD_ON_TABLE = 4 //кол-во слотов на столе (задание)
 
     private const val MIN_DRAG_ZONE = 10f //мин. расстояние для начала драга карты
+
+    private const val DOUBLE_TAP_INTERVAL_TIME = 300L
 
     fun getMinDragZone(): Float = MIN_DRAG_ZONE
 
@@ -58,6 +67,8 @@ object GameConfig {
     fun getCardsOnTableAmount(): Int = CARD_ON_TABLE
 
     fun getDiceSide(): Float = cardWidth * DICE_SIZE_PERCENT
+
+    fun getDoubleTapIntervalTime() = DOUBLE_TAP_INTERVAL_TIME
 
 
 }

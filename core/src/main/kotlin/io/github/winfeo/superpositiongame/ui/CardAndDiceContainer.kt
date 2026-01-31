@@ -22,12 +22,11 @@ class CardAndDiceContainer: Table() {
 
         diceSlot = SlotActor().apply {
             ///TODO добавить рамку вокруг ячеек с кубитами? Сделать больше размер?
-            setSize(diceSide, diceSide)
+            setSize(diceSide + 7f, diceSide + 7f)
             setPosition(
                 -cardSlot.width / 4,
                 cardSlot.height - height / 4
             )
-            touchable = Touchable.disabled
         }
         addActor(diceSlot)
 
