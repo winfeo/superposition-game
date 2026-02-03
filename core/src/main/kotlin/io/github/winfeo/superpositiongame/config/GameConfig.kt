@@ -34,41 +34,33 @@ object GameConfig {
     private const val CARD_HEIGHT_RATIO = 1.625f //высота карт
     private const val TABLE_PADDING_PERCENT = 0.01f //паддинг между таблицами
     private const val CARD_PADDING_PERCENT = 0.02f //паддинг между картами
-
     private const val CARD_BORDER_THICKNESS_PERCENT = 0.02f //толщина границы рамки карты
     private const val CARD_BORDER_RADIUS_RATIO = 0.06f //скургление границы рамки карты
-
     private const val CARDS_IN_HAND = 6 //кол-во карт игрока
     private const val SLOTS_ON_TABLE = 4 //кол-во слотов на столе (задание)
-
     private const val MIN_DRAG_ZONE = 10f //мин. расстояние для начала драга карты
-
     private const val DOUBLE_TAP_INTERVAL_TIME = 300L
 
-    fun getMinDragZone(): Float = MIN_DRAG_ZONE
+    private const val MOVE_TIMER_INTERVAL = 10
 
+    fun getMinDragZone(): Float = MIN_DRAG_ZONE
     fun getTablesPadding(): Float {
         val tablePadding = _screenHeight * TABLE_PADDING_PERCENT
         val dicePadding = getDiceSide() * DICE_PADDING_PERCENT
         return tablePadding + dicePadding
     }
-
     fun getCardsPadding(): Float {
         val tablePadding = _screenWidth * CARD_PADDING_PERCENT
         val dicePadding = getDiceSide() / 2 + cardWidth * DICE_PADDING_PERCENT
         return tablePadding + dicePadding
     }
-
     fun getCardBorderThickness(): Float = cardWidth * CARD_BORDER_THICKNESS_PERCENT
-
     fun getCardBorderRadius(): Float = cardHeight * CARD_BORDER_RADIUS_RATIO
-
     fun getCardsInHandAmount(): Int = CARDS_IN_HAND
     fun getSlotsOnTableAmount(): Int = SLOTS_ON_TABLE
-
     fun getDiceSide(): Float = cardWidth * DICE_SIZE_PERCENT
-
     fun getDoubleTapIntervalTime() = DOUBLE_TAP_INTERVAL_TIME
+    fun getTimerDuration() = MOVE_TIMER_INTERVAL
 
 
 }

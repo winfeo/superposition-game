@@ -6,6 +6,7 @@ import io.github.winfeo.superpositiongame.actor.dice.DiceFactory
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.game.controller.OpponentMoveController
 import io.github.winfeo.superpositiongame.game.controller.PlayerMoveController
+import io.github.winfeo.superpositiongame.ui.GameTimer
 import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.dice.Dice
 import io.github.winfeo.superpositiongame.ui.GameTable
@@ -24,9 +25,9 @@ object GameCycle {
     lateinit var gameTable: GameTable
     lateinit var playerMoveController: PlayerMoveController
     lateinit var opponentMoveController: OpponentMoveController
-
     private val playerCardsAmount = GameConfig.getCardsInHandAmount()
     private val tableSlotsAmount = GameConfig.getSlotsOnTableAmount()
+    private lateinit var gameTimer: GameTimer
 
     fun startGame(table: GameTable) {
         gameTable = table
@@ -45,12 +46,17 @@ object GameCycle {
             dealPlayerCards()
             gameTable.setUpCardUsage()
 
-            gameManager.changeGameState(GameState.PLAYER_MOVE)
-            playerMoveController.makeMove()
-
-            gameManager.changeGameState(GameState.OPPONENT_MOVE)
-            opponentMoveController.makeMove()
+            startPlayerTurn()
+            startOpponentTurn()
         }
+    }
+
+    fun setGameTimer(gameTimer: GameTimer) {
+        this.gameTimer = gameTimer
+    }
+
+    fun getGameScope(): CoroutineScope {
+        return gameScope
     }
 
     fun stopGame() {
@@ -88,6 +94,26 @@ object GameCycle {
         }
 
         gameTable.dealPlayerCards(cards)
+    }
+
+    suspend fun startPlayerTurn() {
+        gameManager.changeGameState(GameState.PLAYER_MOVE)
+        gameTimer.start {
+            println("Отладка. Время игрока вышло")
+            playerMoveController.finishMove()
+        }
+        playerMoveController.makeMove()
+        gameTimer.finish()
+    }
+
+    suspend fun startOpponentTurn() {
+        gameManager.changeGameState(GameState.OPPONENT_MOVE)
+        gameTimer.start {
+            println("Отладка. Время оппонента вышло")
+            opponentMoveController.finishMove()
+        }
+        opponentMoveController.makeMove()
+        gameTimer.finish()
     }
 
     suspend fun onGdx(block: () -> Unit) =
