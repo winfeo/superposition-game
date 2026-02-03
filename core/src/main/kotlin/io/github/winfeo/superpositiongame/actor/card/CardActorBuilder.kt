@@ -12,25 +12,16 @@ import io.github.winfeo.superpositiongame.model.card.CardType
 object CardActorBuilder {
     private val cardWidth = GameConfig.cardWidth
     private val cardHeight = GameConfig.cardHeight
-    private var idCounter: Int = 0
 
-    fun createRandomCard(): CardActor {
-//        val textureName = CardsAtlasManager.getRandomCardId()
-        val textureName = if (idCounter == 3) "quantum_noise" else CardsAtlasManager.getRandomCardId()
-        val cardType: CardType = CardType.entries.find { it.textureId == textureName }?: throw (IllegalStateException("Не удалось найти тип карты c id: $textureName"))
-
-        val cardModel = Card(
-            id = "${textureName}-$idCounter",
-            type = cardType
-        )
-
+    fun createCardActorFromModel(card: Card): CardActor {
+        val textureName = card.textureId
         val texture = CardsAtlasManager.getRegion(textureName)?: throw (IllegalStateException("Не удалось найти текстуру для карты: $textureName"))
-        idCounter++
+
         return CardActor(
             cardWidth = cardWidth,
             cardHeight = cardHeight,
-            card = cardModel,
-            canDrag = cardModel.canDrag,
+            card = card,
+            canDrag = card.canDrag,
             texture = texture
         )
 
@@ -38,6 +29,21 @@ object CardActorBuilder {
 
     ///TODO не создавать объект карт для пустых слотов, а просто рамку по размеру отрисовывавть?
     //Получится ли тогда драг анд дроп реализовать?
+    fun createEmptyCardFromModel(card: Card): CardActor {
+        val pixmap = Pixmap(70, 120, Pixmap.Format.RGBA8888) ///TODO статический размер?
+        pixmap.setColor(Color.CLEAR)
+        pixmap.fill()
+        val texture = Texture(pixmap)
+        pixmap.dispose()
+
+        return CardActor(
+            cardWidth = cardWidth,
+            cardHeight = cardHeight,
+            card = card,
+            texture = TextureRegion(texture)
+        )
+    }
+
     fun createEmptyCard(): CardActor {
         val cardModel = Card(
             id = "empty",

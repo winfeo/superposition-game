@@ -6,24 +6,15 @@ import io.github.winfeo.superpositiongame.model.dice.Dice
 
 object DiceActorBuilder {
     private val diceSide = GameConfig.getDiceSide()
-    private var idCounter = 0
 
-    fun createRandomDice(): DiceActor {
-        val randomState = DiceAtlasManager.getRandomDiceState()
+    fun createRandomDice(dice: Dice): DiceActor {
+        val texture = DiceAtlasManager.getStateTexture(dice.state.textureId)
 
-        val diceModel = Dice(
-            id = "${randomState.stateName}_$idCounter",
-            state = randomState,
-        )
-
-        val texture = DiceAtlasManager.getStateTexture(randomState.textureId)
-
-        idCounter++
         return DiceActor(
             cardSide = diceSide,
-            dice = diceModel,
+            dice = dice,
             texture = texture,
-            previousDice = diceModel
+            previousDice = dice ///TODO вынести отсюда в слот (контейнер)?
         )
     }
 
