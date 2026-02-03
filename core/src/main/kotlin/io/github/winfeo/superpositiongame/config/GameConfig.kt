@@ -39,7 +39,7 @@ object GameConfig {
     private const val CARD_BORDER_RADIUS_RATIO = 0.06f //скургление границы рамки карты
 
     private const val CARDS_IN_HAND = 6 //кол-во карт игрока
-    private const val CARD_ON_TABLE = 4 //кол-во слотов на столе (задание)
+    private const val SLOTS_ON_TABLE = 4 //кол-во слотов на столе (задание)
 
     private const val MIN_DRAG_ZONE = 10f //мин. расстояние для начала драга карты
 
@@ -64,7 +64,7 @@ object GameConfig {
     fun getCardBorderRadius(): Float = cardHeight * CARD_BORDER_RADIUS_RATIO
 
     fun getCardsInHandAmount(): Int = CARDS_IN_HAND
-    fun getCardsOnTableAmount(): Int = CARD_ON_TABLE
+    fun getSlotsOnTableAmount(): Int = SLOTS_ON_TABLE
 
     fun getDiceSide(): Float = cardWidth * DICE_SIZE_PERCENT
 

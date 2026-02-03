@@ -4,13 +4,10 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.card.CardActorBuilder
 import io.github.winfeo.superpositiongame.actor.dice.DiceActor
 import io.github.winfeo.superpositiongame.graphics.BorderTexture
-import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
-import io.github.winfeo.superpositiongame.model.card.CardType
 import io.github.winfeo.superpositiongame.ui.CardAndDiceContainer
 import kotlin.math.sin
 
@@ -74,7 +71,6 @@ class SlotActor(): Table() {
     }
 
     fun placeCard(card: CardActor) {
-//        println("---- PLACE CARD ----")
 //        println("Previous: ${card.getPreviousMoveCard()} type: ${card.getPreviousMoveCard().type}, hash=${System.identityHashCode(card)}")
 //        println("New: ${card.card.type} hash=${System.identityHashCode(card)}")
 //        children.filterIsInstance<Image>().forEach { it.remove() }
@@ -116,14 +112,5 @@ class SlotActor(): Table() {
         }
         //previousCardActor = null
     }
-
-//    fun placeCard(card: CardActor) { ///TODO переделать на такую реализацию?
-//
-//        previousCardActor = currentCardActor
-//        currentCardActor = card
-//
-//        clearChildren()
-//        add(card).size(card.width, card.height).center()
-//    }
 
 }

@@ -130,8 +130,11 @@ object DiceChangerManager {
 
     //Отмена последнего действия
     fun quantumNoiseEffect(dice: DiceActor, targetSlot: SlotActor) {
-        if (targetSlot.isFrozenSlot()) targetSlot.changeFreezeState()
-        dice.setPreviousMoveDiceType() ///TODO вынести обработку дайсов в отдельный слот
+        if (targetSlot.isFrozenSlot()) {
+            targetSlot.changeFreezeState()
+        } else {
+            dice.setPreviousMoveDiceType() ///TODO вынести обработку дайсов в отдельный слот
+        }
         targetSlot.undoCard()
         ///TODO хранить список состояний, чтобы можно было на любой стейт откатиться?
     }

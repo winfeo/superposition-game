@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import io.github.winfeo.superpositiongame.config.GameConfig
+import io.github.winfeo.superpositiongame.game.GameCycle
 import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
 import io.github.winfeo.superpositiongame.ui.GameTable
@@ -44,6 +45,8 @@ class GameScreen : KtxScreen {
         ///TODO перенсти создание диалогового окна? Создать статический скин?
         RotateSelectionDialog.init(stage)
 
+        GameCycle.startGame(gameTable)
+
         //stage.isDebugAll = true
 
 
@@ -70,5 +73,6 @@ class GameScreen : KtxScreen {
         stage.dispose()
         CardsAtlasManager.dispose()
         DiceAtlasManager.dispose()
+        GameCycle.stopGame()
     }
 }

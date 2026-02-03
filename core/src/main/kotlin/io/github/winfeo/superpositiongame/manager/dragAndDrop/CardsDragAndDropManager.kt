@@ -2,12 +2,12 @@ package io.github.winfeo.superpositiongame.manager.dragAndDrop
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.SlotActor
 import io.github.winfeo.superpositiongame.actor.SlotActorStates
+import io.github.winfeo.superpositiongame.game.GameCycle
 import io.github.winfeo.superpositiongame.rules.model.ValidationResult
 
 //Логика перетаскивания карт в слоты
@@ -32,6 +32,8 @@ class CardsDragAndDropManager(
 
             override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
                 println("Отладка. Старт драга. Взяли за: x=$x y=$y")
+
+                if (!GameCycle.gameManager.isPlayerMove()) return null
 
                 ///TODO переделать проверку условия так, чтобы не заходить в метод
                 //Может быть удалять как-то свойство перетаскивания
