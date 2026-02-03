@@ -108,10 +108,6 @@ class CardsDragAndDropManager(
 
                 val validator = validators[validatorType]
                 validator?.onDrop(dragPayload, target)
-
-                val card = dragPayload.sourceActor as CardActor
-                card.canDrag = false
-                card.touchable = Touchable.disabled
             }
 
             override fun reset(source: DragAndDrop.Source?, payload: DragAndDrop.Payload?) {

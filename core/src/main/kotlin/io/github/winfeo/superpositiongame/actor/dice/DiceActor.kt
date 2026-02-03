@@ -1,6 +1,5 @@
 package io.github.winfeo.superpositiongame.actor.dice
 
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
@@ -15,14 +14,16 @@ class DiceActor(
     var dice: Dice,
     texture: TextureRegion,
     private var touchable: Touchable = Touchable.disabled,
+    private var previousDice: Dice
 ): Image(texture) {
-    private var isSelectedForSwap = false
+    //private var isSelectedForSwap = false
 
     init {
         setSize(cardSide,cardSide)
     }
 
     fun changeState(newState: DiceState) {
+        previousDice = dice
         dice = dice.copy(state = newState)
         val newTexture = DiceAtlasManager.getStateTexture(newState.textureId)
         drawable = TextureRegionDrawable(newTexture)
@@ -34,6 +35,18 @@ class DiceActor(
 
     fun disableTouchableEffect() {
         touchable = Touchable.disabled
+    }
+
+    fun setPreviousMoveDiceType() {
+        changeState(previousDice.state)
+    }
+
+    fun setPreviousMoveDice() {
+        previousDice = dice
+    }
+
+    fun getPreviousMoveDice(): Dice {
+        return previousDice
     }
 
 }

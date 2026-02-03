@@ -3,6 +3,7 @@ package io.github.winfeo.superpositiongame.rules
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import io.github.winfeo.superpositiongame.actor.SlotActor
 import io.github.winfeo.superpositiongame.actor.SlotActorStates
+import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.card.CardType
 import io.github.winfeo.superpositiongame.model.card.components.AxisRotation
@@ -16,16 +17,26 @@ import ktx.collections.lastIndex
 object RuleEngine {
 
     fun checkRules(ruleContext: RuleContext): ValidationResult {
-        val card = ruleContext.card
+        val card = ruleContext.card.card
         val cardSlot = ruleContext.targetSlot
         val diceSlot = cardSlot.getDiceActor()
 
-        if (cardSlot.isFrozenSlot()) {
+        if (cardSlot.isFrozenSlot() && card.type != CardType.QUANTUM_NOISE) {
             return ValidationResult(
                 canPlace = false,
                 message = "Невозможно использовать карту для кубита (кубит заморожен)",
                 activeState = SlotActorStates.HOVERED_CANT_PLACE
             )
+        }
+
+        if (card.type == CardType.QUANTUM_NOISE) {
+            if (canUndoChanges(cardSlot.currentCardActor)) {
+                return ValidationResult(
+                    canPlace = false,
+                    message = "Невозможно использовать эту карту для кубита (недопустимые условия)",
+                    activeState = SlotActorStates.HOVERED_CANT_PLACE
+                )
+            }
         }
 
         if (!isCardCompatibleWithArrow(card, diceSlot.dice.state)) {
@@ -91,5 +102,19 @@ object RuleEngine {
         val parentTableChildren = (container.parent as Table).children
         val index = parentTableChildren.indexOf(container)
         return (index != 0 && index != parentTableChildren.lastIndex)
+    }
+
+    //Проверка, что можно применить карту отмены изменений к слоту (не x-3 гейты или Rotate)
+    private fun canUndoChanges(card: CardActor?): Boolean {
+//        println("Отладка. Тип предыдущей карты: ${card.getPreviousMoveCard().type}")
+        return card?.card?.type in listOf(
+            CardType.PAULI_X3,
+            CardType.PAULI_Y3,
+            CardType.PAULI_Z3,
+            CardType.HADAMARD_H3,
+            CardType.ROTATE_X,
+            CardType.ROTATE_Y,
+            CardType.ROTATE_Z
+        )
     }
 }

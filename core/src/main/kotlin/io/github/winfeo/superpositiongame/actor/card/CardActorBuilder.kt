@@ -15,8 +15,8 @@ object CardActorBuilder {
     private var idCounter: Int = 0
 
     fun createRandomCard(): CardActor {
-        val textureName = CardsAtlasManager.getRandomCardId()
-//        val textureName = "swap"
+//        val textureName = CardsAtlasManager.getRandomCardId()
+        val textureName = if (idCounter == 3) "quantum_noise" else CardsAtlasManager.getRandomCardId()
         val cardType: CardType = CardType.entries.find { it.textureId == textureName }?: throw (IllegalStateException("Не удалось найти тип карты c id: $textureName"))
 
         val cardModel = Card(
@@ -44,7 +44,7 @@ object CardActorBuilder {
             type = CardType.EMPTY
         )
 
-        val pixmap = Pixmap(70, 120, Pixmap.Format.RGBA8888)
+        val pixmap = Pixmap(70, 120, Pixmap.Format.RGBA8888) ///TODO статический размер?
         pixmap.setColor(Color.CLEAR)
         pixmap.fill()
         val texture = Texture(pixmap)

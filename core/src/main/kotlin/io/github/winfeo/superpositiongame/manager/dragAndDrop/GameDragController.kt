@@ -42,7 +42,7 @@ class GameDragController() {
     }
 
     fun onDropSuccess(source: Actor, target: Actor) {
-        println("Отладка. Успешный дроп: ${(source as CardActor).card.id} -> ${(target as SlotActor).getCardActor().card.id}")
+        println("Отладка. Успешный дроп: ${(source as CardActor).card.id} -> ${(target as SlotActor).getCardActor()?.card?.id}")
     }
 
     fun onValidationFailed(source: Actor, target: Actor, reason: String) {

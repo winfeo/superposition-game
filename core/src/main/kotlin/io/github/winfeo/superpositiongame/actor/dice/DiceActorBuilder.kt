@@ -22,7 +22,8 @@ object DiceActorBuilder {
         return DiceActor(
             cardSide = diceSide,
             dice = diceModel,
-            texture = texture
+            texture = texture,
+            previousDice = diceModel
         )
     }
 

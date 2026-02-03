@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.manager
 
 import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.actor.SlotActor
+import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.dice.DiceActor
 import io.github.winfeo.superpositiongame.model.card.components.AxisRotation
 import io.github.winfeo.superpositiongame.model.dice.DiceState
@@ -93,35 +94,46 @@ object DiceChangerManager {
         return userChoice
     }
 
+    //x-3 эффекты гейтов
     fun tripleEffectGates(currentDice: DiceActor, card: CardType): Map<DiceActor, DiceState> {
-        val dicesActorsToChange: List<DiceActor> = TripleEffectManager.findDices(currentDice)
+        val dicesActorsToChange: Map<SlotActor, DiceActor>/*List<DiceActor>*/ = TripleEffectManager.findDices(currentDice)
         val newDicesStates = mutableMapOf<DiceActor, DiceState>()
-        dicesActorsToChange.forEach { diceActor ->
-            when (card) {
-                CardType.PAULI_X3 -> {
-                    val newState = pauliGateX(diceActor.dice.state)
-                    newDicesStates.put(diceActor, newState)
-                }
-                CardType.PAULI_Y3 -> {
-                    val newState = pauliGateY(diceActor.dice.state)
-                    newDicesStates.put(diceActor, newState)
-                }
-                CardType.PAULI_Z3 -> {
-                    val newState = pauliGateZ(diceActor.dice.state)
-                    newDicesStates.put(diceActor, newState)
-                }
-                else -> {
-                    val newState = hadamardGate(diceActor.dice.state)
-                    newDicesStates.put(diceActor, newState)
+        dicesActorsToChange.forEach { (slotActor, diceActor) ->
+            if (!slotActor.isFrozenSlot()) {
+                when (card) {
+                    CardType.PAULI_X3 -> { ///TODO если под заморозкой, то нельзя поменять?
+                        val newState = pauliGateX(diceActor.dice.state)
+                        newDicesStates.put(diceActor, newState)
+                    }
+                    CardType.PAULI_Y3 -> {
+                        val newState = pauliGateY(diceActor.dice.state)
+                        newDicesStates.put(diceActor, newState)
+                    }
+                    CardType.PAULI_Z3 -> {
+                        val newState = pauliGateZ(diceActor.dice.state)
+                        newDicesStates.put(diceActor, newState)
+                    }
+                    else -> {
+                        val newState = hadamardGate(diceActor.dice.state)
+                        newDicesStates.put(diceActor, newState)
+                    }
                 }
             }
         }
         return newDicesStates
     }
 
+    //Заморозка
     fun measurementCardEffect(slot: SlotActor) {
         slot.changeFreezeState()
     }
 
+    //Отмена последнего действия
+    fun quantumNoiseEffect(dice: DiceActor, targetSlot: SlotActor) {
+        if (targetSlot.isFrozenSlot()) targetSlot.changeFreezeState()
+        dice.setPreviousMoveDiceType() ///TODO вынести обработку дайсов в отдельный слот
+        targetSlot.undoCard()
+        ///TODO хранить список состояний, чтобы можно было на любой стейт откатиться?
+    }
 
 }

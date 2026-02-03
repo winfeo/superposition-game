@@ -9,10 +9,10 @@ import io.github.winfeo.superpositiongame.model.card.Card
 class CardActor(
     cardWidth: Float,
     cardHeight: Float,
-    val card: Card,
+    var card: Card,
     var canDrag: Boolean = false,
     texture: TextureRegion,
-    private var touchable: Touchable = Touchable.enabled
+    private var touchable: Touchable = Touchable.enabled,
 ): Image(texture) {
 
     init {
