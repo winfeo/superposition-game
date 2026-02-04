@@ -6,6 +6,7 @@ import io.github.winfeo.superpositiongame.actor.dice.DiceFactory
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.game.controller.OpponentMoveController
 import io.github.winfeo.superpositiongame.game.controller.PlayerMoveController
+import io.github.winfeo.superpositiongame.manager.PlayerHandManager
 import io.github.winfeo.superpositiongame.ui.GameTimer
 import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.dice.Dice
@@ -28,9 +29,14 @@ object GameCycle {
     private val playerCardsAmount = GameConfig.getCardsInHandAmount()
     private val tableSlotsAmount = GameConfig.getSlotsOnTableAmount()
     private lateinit var gameTimer: GameTimer
+    private lateinit var playerHand: PlayerHandManager
 
-    fun startGame(table: GameTable) {
+    fun startGame(
+        table: GameTable,
+        hand: PlayerHandManager
+    ) {
         gameTable = table
+        playerHand = hand
         playerMoveController = PlayerMoveController()
         opponentMoveController = OpponentMoveController()
 
@@ -42,9 +48,11 @@ object GameCycle {
         setUpGameTable()
 
         while (true) {
+            ///TODO Command Pattern? Сделать так, чтобы всё в игре было командами
+            ///При переходе хода неразыгранные карты и эффекты неиспользованные сбрасывались
             gameManager.changeGameState(GameState.DEALING_CARDS)
             dealPlayerCards()
-            gameTable.setUpCardUsage()
+            //gameTable.setUpCardUsage()
 
             startPlayerTurn()
             startOpponentTurn()
@@ -89,11 +97,7 @@ object GameCycle {
     }
 
     private suspend fun dealPlayerCards() = onGdx {
-        val cards = List<Card>(playerCardsAmount) {
-            CardFactory.createRandomCard()
-        }
-
-        gameTable.dealPlayerCards(cards)
+        playerHand.deal()
     }
 
     suspend fun startPlayerTurn() {

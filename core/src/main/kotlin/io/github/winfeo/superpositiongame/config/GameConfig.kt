@@ -40,8 +40,9 @@ object GameConfig {
     private const val SLOTS_ON_TABLE = 4 //кол-во слотов на столе (задание)
     private const val MIN_DRAG_ZONE = 10f //мин. расстояние для начала драга карты
     private const val DOUBLE_TAP_INTERVAL_TIME = 300L
-
-    private const val MOVE_TIMER_INTERVAL = 10
+    private const val MOVE_TIMER_INTERVAL = 5
+    private const val CARD_CIRCLE_RADIUS = 800f
+    private const val CARD_CIRCLE_ANGLE = 60f
 
     fun getMinDragZone(): Float = MIN_DRAG_ZONE
     fun getTablesPadding(): Float {
@@ -61,6 +62,8 @@ object GameConfig {
     fun getDiceSide(): Float = cardWidth * DICE_SIZE_PERCENT
     fun getDoubleTapIntervalTime() = DOUBLE_TAP_INTERVAL_TIME
     fun getTimerDuration() = MOVE_TIMER_INTERVAL
+    fun getCardCircleRadius() = CARD_CIRCLE_RADIUS
+    fun getCardCircleAngle() = CARD_CIRCLE_ANGLE
 
 
 }

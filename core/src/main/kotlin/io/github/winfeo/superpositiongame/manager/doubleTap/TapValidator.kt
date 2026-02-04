@@ -2,12 +2,14 @@ package io.github.winfeo.superpositiongame.manager.doubleTap
 
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.manager.DiceSwapManager
+import io.github.winfeo.superpositiongame.manager.PlayerHandManager
 import io.github.winfeo.superpositiongame.model.card.CardType
 import kotlinx.coroutines.CoroutineScope
 
 //Класс для применения соотвествующих эффектов карт (карты, которые играются в сброс)
 class TapValidator(
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    private val playerHand: PlayerHandManager
 ) {
     private val diceSwapManager = DiceSwapManager()
 
@@ -17,7 +19,8 @@ class TapValidator(
 //            defineCardEffect(cardType)
 //        }
         defineCardEffect(cardType)
-        card.remove()
+        playerHand.removeCard(card)
+        //card.remove()
 
     }
 

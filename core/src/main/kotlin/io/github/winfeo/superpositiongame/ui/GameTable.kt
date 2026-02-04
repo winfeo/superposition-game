@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.ui
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import io.github.winfeo.superpositiongame.actor.SlotActor
+import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.card.CardActorBuilder
 import io.github.winfeo.superpositiongame.actor.dice.DiceActorBuilder
 import io.github.winfeo.superpositiongame.config.GameConfig
@@ -12,15 +13,18 @@ import io.github.winfeo.superpositiongame.model.dice.Dice
 
 // Создание структуры слотов для отображения игральных карт
 // TODO Передаётся общее количество ячеек (пока 1 ряд из 4 карт)
-class GameTable(): Table() {
-    private val playerCardSlots = mutableListOf<SlotActor>()
+class GameTable(
+    private val dragController: GameDragController,
+    private val touchController: GameTapController
+): Table() {
+//    private val playerCardSlots = mutableListOf<SlotActor>()
     private val playerSlotContainer = mutableListOf<CardAndDiceContainer>()
     private val opponentSlotContainer = mutableListOf<CardAndDiceContainer>()
     private val cardsPadding = GameConfig.getCardsPadding()
     private val tablesPadding = GameConfig.getTablesPadding()
 
-    private val dragController = GameDragController()
-    private val touchController = GameTapController()
+    //private val dragController = GameDragController()
+    //private val touchController = GameTapController()
 
     init {
         setUpTable()
@@ -28,15 +32,15 @@ class GameTable(): Table() {
 
         //debugAll()
     }
-    fun setUpCardUsage() {
-        playerCardSlots.forEach { slot ->
-            slot.getCardActor()?.let { card ->
-                if (card.canDrag) dragController.setupCard(card)
-                else touchController.setupCard(card)
-
-            }
-        }
-    }
+//    fun setUpCardUsage() {
+//        playerCardSlots.forEach { slot ->
+//            slot.getCardActor()?.let { card ->
+//                if (card.canDrag) dragController.setupCard(card)
+//                else touchController.setupCard(card)
+//
+//            }
+//        }
+//    }
 
     private fun setUpTable() {
         setFillParent(true)
@@ -50,9 +54,9 @@ class GameTable(): Table() {
             .row()
         add(createPlayerTaskArea())
             .fillX()
-            .row()
-        add(createPlayerCardsArea())
-            .fillX()
+//            .row()
+//        add(createPlayerCardsArea())
+//            .fillX()
     }
 
     private fun createOpponentTaskArea(): Table {
@@ -81,26 +85,33 @@ class GameTable(): Table() {
         return playerTaskArea
     }
 
-    private fun createPlayerCardsArea(): Table {
-        val playerCardsArea = Table()
-        playerCardSlots.clear()
-        playerCardsArea.defaults().space(cardsPadding)
+//    private fun createPlayerCardsArea(): Table {
+//        val playerCardsArea = Table()
+//        playerCardSlots.clear()
+//        playerCardsArea.defaults().space(cardsPadding)
+//
+//        repeat(GameConfig.getCardsInHandAmount()) {
+//            val cardSlot = SlotActor()
+//            playerCardSlots.add(cardSlot)
+//            playerCardsArea.add(cardSlot)
+//        }
+//
+//        return playerCardsArea
+//    }
 
-        repeat(GameConfig.getCardsInHandAmount()) {
-            val cardSlot = SlotActor()
-            playerCardSlots.add(cardSlot)
-            playerCardsArea.add(cardSlot)
-        }
-
-        return playerCardsArea
-    }
-
-    fun dealPlayerCards(cards: List<Card>) {
-        playerCardSlots.forEachIndexed { index, slot ->
-            val cardActor = CardActorBuilder.createCardActorFromModel(cards.get(index))
-            slot.placeCard(cardActor)
-        }
-    }
+//    fun dealPlayerCards(cards: List<Card>) {
+//        val cardActors = mutableListOf<CardActor?>()
+//        playerCardSlots.forEachIndexed { index, slot ->
+//            if (slot.children.isEmpty) {
+//                val cardActor = CardActorBuilder.createCardActorFromModel(cards.get(index))
+//                cardActors.add(cardActor)
+//                //slot.placeCard(cardActor)
+//            } else {
+//                cardActors.add((slot.children as SlotActor).getCardActor())
+//            }
+//        }
+//        CardCircleLayout.createCircle(cardActors)
+//    }
 
     fun setUpTableActors(
         playerCards: List<Card>,

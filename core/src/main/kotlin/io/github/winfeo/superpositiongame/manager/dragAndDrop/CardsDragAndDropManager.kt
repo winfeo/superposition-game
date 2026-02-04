@@ -51,6 +51,7 @@ class CardsDragAndDropManager(
 
                 val dragVisual = createDragVisual(card)
                 payload.dragActor = dragVisual
+                payload.dragActor.setSize(card.width / 1.5f, card.height / 1.5f)
 
                 libgdxDragDrop.setDragActorPosition(card.width - x, -y)
 

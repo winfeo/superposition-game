@@ -8,7 +8,9 @@ import io.github.winfeo.superpositiongame.actor.SlotActor
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.dice.DiceActor
 import io.github.winfeo.superpositiongame.config.GameConfig
+import io.github.winfeo.superpositiongame.game.GameCycle
 import io.github.winfeo.superpositiongame.manager.DiceChangerManager
+import io.github.winfeo.superpositiongame.manager.PlayerHandManager
 import io.github.winfeo.superpositiongame.model.card.CardType
 import io.github.winfeo.superpositiongame.model.card.components.AxisRotation
 import io.github.winfeo.superpositiongame.model.dice.DiceState
@@ -21,7 +23,8 @@ import kotlinx.coroutines.launch
 // Класс устанавливает кубиты в новое состояние (карты, которые играются на игровое поле)
 class DropValidator(
     private val stage: Stage = GameConfig.stage,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    private val playerHand: PlayerHandManager
 ) {
 
     fun canAccept(
@@ -51,7 +54,8 @@ class DropValidator(
 //        val previousCard = targetSlot.children.firstOrNull {it is CardActor} as? CardActor
         //targetSlot.placeCard(sourceCardActor)
 
-        sourceCardActor.remove()
+        //sourceCardActor.remove()
+        playerHand.removeCard(sourceCardActor)
         scope.launch {
             val newState: Map<DiceActor, DiceState>? = defineNewState(sourceCardActor, targetSlot)
             Gdx.app.postRunnable {
@@ -62,12 +66,18 @@ class DropValidator(
                 //sourceCardActor.setPreviousMoveCard()
                 //targetSlot.getDiceActor().setPreviousMoveDice()
 
+                ///TODO размеры карты при раздаче увеличиваю, а тут уменьшаю, переделать
+                sourceCardActor.setSize(sourceCardActor.width / 1.5f, sourceCardActor.height / 1.5f)
+                sourceCardActor.rotation = 0f
                 if (sourceCardActor.card.type != CardType.QUANTUM_NOISE) {
                     targetSlot.placeCard(sourceCardActor) ///TODO не помещать карту отмены в слот!
                 }
                 newState?.forEach { (diceSlot, diceState) ->
                     diceSlot.changeState(diceState)
                 }
+
+                playerHand.cards.forEach { it.touchable = Touchable.disabled }
+                GameCycle.playerMoveController.finishMove()
             }
         }
     }

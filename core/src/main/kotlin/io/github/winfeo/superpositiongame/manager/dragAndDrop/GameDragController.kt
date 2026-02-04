@@ -3,6 +3,8 @@ package io.github.winfeo.superpositiongame.manager.dragAndDrop
 import com.badlogic.gdx.scenes.scene2d.Actor
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.SlotActor
+import io.github.winfeo.superpositiongame.game.GameCycle
+import io.github.winfeo.superpositiongame.manager.PlayerHandManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -14,8 +16,10 @@ class GameDragController() {
     private val dragManager = CardsDragAndDropManager(this)
     ///TODO создавать скоуп единично для всех контроллеров где-то?
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private lateinit var playerHand: PlayerHandManager
 
-    init {
+    fun init(playerHand: PlayerHandManager) {
+        this.playerHand = playerHand
         setupValidators()
     }
 
@@ -28,12 +32,13 @@ class GameDragController() {
     }
 
     private fun setupValidators() {
-        val dropValidator = DropValidator(scope = scope)
+        val dropValidator = DropValidator(scope = scope, playerHand = playerHand)
         dragManager.registerValidator("slot", dropValidator)
         dragManager.registerValidator("attack_slot", dropValidator)
     }
 
     fun onDragStarted(actor: Actor) {
+        if (!GameCycle.gameManager.isPlayerMove()) return
         println("Отладка. Начали перетаскивать: ${(actor as CardActor).card.id}")
     }
 

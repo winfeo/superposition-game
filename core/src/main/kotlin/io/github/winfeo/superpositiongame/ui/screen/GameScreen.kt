@@ -12,6 +12,9 @@ import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
 import io.github.winfeo.superpositiongame.ui.GameTable
 import io.github.winfeo.superpositiongame.graphics.RotateSelectionDialog
+import io.github.winfeo.superpositiongame.manager.PlayerHandManager
+import io.github.winfeo.superpositiongame.manager.doubleTap.GameTapController
+import io.github.winfeo.superpositiongame.manager.dragAndDrop.GameDragController
 import io.github.winfeo.superpositiongame.ui.GameTimer
 import ktx.app.KtxScreen
 
@@ -21,6 +24,7 @@ class GameScreen : KtxScreen {
     private lateinit var gameTable: GameTable
     private lateinit var timerLabel: Label
     private lateinit var gameTimer: GameTimer
+    private lateinit var playerHand: PlayerHandManager
     /// TODO реализовать прокурчивающийся полукругом список карт для выбора игрока
     ///TODO переписать на паттерны ECS и FSM? Игровые паттерны
 
@@ -40,14 +44,26 @@ class GameScreen : KtxScreen {
             stage = stage
         )
 
-        gameTable = GameTable()
+        val dragController = GameDragController()
+        val tapController = GameTapController()
+
+        playerHand = PlayerHandManager(
+            stage = stage,
+            dragController = dragController,
+            tapController = tapController
+        )
+        dragController.init(playerHand)
+        tapController.init(playerHand)
+
+        gameTable = GameTable(dragController, tapController)
         stage.addActor(gameTable)
         ///TODO перенсти создание диалогового окна? Создать статический скин?
         RotateSelectionDialog.init(stage)
-        createTimer()
+        //CardCircleLayout.init(stage)
 
+        createTimer()
         GameCycle.setGameTimer(gameTimer)
-        GameCycle.startGame(gameTable)
+        GameCycle.startGame(table = gameTable, hand = playerHand)
 
         //stage.isDebugAll = true
     }

@@ -1,6 +1,8 @@
 package io.github.winfeo.superpositiongame.manager.doubleTap
 
 import io.github.winfeo.superpositiongame.actor.card.CardActor
+import io.github.winfeo.superpositiongame.game.GameCycle
+import io.github.winfeo.superpositiongame.manager.PlayerHandManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -8,17 +10,23 @@ import kotlinx.coroutines.cancel
 
 //Контроллер (слушатель) использования специальных карт (двойное нажатие на них)
 class GameTapController() {
+    private lateinit var playerHand: PlayerHandManager
 
+    fun init(playerHand: PlayerHandManager) {
+        this.playerHand = playerHand
+    }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     ///TODO подумать над тем, чтобы не передавать скоуп как параметр
     private val touchManager = CardsTapManager(this, scope)
-    private val tapValidator = TapValidator(scope = scope)
+    private lateinit var tapValidator: TapValidator
     fun setupCard(card: CardActor) {
         touchManager.makeCardTouchable(card)
+        tapValidator = TapValidator(scope = scope, playerHand)
     }
 
 
     fun onCardTapped(card: CardActor) {
+        if (!GameCycle.gameManager.isPlayerMove()) return
         println("Отладка. Нажали на специальную карту: ${card.card.id}")
     }
 
