@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.manager.doubleTap
 
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.game.GameCycle
+import io.github.winfeo.superpositiongame.game.GameCycle.playerMoveController
 import io.github.winfeo.superpositiongame.manager.PlayerHandManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ class GameTapController() {
     private lateinit var tapValidator: TapValidator
     fun setupCard(card: CardActor) {
         touchManager.makeCardTouchable(card)
-        tapValidator = TapValidator(scope = scope, playerHand)
+        tapValidator = TapValidator(scope = scope, playerHand, playerMoveController)
     }
 
 

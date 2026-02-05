@@ -1,11 +1,13 @@
 package io.github.winfeo.superpositiongame.game
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import io.github.winfeo.superpositiongame.actor.card.CardFactory
 import io.github.winfeo.superpositiongame.actor.dice.DiceFactory
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.game.controller.OpponentMoveController
 import io.github.winfeo.superpositiongame.game.controller.PlayerMoveController
+import io.github.winfeo.superpositiongame.game.controller.TurnContext
 import io.github.winfeo.superpositiongame.manager.PlayerHandManager
 import io.github.winfeo.superpositiongame.ui.GameTimer
 import io.github.winfeo.superpositiongame.model.card.Card
@@ -26,7 +28,6 @@ object GameCycle {
     lateinit var gameTable: GameTable
     lateinit var playerMoveController: PlayerMoveController
     lateinit var opponentMoveController: OpponentMoveController
-    private val playerCardsAmount = GameConfig.getCardsInHandAmount()
     private val tableSlotsAmount = GameConfig.getSlotsOnTableAmount()
     private lateinit var gameTimer: GameTimer
     private lateinit var playerHand: PlayerHandManager
@@ -37,7 +38,7 @@ object GameCycle {
     ) {
         gameTable = table
         playerHand = hand
-        playerMoveController = PlayerMoveController()
+        playerMoveController = PlayerMoveController(playerHand)
         opponentMoveController = OpponentMoveController()
 
         gameScope.launch { gameCycle() }
@@ -101,6 +102,9 @@ object GameCycle {
     }
 
     suspend fun startPlayerTurn() {
+        TurnContext.reset() ///TODO переделать!
+
+        playerHand.cards.forEach { it.touchable = Touchable.enabled }
         gameManager.changeGameState(GameState.PLAYER_MOVE)
         gameTimer.start {
             println("Отладка. Время игрока вышло")

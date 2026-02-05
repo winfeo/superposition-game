@@ -12,16 +12,16 @@ import io.github.winfeo.superpositiongame.ui.CardAndDiceContainer
 import kotlin.math.sin
 
 // Класс-ячейка таблицы для помещения карты и дайсов на игровое поле
-class SlotActor(): Table() {
+class SlotActor(
+    private val area: SlotArea
+): Table() {
     ///TODO может быть сделать фабрику объектов? Чтобы каждый раз не тратить ресурсы на каждй новый объект
     private var state = SlotActorStates.NO_ACTION
     private var isFrozen = false
     private var borderColor = Color.GOLD
     private var borderTexture = BorderTexture.getBorderTexture()
-
     private var pulseTime = 0f
     private val pulseSpeed = 8f
-
     var previousCardActor: CardActor? = null
     var currentCardActor: CardActor? = null
 
@@ -112,5 +112,7 @@ class SlotActor(): Table() {
         }
         //previousCardActor = null
     }
+
+    fun getSlotActorArea(): SlotArea = area
 
 }

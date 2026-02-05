@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.ui
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import io.github.winfeo.superpositiongame.actor.SlotActor
+import io.github.winfeo.superpositiongame.actor.SlotArea
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.card.CardActorBuilder
 import io.github.winfeo.superpositiongame.actor.dice.DiceActorBuilder
@@ -64,7 +65,7 @@ class GameTable(
         opponentTaskArea.defaults().space(cardsPadding)
 
         repeat(GameConfig.getSlotsOnTableAmount()) {
-            val container = CardAndDiceContainer()
+            val container = CardAndDiceContainer(SlotArea.OPPONENT)
             opponentSlotContainer.add(container)
             opponentTaskArea.add(container)
         }
@@ -77,7 +78,7 @@ class GameTable(
         playerTaskArea.defaults().space(cardsPadding)
 
         repeat(GameConfig.getSlotsOnTableAmount()) {
-            val container = CardAndDiceContainer()
+            val container = CardAndDiceContainer(SlotArea.PLAYER)
             playerSlotContainer.add(container)
             playerTaskArea.add(container)
         }

@@ -9,6 +9,7 @@ import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.dice.DiceActor
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.game.GameCycle
+import io.github.winfeo.superpositiongame.game.controller.TurnContext
 import io.github.winfeo.superpositiongame.manager.DiceChangerManager
 import io.github.winfeo.superpositiongame.manager.PlayerHandManager
 import io.github.winfeo.superpositiongame.model.card.CardType
@@ -76,8 +77,13 @@ class DropValidator(
                     diceSlot.changeState(diceState)
                 }
 
-                playerHand.cards.forEach { it.touchable = Touchable.disabled }
-                GameCycle.playerMoveController.finishMove()
+                GameCycle.playerMoveController.moveMade()
+
+                if (TurnContext.isMultiplicationActive && ///TODO переделать!
+                    TurnContext.lockedArea == null) {
+
+                    TurnContext.lockedArea = targetSlot.getSlotActorArea()
+                }
             }
         }
     }

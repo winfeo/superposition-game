@@ -10,13 +10,12 @@ object CardFactory {
 
     fun createRandomCard(): Card {
 
-        val textureName = CardsAtlasManager.getRandomCardId()
-        //        val textureName =
-        //            when (idCounter) {
-        //                2,3 -> "quantum_noise"
-        //                4,5 -> "measurement"
-        //                else -> CardsAtlasManager.getRandomCardId()
-        //            }
+//        val textureName = CardsAtlasManager.getRandomCardId()
+        val textureName =
+            when (idCounter) {
+                3 -> "kronecker_multiplication"
+                else -> CardsAtlasManager.getRandomCardId()
+            }
 
 
         val type = CardType.entries.find {
