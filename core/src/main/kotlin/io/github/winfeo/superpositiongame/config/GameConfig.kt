@@ -18,21 +18,35 @@ object GameConfig {
     ///TODO убрать из констант? Обновлять во время изменения размера экрана? Сделать приватной
     lateinit var stage: Stage
 
-    fun init(screenWidth: Float, screenHeight: Float, stage: Stage) {
-        _screenWidth = screenWidth
-        _screenHeight = screenHeight
-        _cardWidth = _screenWidth * CARD_WIDTH_PERCENT
-        _cardHeight = _screenWidth * CARD_WIDTH_PERCENT * CARD_HEIGHT_RATIO
+    fun init(stage: Stage) {
+        _screenWidth = stage.viewport.worldWidth.also { println("screenHeight = $it") }
+        _screenHeight = stage.viewport.worldHeight.also { println("screenHeight = $it") }
+
+        val totalPadding =
+            SIDE_PADDING * 2 +
+                CARD_SPACING * (CARDS_IN_HAND - 1)
+
+        _cardWidth =
+            (_screenWidth - totalPadding) / CARDS_IN_HAND
+
+        _cardHeight =
+            _cardWidth * CARD_HEIGHT_RATIO
+
+//        _cardWidth = _screenWidth * CARD_WIDTH_PERCENT
+//        _cardHeight = _screenWidth * CARD_WIDTH_PERCENT * CARD_HEIGHT_RATIO
         this.stage = stage
     }
 
 
     ///TODO сделать инициализацию констант в отдельном методе при старте игры? сделать приватными константы?
+    private const val SIDE_PADDING = 10f
+    private const val CARD_SPACING = 8f
+
     private const val DICE_SIZE_PERCENT = 0.55f //сторона кубита
     private const val DICE_PADDING_PERCENT = 0.1f
-    private const val CARD_WIDTH_PERCENT = 0.1f //ширина карт
+    private const val CARD_WIDTH_PERCENT = 0.18f //ширина карт
     private const val CARD_HEIGHT_RATIO = 1.625f //высота карт
-    private const val TABLE_PADDING_PERCENT = 0.01f //паддинг между таблицами
+    private const val TABLE_PADDING_PERCENT = 0.05f //паддинг между таблицами
     private const val CARD_PADDING_PERCENT = 0.02f //паддинг между картами
     private const val CARD_BORDER_THICKNESS_PERCENT = 0.02f //толщина границы рамки карты
     private const val CARD_BORDER_RADIUS_RATIO = 0.06f //скургление границы рамки карты
@@ -41,8 +55,6 @@ object GameConfig {
     private const val MIN_DRAG_ZONE = 10f //мин. расстояние для начала драга карты
     private const val DOUBLE_TAP_INTERVAL_TIME = 300L
     private const val MOVE_TIMER_INTERVAL = 30
-    private const val CARD_CIRCLE_RADIUS = 800f
-    private const val CARD_CIRCLE_ANGLE = 60f
 
     fun getMinDragZone(): Float = MIN_DRAG_ZONE
     fun getTablesPadding(): Float {
@@ -62,8 +74,5 @@ object GameConfig {
     fun getDiceSide(): Float = cardWidth * DICE_SIZE_PERCENT
     fun getDoubleTapIntervalTime() = DOUBLE_TAP_INTERVAL_TIME
     fun getTimerDuration() = MOVE_TIMER_INTERVAL
-    fun getCardCircleRadius() = CARD_CIRCLE_RADIUS
-    fun getCardCircleAngle() = CARD_CIRCLE_ANGLE
-
 
 }

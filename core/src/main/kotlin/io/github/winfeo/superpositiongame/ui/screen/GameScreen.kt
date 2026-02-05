@@ -12,6 +12,7 @@ import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
 import io.github.winfeo.superpositiongame.ui.GameTable
 import io.github.winfeo.superpositiongame.graphics.RotateSelectionDialog
+import io.github.winfeo.superpositiongame.graphics.VictoryDialog
 import io.github.winfeo.superpositiongame.manager.PlayerHandManager
 import io.github.winfeo.superpositiongame.manager.doubleTap.GameTapController
 import io.github.winfeo.superpositiongame.manager.dragAndDrop.GameDragController
@@ -38,11 +39,7 @@ class GameScreen : KtxScreen {
 
         Gdx.input.inputProcessor = stage
 
-        GameConfig.init(
-            screenWidth = stage.viewport.worldWidth.also { println("screenWidth = $it") },
-            screenHeight = stage.viewport.worldHeight.also { println("screenHeight = $it") },
-            stage = stage
-        )
+        GameConfig.init(stage = stage)
 
         val dragController = GameDragController()
         val tapController = GameTapController()
@@ -68,8 +65,8 @@ class GameScreen : KtxScreen {
         //stage.isDebugAll = true
     }
     private fun createTimer() {
-        timerLabel = Label("30", GameSkinFactory.createTimerLabelSkin())
-        timerLabel.setPosition(20f, stage.viewport.worldHeight - 40f)
+        timerLabel = Label("", GameSkinFactory.createTimerLabelSkin())
+        timerLabel.setPosition(40f, stage.viewport.worldHeight - 80f)
         stage.addActor(timerLabel)
 
         gameTimer = GameTimer(label = timerLabel, scope = GameCycle.getGameScope())
