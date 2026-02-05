@@ -86,7 +86,9 @@ class DiceSwapManager() {
         val secondDiceState = secondDice!!.dice.state
 
         firstDice!!.changeState(secondDiceState)
+        DiceChangerManager.changeDiceStateColor(firstDice!!)
         secondDice!!.changeState(firstDiceState)
+        DiceChangerManager.changeDiceStateColor(secondDice!!)
         finishSelection()
         println("Отладка. Успешный обмен")
     }

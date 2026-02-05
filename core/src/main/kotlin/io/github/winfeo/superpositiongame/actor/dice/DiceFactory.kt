@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.actor.dice
 
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
 import io.github.winfeo.superpositiongame.model.dice.Dice
+import io.github.winfeo.superpositiongame.model.dice.DiceState
 
 object DiceFactory {
     private var idCounter = 0
@@ -12,7 +13,8 @@ object DiceFactory {
 
         return Dice(
             id = "${state.stateName}_${idCounter++}",
-            state = state
+            state = state,
+            requiredState = DiceState.PLUS //TODO пока условие победы - кубиты ("++++")
         )
     }
 }

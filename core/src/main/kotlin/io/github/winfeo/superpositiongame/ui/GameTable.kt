@@ -1,9 +1,8 @@
 package io.github.winfeo.superpositiongame.ui
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import io.github.winfeo.superpositiongame.actor.SlotActor
+import io.github.winfeo.superpositiongame.actor.SlotActorStates
 import io.github.winfeo.superpositiongame.actor.SlotArea
-import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.card.CardActorBuilder
 import io.github.winfeo.superpositiongame.actor.dice.DiceActorBuilder
 import io.github.winfeo.superpositiongame.config.GameConfig
@@ -19,8 +18,8 @@ class GameTable(
     private val touchController: GameTapController
 ): Table() {
 //    private val playerCardSlots = mutableListOf<SlotActor>()
-    private val playerSlotContainer = mutableListOf<CardAndDiceContainer>()
-    private val opponentSlotContainer = mutableListOf<CardAndDiceContainer>()
+    private val playerSlotContainers = mutableListOf<CardAndDiceContainer>()
+    private val opponentSlotContainers = mutableListOf<CardAndDiceContainer>()
     private val cardsPadding = GameConfig.getCardsPadding()
     private val tablesPadding = GameConfig.getTablesPadding()
 
@@ -33,15 +32,6 @@ class GameTable(
 
         //debugAll()
     }
-//    fun setUpCardUsage() {
-//        playerCardSlots.forEach { slot ->
-//            slot.getCardActor()?.let { card ->
-//                if (card.canDrag) dragController.setupCard(card)
-//                else touchController.setupCard(card)
-//
-//            }
-//        }
-//    }
 
     private fun setUpTable() {
         setFillParent(true)
@@ -55,9 +45,6 @@ class GameTable(
             .row()
         add(createPlayerTaskArea())
             .fillX()
-//            .row()
-//        add(createPlayerCardsArea())
-//            .fillX()
     }
 
     private fun createOpponentTaskArea(): Table {
@@ -66,7 +53,7 @@ class GameTable(
 
         repeat(GameConfig.getSlotsOnTableAmount()) {
             val container = CardAndDiceContainer(SlotArea.OPPONENT)
-            opponentSlotContainer.add(container)
+            opponentSlotContainers.add(container)
             opponentTaskArea.add(container)
         }
 
@@ -79,40 +66,12 @@ class GameTable(
 
         repeat(GameConfig.getSlotsOnTableAmount()) {
             val container = CardAndDiceContainer(SlotArea.PLAYER)
-            playerSlotContainer.add(container)
+            playerSlotContainers.add(container)
             playerTaskArea.add(container)
         }
 
         return playerTaskArea
     }
-
-//    private fun createPlayerCardsArea(): Table {
-//        val playerCardsArea = Table()
-//        playerCardSlots.clear()
-//        playerCardsArea.defaults().space(cardsPadding)
-//
-//        repeat(GameConfig.getCardsInHandAmount()) {
-//            val cardSlot = SlotActor()
-//            playerCardSlots.add(cardSlot)
-//            playerCardsArea.add(cardSlot)
-//        }
-//
-//        return playerCardsArea
-//    }
-
-//    fun dealPlayerCards(cards: List<Card>) {
-//        val cardActors = mutableListOf<CardActor?>()
-//        playerCardSlots.forEachIndexed { index, slot ->
-//            if (slot.children.isEmpty) {
-//                val cardActor = CardActorBuilder.createCardActorFromModel(cards.get(index))
-//                cardActors.add(cardActor)
-//                //slot.placeCard(cardActor)
-//            } else {
-//                cardActors.add((slot.children as SlotActor).getCardActor())
-//            }
-//        }
-//        CardCircleLayout.createCircle(cardActors)
-//    }
 
     fun setUpTableActors(
         playerCards: List<Card>,
@@ -121,31 +80,43 @@ class GameTable(
         opponentDices: List<Dice>
     ) {
 
-        playerSlotContainer.forEachIndexed { index, container ->
+        playerSlotContainers.forEachIndexed { index, container ->
             val cardActor = CardActorBuilder.createEmptyCardFromModel(playerCards.get(index))
             val diceActor = DiceActorBuilder.createRandomDice(playerDices.get(index))
             container.cardSlot.placeCard(cardActor)
             container.diceSlot.placeDice(diceActor)
+
+            if (diceActor.dice.isInRequiredState()) {
+                container.diceSlot.setState(SlotActorStates.REQUIRED_DICE_STATE)
+            }
         }
 
-        opponentSlotContainer.forEachIndexed { index, container ->
+        opponentSlotContainers.forEachIndexed { index, container ->
             val cardActor = CardActorBuilder.createEmptyCardFromModel(opponentCards.get(index))
             val diceActor = DiceActorBuilder.createRandomDice(opponentDices.get(index))
             container.cardSlot.placeCard(cardActor)
             container.diceSlot.placeDice(diceActor)
+
+            if (diceActor.dice.isInRequiredState()) {
+                container.diceSlot.setState(SlotActorStates.REQUIRED_DICE_STATE)
+            }
         }
 
         setUpDropSlots()
     }
 
     fun setUpDropSlots() {
-        playerSlotContainer.forEach { container ->
+        playerSlotContainers.forEach { container ->
             dragController.setupSlot(container.cardSlot, "slot")
             ///TODO сделать типы валидаторов состояниями тоже
         }
 
-        opponentSlotContainer.forEach { container ->
+        opponentSlotContainers.forEach { container ->
             dragController.setupSlot(container.cardSlot, "attack_slot")
         }
+    }
+
+    fun getPlayerDices(): List<Dice> {
+        return playerSlotContainers.map { it.diceSlot.getDiceActor().dice }
     }
 }

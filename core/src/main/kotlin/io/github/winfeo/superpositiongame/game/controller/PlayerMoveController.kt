@@ -1,8 +1,9 @@
 package io.github.winfeo.superpositiongame.game.controller
 
 import com.badlogic.gdx.scenes.scene2d.Touchable
+import io.github.winfeo.superpositiongame.game.GameCycle
+import io.github.winfeo.superpositiongame.game.VictoryValidator
 import io.github.winfeo.superpositiongame.manager.PlayerHandManager
-import io.github.winfeo.superpositiongame.rules.RuleEngine
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -18,6 +19,12 @@ class PlayerMoveController(
     }
     fun moveMade() {
         TurnContext.remainingMoves--
+
+        if (VictoryValidator.isPlayerWin()) {
+            finishMove()
+            GameCycle.stopGame()
+            return
+        }
 
         if (TurnContext.remainingMoves <= 0) {
             finishMove()

@@ -8,6 +8,7 @@ import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.game.controller.OpponentMoveController
 import io.github.winfeo.superpositiongame.game.controller.PlayerMoveController
 import io.github.winfeo.superpositiongame.game.controller.TurnContext
+import io.github.winfeo.superpositiongame.graphics.VictoryDialog
 import io.github.winfeo.superpositiongame.manager.PlayerHandManager
 import io.github.winfeo.superpositiongame.ui.GameTimer
 import io.github.winfeo.superpositiongame.model.card.Card
@@ -70,6 +71,9 @@ object GameCycle {
 
     fun stopGame() {
         gameScope.cancel()
+        Gdx.app.postRunnable {
+            VictoryDialog.showVictoryDialog(gameTable.stage)
+        }
     }
 
     private suspend fun setUpGameTable() = onGdx {

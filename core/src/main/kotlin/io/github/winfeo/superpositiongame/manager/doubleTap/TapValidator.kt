@@ -7,6 +7,7 @@ import io.github.winfeo.superpositiongame.game.controller.TurnContext
 import io.github.winfeo.superpositiongame.manager.DiceSwapManager
 import io.github.winfeo.superpositiongame.manager.MultiplicationEffectManager
 import io.github.winfeo.superpositiongame.manager.PlayerHandManager
+import io.github.winfeo.superpositiongame.manager.ReshaffleCardEffect
 import io.github.winfeo.superpositiongame.model.card.CardType
 import kotlinx.coroutines.CoroutineScope
 
@@ -18,6 +19,7 @@ class TapValidator(
 ) {
     private val diceSwapManager = DiceSwapManager()
     private val multiplicationEffect = MultiplicationEffectManager(moveController)
+    private val reshaffleCardEffect = ReshaffleCardEffect()
 
     fun onAccept(card: CardActor) {
         val cardType: CardType = card.card.type
@@ -35,6 +37,7 @@ class TapValidator(
         when (card) {
             CardType.SWAP -> diceSwapManager.applyEffect()
             CardType.KRONECKER_MULTIPLICATION -> multiplicationEffect.applyEffect()
+//            CardType.RESHAFFLE -> reshaffleCardEffect.applyEffect()
             else -> return
         }
     }

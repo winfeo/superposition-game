@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.manager
 
 import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.actor.SlotActor
+import io.github.winfeo.superpositiongame.actor.SlotActorStates
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.dice.DiceActor
 import io.github.winfeo.superpositiongame.model.card.components.AxisRotation
@@ -137,6 +138,14 @@ object DiceChangerManager {
         }
         targetSlot.undoCard()
         ///TODO хранить список состояний, чтобы можно было на любой стейт откатиться?
+    }
+
+    fun changeDiceStateColor(dice: DiceActor) {
+        if (dice.dice.isInRequiredState()) {
+            (dice.parent as SlotActor).setState(SlotActorStates.REQUIRED_DICE_STATE)
+        } else {
+            (dice.parent as SlotActor).setState(SlotActorStates.NO_ACTION)
+        }
     }
 
 }

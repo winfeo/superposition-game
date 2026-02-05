@@ -1,11 +1,16 @@
 package io.github.winfeo.superpositiongame.graphics
 
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.Window
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 
 object GameSkinFactory {
-
     fun createTimerLabelSkin(): Label.LabelStyle {
         val fontScale= 1.5f
         val fontColor = Color.WHITE
@@ -14,5 +19,74 @@ object GameSkinFactory {
         return Label.LabelStyle(font, fontColor)
     }
 
-    ///TODO добавить скин для диалога сюда
+    fun createSelectionDialogSkin(stage: Stage): Skin {
+        val skin = Skin()
+
+        val font = BitmapFont()
+        skin.add("default-font", font)
+
+        fun createColorDrawable(color: Color): TextureRegionDrawable {
+            val pixmap = Pixmap(stage.width.toInt(), stage.height.toInt(), Pixmap.Format.RGBA8888)
+            pixmap.setColor(color)
+            pixmap.fill()
+            val texture = Texture(pixmap)
+            pixmap.dispose()
+            return TextureRegionDrawable(texture)
+        }
+
+        val windowStyle = Window.WindowStyle().apply {
+            this.titleFont = skin.getFont("default-font")
+            this.titleFontColor = Color.WHITE
+            this.background = createColorDrawable(Color(0.1f, 0.1f, 0.1f, 0.95f))
+        }
+        skin.add("default", windowStyle)
+
+        val labelStyle = Label.LabelStyle().apply {
+            this.font = skin.getFont("default-font")
+            this.fontColor = Color.WHITE
+        }
+        skin.add("default", labelStyle)
+
+        return skin
+    }
+
+    fun createVictoryDialogSkin(stage: Stage): Skin {
+        val skin = Skin()
+
+        val font = BitmapFont()
+        skin.add("default-font", font)
+
+        fun createColorDrawable(color: Color): TextureRegionDrawable {
+            val pixmap = Pixmap(stage.width.toInt() / 2, stage.height.toInt() / 2, Pixmap.Format.RGBA8888)
+            pixmap.setColor(color)
+            pixmap.fill()
+            val texture = Texture(pixmap)
+            pixmap.dispose()
+            return TextureRegionDrawable(texture)
+        }
+
+        val windowStyle = Window.WindowStyle().apply {
+            this.titleFont = skin.getFont("default-font")
+            this.titleFontColor = Color.WHITE
+            this.background = createColorDrawable(Color(0.1f, 0.1f, 0.1f, 0.95f))
+        }
+        skin.add("default", windowStyle)
+
+        val labelStyle = Label.LabelStyle().apply {
+            this.font = skin.getFont("default-font")
+            this.fontColor = Color.WHITE
+        }
+        skin.add("default", labelStyle)
+
+        val textButtonStyle = com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle().apply {
+            this.up = createColorDrawable(Color.DARK_GRAY)
+            this.down = createColorDrawable(Color.GRAY)
+            this.checked = createColorDrawable(Color.LIGHT_GRAY)
+            this.font = skin.getFont("default-font")
+            this.fontColor = Color.WHITE
+        }
+        skin.add("default", textButtonStyle)
+
+        return skin
+    }
 }

@@ -41,12 +41,4 @@ class DiceActor(
         changeState(previousDice.state)
     }
 
-    fun setPreviousMoveDice() {
-        previousDice = dice
-    }
-
-    fun getPreviousMoveDice(): Dice {
-        return previousDice
-    }
-
 }

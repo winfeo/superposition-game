@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import io.github.winfeo.superpositiongame.actor.SlotActor
+import io.github.winfeo.superpositiongame.actor.SlotActorStates
 import io.github.winfeo.superpositiongame.actor.card.CardActor
 import io.github.winfeo.superpositiongame.actor.dice.DiceActor
 import io.github.winfeo.superpositiongame.config.GameConfig
@@ -18,6 +19,7 @@ import io.github.winfeo.superpositiongame.model.dice.DiceState
 import io.github.winfeo.superpositiongame.rules.RuleEngine
 import io.github.winfeo.superpositiongame.rules.model.RuleContext
 import io.github.winfeo.superpositiongame.rules.model.ValidationResult
+import io.github.winfeo.superpositiongame.ui.CardAndDiceContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -75,6 +77,7 @@ class DropValidator(
                 }
                 newState?.forEach { (diceSlot, diceState) ->
                     diceSlot.changeState(diceState)
+                    DiceChangerManager.changeDiceStateColor(diceSlot)
                 }
 
                 GameCycle.playerMoveController.moveMade()

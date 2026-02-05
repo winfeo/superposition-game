@@ -36,6 +36,7 @@ class SlotActor(
             SlotActorStates.NO_ACTION -> Color.GOLD
             SlotActorStates.HOVERED_CAN_PLACE -> Color.CYAN
             SlotActorStates.HOVERED_CANT_PLACE -> Color.RED
+            SlotActorStates.REQUIRED_DICE_STATE -> Color.GREEN
         }
     }
 
@@ -57,7 +58,8 @@ class SlotActor(
 
         val oldColor = batch.color
         val newColor = Color(borderColor)
-        if (state != SlotActorStates.NO_ACTION) {
+        if (state != SlotActorStates.NO_ACTION &&
+            state != SlotActorStates.REQUIRED_DICE_STATE) {
             val pulseAlpha = 0.7f + 0.3f * sin(pulseTime)
             newColor.a = pulseAlpha * parentAlpha
         }
