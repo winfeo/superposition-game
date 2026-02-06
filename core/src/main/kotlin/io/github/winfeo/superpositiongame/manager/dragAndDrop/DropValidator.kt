@@ -101,7 +101,7 @@ class DropValidator(
         )
     }
 
-    private suspend fun defineNewState(
+    suspend fun defineNewState(
         cardActor: CardActor,
         targetSlot: SlotActor
     ): Map<DiceActor, DiceState>? {

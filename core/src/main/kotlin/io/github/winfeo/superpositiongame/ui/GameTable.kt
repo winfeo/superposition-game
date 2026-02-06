@@ -1,6 +1,7 @@
 package io.github.winfeo.superpositiongame.ui
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import io.github.winfeo.superpositiongame.actor.SlotActor
 import io.github.winfeo.superpositiongame.actor.SlotActorStates
 import io.github.winfeo.superpositiongame.actor.SlotArea
 import io.github.winfeo.superpositiongame.actor.card.CardActorBuilder
@@ -118,5 +119,13 @@ class GameTable(
 
     fun getPlayerDices(): List<Dice> {
         return playerSlotContainers.map { it.diceSlot.getDiceActor().dice }
+    }
+
+    fun getOpponentSlots(): List<CardAndDiceContainer> {
+        return opponentSlotContainers
+    }
+
+    fun getPlayerSlots(): List<CardAndDiceContainer> {
+        return playerSlotContainers
     }
 }

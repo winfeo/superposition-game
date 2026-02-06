@@ -10,6 +10,7 @@ import io.github.winfeo.superpositiongame.game.controller.PlayerMoveController
 import io.github.winfeo.superpositiongame.game.controller.TurnContext
 import io.github.winfeo.superpositiongame.graphics.VictoryDialog
 import io.github.winfeo.superpositiongame.manager.PlayerHandManager
+import io.github.winfeo.superpositiongame.manager.dragAndDrop.DropValidator
 import io.github.winfeo.superpositiongame.ui.GameTimer
 import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.dice.Dice
@@ -40,7 +41,12 @@ object GameCycle {
         gameTable = table
         playerHand = hand
         playerMoveController = PlayerMoveController(playerHand)
-        opponentMoveController = OpponentMoveController()
+
+        val dropValidator = DropValidator(
+            scope = getGameScope(),
+            playerHand = playerHand
+        )
+        opponentMoveController = OpponentMoveController(table, dropValidator)
 
         gameScope.launch { gameCycle() }
     }
@@ -110,7 +116,7 @@ object GameCycle {
 
         playerHand.cards.forEach { it.touchable = Touchable.enabled }
         gameManager.changeGameState(GameState.PLAYER_MOVE)
-        gameTimer.start {
+        gameTimer.start(state = gameManager.state) {
             println("Отладка. Время игрока вышло")
             playerMoveController.finishMove()
         }
@@ -120,7 +126,7 @@ object GameCycle {
 
     suspend fun startOpponentTurn() {
         gameManager.changeGameState(GameState.OPPONENT_MOVE)
-        gameTimer.start {
+        gameTimer.start(state = gameManager.state) {
             println("Отладка. Время оппонента вышло")
             opponentMoveController.finishMove()
         }

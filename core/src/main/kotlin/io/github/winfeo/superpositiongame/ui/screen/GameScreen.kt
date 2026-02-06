@@ -66,7 +66,7 @@ class GameScreen : KtxScreen {
     }
     private fun createTimer() {
         timerLabel = Label("", GameSkinFactory.createTimerLabelSkin())
-        timerLabel.setPosition(40f, stage.viewport.worldHeight - 80f)
+        timerLabel.setPosition(40f, stage.viewport.worldHeight - 100f)
         stage.addActor(timerLabel)
 
         gameTimer = GameTimer(label = timerLabel, scope = GameCycle.getGameScope())

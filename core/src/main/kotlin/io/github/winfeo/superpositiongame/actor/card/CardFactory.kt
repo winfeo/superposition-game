@@ -13,7 +13,7 @@ object CardFactory {
 //        val textureName = CardsAtlasManager.getRandomCardId()
         val textureName =
             when (idCounter) {
-                3 -> "kronecker_multiplication"
+                3 -> "quantum_noise"
                 else -> CardsAtlasManager.getRandomCardId()
             }
 
@@ -33,6 +33,24 @@ object CardFactory {
             id = "empty",
             type = CardType.EMPTY
         )
+    }
+
+    fun createDraggableCardForOpponentScript(): Card {
+        val textureName = CardsAtlasManager.getRandomCardId()
+
+        val type = CardType.entries.find {
+            it.textureId == textureName
+        }?: throw (IllegalStateException("Не удалось найти тип карты c id: $textureName"))
+
+        if (!type.cardComponent.canDrag) {
+            return createDraggableCardForOpponentScript()
+        }
+
+        return Card(
+            id = "${textureName}_${idCounter++}",
+            type = type
+        )
+
     }
 
 }

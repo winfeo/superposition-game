@@ -45,7 +45,8 @@ object RuleEngine {
         }
 
         if (card.type == CardType.QUANTUM_NOISE) {
-            if (canUndoChanges(cardSlot.currentCardActor)) {
+            println("Отладка. Тип пред: ${cardSlot.previousCardActor}")
+            if (canUndoChanges(cardSlot.currentCardActor) || cardSlot.previousCardActor == null) {
                 return ValidationResult(
                     canPlace = false,
                     message = "Невозможно использовать эту карту для кубита (недопустимые условия)",
