@@ -1,10 +1,16 @@
+//plugins {
+//  id 'com.android.application'
+//  id 'kotlin-android'
+//  id 'com.google.gms.google-services'
+//}
+//
+//buildscript {
+//  repositories {
+//    mavenCentral()
+//    google()
+//  }
+//}
 
-buildscript {
-  repositories {
-    mavenCentral()
-    google()
-  }
-}
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
@@ -78,6 +84,9 @@ dependencies {
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
 
+  implementation(platform("com.google.firebase:firebase-bom:$firebaseBom"))
+  implementation("com.google.firebase:firebase-database-ktx")
+
 }
 
 // Called every time gradle gets executed, takes the native dependencies of
@@ -134,3 +143,5 @@ tasks.register('run', Exec) {
 }
 
 eclipse.project.name = appName + "-android"
+
+apply plugin: 'com.google.gms.google-services'
