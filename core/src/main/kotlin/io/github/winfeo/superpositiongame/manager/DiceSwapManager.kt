@@ -9,6 +9,7 @@ import io.github.winfeo.superpositiongame.actor.SlotActor
 import io.github.winfeo.superpositiongame.actor.SlotActorStates
 import io.github.winfeo.superpositiongame.actor.dice.DiceActor
 import io.github.winfeo.superpositiongame.config.GameConfig
+import io.github.winfeo.superpositiongame.game.GameCycle
 
 class DiceSwapManager() {
 
@@ -75,6 +76,7 @@ class DiceSwapManager() {
                 secondDice = dice
                 (firstDice!!.parent as SlotActor).setState(SlotActorStates.NO_ACTION)
                 swapDices()
+                GameCycle.playerMoveController.moveMade() //TODO колбэками сделать?
                 true
             }
             else -> false

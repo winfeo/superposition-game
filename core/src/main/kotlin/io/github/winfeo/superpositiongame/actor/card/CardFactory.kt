@@ -13,7 +13,7 @@ object CardFactory {
 //        val textureName = CardsAtlasManager.getRandomCardId()
         val textureName =
             when (idCounter) {
-                3 -> "quantum_noise"
+                3 -> "swap"
                 else -> CardsAtlasManager.getRandomCardId()
             }
 

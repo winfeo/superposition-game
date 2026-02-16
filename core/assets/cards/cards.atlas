@@ -128,17 +128,4 @@ identity
   orig: 195, 305
   offset: 0, 0
   index: -1
-barrier
-  rotate: false
-  xy: 0, 0
-  size: 195, 305
-  orig: 195, 305
-  offset: 0, 0
-  index: -1
-reshaffle
-  rotate: false
-  xy: 784, 612
-  size: 195, 305
-  orig: 195, 305
-  offset: 0, 0
-  index: -1
+

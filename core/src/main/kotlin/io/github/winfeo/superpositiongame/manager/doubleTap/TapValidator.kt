@@ -28,7 +28,6 @@ class TapValidator(
 //        }
         defineCardEffect(cardType)
         playerHand.removeCard(card)
-        GameCycle.playerMoveController.moveMade()
         //card.remove()
 
     }
@@ -38,7 +37,7 @@ class TapValidator(
             CardType.SWAP -> diceSwapManager.applyEffect()
             CardType.KRONECKER_MULTIPLICATION -> multiplicationEffect.applyEffect()
 //            CardType.RESHAFFLE -> reshaffleCardEffect.applyEffect()
-            else -> return
+            else -> GameCycle.playerMoveController.moveMade()
         }
     }
 }
