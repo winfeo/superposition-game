@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">SuperpositionGame</string>
+  <string name="lobby_title">Игроки в сети</string>
+  <string name="lobby_emptyList">Нет игроков в сети</string>
+  <string name="lobby_playerCardPlayer">Игрок</string>
 </resources>
