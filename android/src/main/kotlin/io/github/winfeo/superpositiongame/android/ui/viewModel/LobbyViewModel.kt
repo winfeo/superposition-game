@@ -2,61 +2,54 @@ package io.github.winfeo.superpositiongame.android.ui.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
+import io.github.winfeo.superpositiongame.android.data.repository.LobbyRepositoryImpl
+import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
+import io.github.winfeo.superpositiongame.android.domain.lobby.usecase.ObservePlayersUseCase
+import io.github.winfeo.superpositiongame.android.domain.lobby.usecase.SendInvitationUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 //Вьюшка для экрана лобби
-class LobbyViewModel: ViewModel() {
-    private val _selectedPlayer = MutableStateFlow<String?>(null)
-    val selectedPlayer: StateFlow<String?> = _selectedPlayer.asStateFlow()
+class LobbyViewModel(
+//    private val observePlayers: ObservePlayersUseCase,
+//    private val sendInvitation: SendInvitationUseCase,
+    private val currentUserId: String
+): ViewModel() {
 
-    private val _playersList = MutableStateFlow<List<String>>(emptyList())
-    val playersList: StateFlow<List<String>> = _playersList.asStateFlow()
+    private val database = Firebase.database ///TODO переделать
+    private val repository = LobbyRepositoryImpl(database)
+    private val observePlayers = ObservePlayersUseCase(repository)
+    private val sendInvitation = SendInvitationUseCase(repository)
 
-    private val _isLoading  = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val _state = MutableStateFlow(LobbyState())
+    val state: StateFlow<LobbyState> = _state
 
-    private var refresh: Job? = null
+    private val _selectedPlayer = MutableStateFlow<Player?>(null)
+    val selectedPlayer: StateFlow<Player?> = _selectedPlayer.asStateFlow()
 
     init {
         loadPlayersInLobby()
-        startAutoRefresh()
     }
 
-    fun loadPlayersInLobby(loading: Boolean = true) {
+    fun loadPlayersInLobby() {
         viewModelScope.launch {
-            _isLoading.value = loading
-            try {
-                // TODO загружать потом реальных игроков из фаербэйс, пока просто дилей
-                delay(4000)
-                _playersList.value = listOf(
-                    "12345-67890",
-                    "23456-78901",
-                    "34567-89012"
-                )
-            } catch (e: Exception) {
-                println("Отладка. Ошибка загрузки игроков из базы: $e")
-            } finally {
-                _isLoading.value = false
-            }
+            observePlayers()
+                .onStart { _state.value = _state.value.copy(isLoading = true) }
+                .catch { _state.value = _state.value.copy(isLoading = false, error = it.message) }
+                .collect { players ->
+                    _state.value = LobbyState(players = players, isLoading = false)
+                }
         }
     }
 
-    private fun startAutoRefresh() {
-        refresh = viewModelScope.launch {
-            while (true) {
-                delay(10_000)
-                loadPlayersInLobby(loading = false)
-            }
-        }
-    }
-
-    fun showInviteDialog(playerId: String) {
-        _selectedPlayer.value = playerId
+    fun showInviteDialog(player: Player) {
+        _selectedPlayer.value = player
     }
 
     fun hideInviteDialog() {
@@ -64,25 +57,11 @@ class LobbyViewModel: ViewModel() {
     }
 
     fun sentInvite() {
+        val player = _selectedPlayer.value ?: return
         viewModelScope.launch {
-            try {
-                _selectedPlayer.value?.let { id ->
-                    ///TODO добавить с файербэйсом взаимодействие
-                    delay(1000)
-                }
-            }
-            catch (e: Exception) {
-                println("Отладка. Не удалось отправить сообщение игроку: ${_selectedPlayer.value}\nИсключение: $e")
-            }
-            finally {
-                hideInviteDialog()
-            }
-
+            sendInvitation(currentUserId, player.id)
+            hideInviteDialog()
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        refresh?.cancel()
-    }
 }

@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -21,26 +23,31 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.winfeo.superpositiongame.R
+import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 import io.github.winfeo.superpositiongame.android.ui.dialog.InviteDialog
 import io.github.winfeo.superpositiongame.android.ui.viewModel.LobbyViewModel
 
 ///TODO добавить bottomBar для навигации по страницам
 ///TODO добавить тост или снекбар после отправки уведомления
-//Лобби, лидерборд, профиль (с настройками?)
+///TODO если противник ответил положительно на приглашение, то показывать вверху
+///убавляющуюся полоску с истечением времени (10 секунд) и возможностью отказаться от матча, потом запуск матча
+//Лобби, лидерборд, библиотека карт, профиль (с настройками и статистикой?)
 
 //экран лобби (отображаются игроки в сети, которые тоже находятся в лобби)
+///TODO реализовать структуру: LobbyIntent?, LobbyScreen, LobbyState, LobbyViewModel
 @Composable
 fun LobbyScreen(
-    viewModel: LobbyViewModel
+    viewModel: LobbyViewModel,
+    onInvitesClick: () -> Unit
 ) {
-    val playersList by viewModel.playersList.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
+    val state by viewModel.state.collectAsState()
     val selectedPlayer by viewModel.selectedPlayer.collectAsState()
-
 
     Scaffold(
         topBar = {
@@ -49,14 +56,15 @@ fun LobbyScreen(
             //Если есть новые приглшеня - отобрадение кружка на иконке колольчика
             TopAppBar(
                 ///TODO отображение количества игроков в сети
-                title = { Text(text = stringResource(R.string.lobby_title)) }
-//                actions = {
-//                    IconButton(onClick = {
-//                        isLoading = true
-//                    }) {
-//                        Icon()
-//                    }
-//                }
+                title = { Text(text = stringResource(R.string.lobby_title)) },
+                actions = {
+                    IconButton(onClick = onInvitesClick) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_bell),
+                            contentDescription = "invites"
+                        )
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -67,19 +75,19 @@ fun LobbyScreen(
             contentAlignment = Alignment.Center
         ) {
             when {
-                isLoading -> CircularProgressIndicator()
-                playersList.isEmpty() -> Text(text = stringResource(R.string.lobby_emptyList))
+                state.isLoading -> CircularProgressIndicator()
+                state.players.isEmpty() -> Text(text = stringResource(R.string.lobby_emptyList))
                 else -> PlayersList(
-                    players = playersList,
-                    onPlayerClick = { id ->
-                        viewModel.showInviteDialog(id)
+                    players = state.players,
+                    onPlayerClick = { player ->
+                        viewModel.showInviteDialog(player)
                     }
                 )
             }
         }
-        selectedPlayer?.let { id ->
+        selectedPlayer?.let { player ->
             InviteDialog(
-                playerId = id,
+                playerId = player.id,
                 onConfirm = { viewModel.sentInvite() },
                 onDismiss = { viewModel.hideInviteDialog() }
             )
@@ -89,8 +97,8 @@ fun LobbyScreen(
 
 @Composable
 fun PlayersList(
-    players: List<String>,
-    onPlayerClick: (String) -> Unit
+    players: List<Player>,
+    onPlayerClick: (Player) -> Unit
 ) {
     LazyColumn (
         modifier = Modifier.fillMaxSize(),
@@ -99,7 +107,7 @@ fun PlayersList(
     ) {
         items(players) { player ->
             PlayerCard(
-                playerId = player,
+                player = player,
                 onClick = { onPlayerClick(player) }
             )
         }
@@ -109,7 +117,7 @@ fun PlayersList(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PlayerCard(
-    playerId: String,
+    player: Player,
     onClick: () -> Unit
 ) {
     Card(
@@ -126,7 +134,7 @@ fun PlayerCard(
         ) {
             ///TODO заменить на ники в дальнейшем
             Text(
-                text = "${stringResource(R.string.lobby_playerCardPlayer)}: ${playerId.take(5)}",
+                text = "${stringResource(R.string.lobby_playerCardPlayer)}: ${player.id.take(5)}",
                 style = MaterialTheme.typography.subtitle1
             )
         }
@@ -141,7 +149,10 @@ fun PlayerCard(
 )
 @Composable
 fun LobbyScreenPreview() {
-    LobbyScreen(viewModel = LobbyViewModel())
+    LobbyScreen(
+        viewModel = viewModel(),
+        onInvitesClick = {}
+    )
 }
 
 //@Preview(

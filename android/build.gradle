@@ -54,9 +54,9 @@ android {
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
   }
-//  buildFeatures {
-//    compose true
-//  }
+  buildFeatures {
+    compose true
+  }
 //  composeOptions {
 //    kotlinCompilerExtensionVersion = "1.5.15"
 //  }
@@ -102,6 +102,11 @@ dependencies {
   implementation "androidx.lifecycle:lifecycle-viewmodel-compose"
   debugImplementation "androidx.compose.ui:ui-tooling"
 
+  ///TODO поменять на Bom, а не конкретно ставить версию
+//  implementation platform("androidx.navigation:navigation-bom:$composeNavigationBomVersion")
+  implementation "androidx.navigation:navigation-compose:2.9.7"
+  implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0"
+  implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.10.0"
 }
 
 // Called every time gradle gets executed, takes the native dependencies of
@@ -161,3 +166,4 @@ eclipse.project.name = appName + "-android"
 
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'

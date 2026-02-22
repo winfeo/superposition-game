@@ -12,6 +12,7 @@ import io.github.winfeo.superpositiongame.game.Main
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import io.github.winfeo.superpositiongame.android.ui.nav.Navigation
 import io.github.winfeo.superpositiongame.android.ui.screen.LobbyScreen
 import io.github.winfeo.superpositiongame.android.ui.viewModel.LobbyViewModel
 import java.sql.Date
@@ -39,8 +40,7 @@ class AndroidLauncher : /*AndroidApplication()*/ ComponentActivity() {
 //        })
 
         setContent {
-            val viewModel: LobbyViewModel = viewModel()
-            LobbyScreen(viewModel)
+            Navigation(currentUserId = userId)///TODO без параметров, переделать
         }
     }
 
