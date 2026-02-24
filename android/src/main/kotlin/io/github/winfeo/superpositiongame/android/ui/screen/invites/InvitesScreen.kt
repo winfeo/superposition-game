@@ -1,7 +1,9 @@
 package io.github.winfeo.superpositiongame.android.ui.screen.invites
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
@@ -22,6 +25,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -94,32 +99,73 @@ fun InviteCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = 4.dp
+        elevation = 4.dp,
+        shape = RoundedCornerShape(8.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(top = 16.dp)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = "${stringResource(R.string.invites_inviteText)}: ${invite.fromUserId.take(5)}",
                 style = MaterialTheme.typography.subtitle1
             )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Box(
+                    modifier = Modifier.clickable {}
+                ) {
+                    Icon(
+                        modifier = Modifier.padding(8.dp),
+                        painter = painterResource(R.drawable.ic_reject),
+                        contentDescription = "Reject invite",
+                        tint = Color(red = 178, green = 34, blue = 34)
+                    )
+                }
+
+                Box(
+                    modifier = Modifier.clickable {}
+                ) {
+                    Icon(
+                        modifier = Modifier.padding(8.dp),
+                        painter = painterResource(R.drawable.ic_accept),
+                        contentDescription = "Accept invite",
+                        tint = Color(red = 50, green = 205, blue = 50)
+                    )
+                }
+            }
         }
+
     }
 }
 
 
+//@Preview(
+//    name = "Приглашения",
+//    showBackground = true,
+//    showSystemUi = true
+//)
+//@Composable
+//fun InvitesScreenPreview(){
+//    InvitesScreen(
+//        viewModel = viewModel(),
+//        onReturnToLobby = {})
+//}
+
 @Preview(
-    name = "Приглашения",
+    name = "Список приглашений",
     showBackground = true,
     showSystemUi = true
 )
 @Composable
-fun InvitesScreenPreview(){
-    InvitesScreen(
-        viewModel = viewModel(),
-        onReturnToLobby = {})
+fun InvitesListPreview(){
+    InvitesList(
+        listOf(Invite("test11111111"))
+    )
 }
