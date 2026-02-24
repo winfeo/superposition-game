@@ -18,14 +18,14 @@ class LobbyRepositoryImpl(
     private val usersRef = database.getReference("users")
     private val invitesRef = database.getReference("invitations")
 
-    override fun observePlayersInLobby(): Flow<List<Player>> {
+    override fun observePlayersInLobby(currentUserId: String): Flow<List<Player>> {
         return callbackFlow {
             val listener = object: ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val players = snapshot.children.mapNotNull { child ->
                         val dto = child.getValue(PlayerDto::class.java)
                         dto?.toDomain(child.key!!)
-                    }
+                    }.filter { child -> child.id != currentUserId }
                     trySend(players)
                 }
 

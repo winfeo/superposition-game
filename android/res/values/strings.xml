@@ -10,5 +10,6 @@
     <!-- Экран приглашений (уведомлений) -->
     <string name="invites_title">Приглашения</string>
     <string name="invites_emptyList">Пока здесь ничего нет</string>
+    <string name="invites_inviteText">Приглашение от</string>
 
 </resources>

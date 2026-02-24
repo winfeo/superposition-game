@@ -1,4 +1,4 @@
-package io.github.winfeo.superpositiongame.android.ui.viewModel
+package io.github.winfeo.superpositiongame.android.ui.screen.lobby
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,7 +24,7 @@ class LobbyViewModel(
 
     private val database = Firebase.database ///TODO переделать
     private val repository = LobbyRepositoryImpl(database)
-    private val observePlayers = ObservePlayersUseCase(repository)
+    private val observePlayers = ObservePlayersUseCase(repository, currentUserId)
     private val sendInvitation = SendInvitationUseCase(repository)
 
     private val _state = MutableStateFlow(LobbyState())

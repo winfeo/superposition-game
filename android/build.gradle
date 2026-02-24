@@ -107,6 +107,10 @@ dependencies {
   implementation "androidx.navigation:navigation-compose:2.9.7"
   implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0"
   implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.10.0"
+
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2"
+
 }
 
 // Called every time gradle gets executed, takes the native dependencies of

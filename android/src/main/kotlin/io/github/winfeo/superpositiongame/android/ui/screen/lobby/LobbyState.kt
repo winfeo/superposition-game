@@ -1,4 +1,4 @@
-package io.github.winfeo.superpositiongame.android.ui.viewModel
+package io.github.winfeo.superpositiongame.android.ui.screen.lobby
 
 import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 

@@ -11,11 +11,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import io.github.winfeo.superpositiongame.android.domain.lobby.usecase.ObservePlayersUseCase
-import io.github.winfeo.superpositiongame.android.domain.lobby.usecase.SendInvitationUseCase
-import io.github.winfeo.superpositiongame.android.ui.screen.InvitesScreen
-import io.github.winfeo.superpositiongame.android.ui.screen.LobbyScreen
-import io.github.winfeo.superpositiongame.android.ui.viewModel.LobbyViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyViewModel
 
 @Composable
 fun Navigation(
@@ -36,6 +35,15 @@ fun Navigation(
         }
     )
 
+    ///TODO временно потом DI
+    val invitesViewModel: InvitesViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return InvitesViewModel(currentUserId) as T
+            }
+        }
+    )
+
     NavHost(
         navController = navController,
         startDestination = LobbyRoute,
@@ -52,6 +60,7 @@ fun Navigation(
 
         composable<InvitesRoute> {
             InvitesScreen(
+                viewModel = invitesViewModel,
                 onReturnToLobby = {
                     navController.popBackStack()
                 }

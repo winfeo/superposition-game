@@ -1,4 +1,4 @@
-package io.github.winfeo.superpositiongame.android.ui.screen
+package io.github.winfeo.superpositiongame.android.ui.screen.lobby
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,7 +31,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.winfeo.superpositiongame.R
 import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 import io.github.winfeo.superpositiongame.android.ui.dialog.InviteDialog
-import io.github.winfeo.superpositiongame.android.ui.viewModel.LobbyViewModel
 
 ///TODO добавить bottomBar для навигации по страницам
 ///TODO добавить тост или снекбар после отправки уведомления
@@ -40,7 +39,6 @@ import io.github.winfeo.superpositiongame.android.ui.viewModel.LobbyViewModel
 //Лобби, лидерборд, библиотека карт, профиль (с настройками и статистикой?)
 
 //экран лобби (отображаются игроки в сети, которые тоже находятся в лобби)
-///TODO реализовать структуру: LobbyIntent?, LobbyScreen, LobbyState, LobbyViewModel
 @Composable
 fun LobbyScreen(
     viewModel: LobbyViewModel,
@@ -51,7 +49,6 @@ fun LobbyScreen(
 
     Scaffold(
         topBar = {
-            ///TODO обовлять список игроков каждые 10 секнуд в корутине?
             ///TODO иконка колокольчика в правом углу для просмота приглашений и ответа на них (принять или удалить) (отображение оклонённых приглашений)
             //Если есть новые приглшеня - отобрадение кружка на иконке колольчика
             TopAppBar(
