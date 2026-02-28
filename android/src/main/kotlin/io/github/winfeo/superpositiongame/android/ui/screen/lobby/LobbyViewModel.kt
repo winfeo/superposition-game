@@ -56,7 +56,7 @@ class LobbyViewModel(
         _selectedPlayer.value = null
     }
 
-    fun sentInvite() {
+    fun sentInvite() { ///TODO сделать так, чтобы только один раз можно было отпрравить приглашение игроку (пока тот не отказался или не принял приглашение)
         val player = _selectedPlayer.value ?: return
         viewModelScope.launch {
             sendInvitation(currentUserId, player.id)

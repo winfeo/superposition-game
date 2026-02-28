@@ -25,16 +25,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.winfeo.superpositiongame.R
-import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invite
+import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invitation
 
 @Composable
 fun InvitesScreen(
@@ -66,9 +63,15 @@ fun InvitesScreen(
         ) {
             when {
                 state.isLoading -> CircularProgressIndicator()
-                state.invites.isEmpty() -> Text(stringResource(R.string.invites_emptyList))
+                state.invitations.isEmpty() -> Text(stringResource(R.string.invites_emptyList))
                 else -> InvitesList(
-                    invites = state.invites
+                    invitations = state.invitations,
+                    onAccept = { inviteId ->
+                        viewModel.acceptInvitation(inviteId)
+                    },
+                    onReject = { inviteId ->
+                        viewModel.rejectInvitation(inviteId)
+                    }
                 )
             }
         }
@@ -77,16 +80,20 @@ fun InvitesScreen(
 
 @Composable
 fun InvitesList(
-    invites: List<Invite>
+    invitations: List<Invitation>,
+    onAccept: (String) -> Unit,
+    onReject: (String) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(invites) { invite ->
+        items(invitations) { invite ->
             InviteCard(
-                invite = invite
+                invitation = invite,
+                onAccept = onAccept,
+                onReject = onReject
             )
         }
     }
@@ -95,7 +102,9 @@ fun InvitesList(
 
 @Composable
 fun InviteCard(
-    invite: Invite
+    invitation: Invitation,
+    onAccept: (String) -> Unit,
+    onReject: (String) -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -110,7 +119,7 @@ fun InviteCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "${stringResource(R.string.invites_inviteText)}: ${invite.fromUserId.take(5)}",
+                text = "${stringResource(R.string.invites_inviteText)}: ${invitation.fromUserId.take(5)}",
                 style = MaterialTheme.typography.subtitle1
             )
 
@@ -119,7 +128,9 @@ fun InviteCard(
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Box(
-                    modifier = Modifier.clickable {}
+                    modifier = Modifier.clickable {
+                        onReject(invitation.invitationId)
+                    }
                 ) {
                     Icon(
                         modifier = Modifier.padding(8.dp),
@@ -130,7 +141,9 @@ fun InviteCard(
                 }
 
                 Box(
-                    modifier = Modifier.clickable {}
+                    modifier = Modifier.clickable {
+                        onAccept(invitation.invitationId)
+                    }
                 ) {
                     Icon(
                         modifier = Modifier.padding(8.dp),
@@ -166,6 +179,8 @@ fun InviteCard(
 @Composable
 fun InvitesListPreview(){
     InvitesList(
-        listOf(Invite("test11111111"))
+        listOf(Invitation("111", "test11111111")),
+        onAccept = {},
+        onReject = {}
     )
 }

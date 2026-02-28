@@ -21,7 +21,7 @@ import java.util.UUID
 /** Launches the Android application. */
 @SuppressLint("RestrictedApi") ///TODO добавить DI (или фабрики). Тяжко без него
 ///TODO перенсти методы в data-слой, в репоизторий какой-нибудь
-class AndroidLauncher : /*AndroidApplication()*/ ComponentActivity() {
+class AndroidLauncher: ComponentActivity() {
     private val database: FirebaseDatabase = Firebase.database
     private val ref = database.getReference("users")
     private val userId = UUID.randomUUID().toString() ///TODO хранить в SharedPref и не создавать новый каждый раз?
@@ -31,11 +31,6 @@ class AndroidLauncher : /*AndroidApplication()*/ ComponentActivity() {
         manageFirebaseUsersListId()
         removeThisMethodLater()
         ///TODO добавить фонт для текста
-
-//        initialize(Main(), AndroidApplicationConfiguration().apply {
-//            // Configure your application here.
-//            useImmersiveMode = true // Recommended, but not required.
-//        })
 
         setContent {
             Navigation(currentUserId = userId)///TODO без параметров, переделать
