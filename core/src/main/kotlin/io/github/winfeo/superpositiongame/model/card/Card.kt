@@ -1,19 +1,17 @@
 package io.github.winfeo.superpositiongame.model.card
 
-import io.github.winfeo.superpositiongame.model.card.components.CardComponent
+import io.github.winfeo.superpositiongame.model.card.description.CardDescription
 
-//Entity?
+//Модель для использования и передачи по сети
 data class Card(
     val id: String,
-    val type: CardType
-    ///TODO добавить порядковую позицию кубита в общем ряде (нужно для Rotate-Gate и x-3 гейтов)?
+    val textureId: String?,
+    val description: CardDescription
 ) {
-    val component: CardComponent = type.cardComponent
-    val canDrag: Boolean = component.canDrag
-
-    val name: String = type.cardName
-    val textureId: String = type.textureId
-    val actionRadius: Int = component.actionRadius
-    val requireSpecialSlots: Boolean = component.requiredSpecialSlot
-    val isMovable: Boolean = component.canDrag
+    val type get() = description.type
+    val axis get() = description.axis
+    //val angle get() = description.angle
+    val actionRadius get() = description.actionRadius
+    val requiredSpecialSlot get() = description.requiredSpecialSlot
+    val isForwardRotation get() = description.isForwardRotation
 }

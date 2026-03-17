@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class InvitationRepositoryImpl(
-    private val database: FirebaseDatabase
+    database: FirebaseDatabase
 ): InvitationRepository {
     ///TODO создать Firebase репоизторий, переделать потом
 
@@ -53,11 +53,10 @@ class InvitationRepositoryImpl(
         val toUserId = inviteSnapshot.child("toUserId").getValue(String::class.java)
         val gameId = refGames.push().key?: return
 
-        refGames.child(gameId).setValue(
+        refGames.child(gameId).child("players").setValue(
             mapOf(
                 "player1" to fromUserId,
                 "player2" to toUserId,
-                "status" to "Set up game" ///TODO сделать энам?
             )
         )
 

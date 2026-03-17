@@ -17,7 +17,7 @@ object DiceAtlasManager {
     fun getRandomDiceState(): DiceState = DiceState.entries.random()
 
     fun getStateTexture(stateId: String): TextureRegion {
-        return diceAtlas.findRegion(stateId)
+        return diceAtlas.findRegion(stateId)?: throw IllegalStateException("Отладка. Текстура не найдена")
     }
 
     fun dispose() {

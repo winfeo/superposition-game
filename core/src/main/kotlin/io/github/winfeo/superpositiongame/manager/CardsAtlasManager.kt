@@ -1,7 +1,6 @@
 package io.github.winfeo.superpositiongame.manager
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 
@@ -20,12 +19,8 @@ object CardsAtlasManager {
 
     fun getRandomCardId(): String = cardsId.random()
 
-    fun getRegion(regionName: String): TextureRegion? {
-        return cardsAtlas.findRegion(regionName)
-    }
-
-    fun getSprite(regionName: String): Sprite? {
-        return cardsAtlas.createSprite(regionName)
+    fun getRegion(regionName: String): TextureRegion {
+        return cardsAtlas.findRegion(regionName)?: throw IllegalStateException("Отладка. Текстура не найдена")
     }
 
     fun dispose() {

@@ -28,7 +28,7 @@ object GameSkinFactory {
         skin.add("default-font", font)
 
         fun createColorDrawable(color: Color): TextureRegionDrawable {
-            val pixmap = Pixmap(stage.width.toInt(), stage.height.toInt(), Pixmap.Format.RGBA8888)
+            val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
             pixmap.setColor(color)
             pixmap.fill()
             val texture = Texture(pixmap)

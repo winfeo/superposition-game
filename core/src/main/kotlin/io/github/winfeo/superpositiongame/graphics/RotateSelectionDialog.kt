@@ -14,19 +14,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 //Выбор состояния кубита для Rotate гейтов (диалоговое окно)
 ///TODO не переисовывается при изменении размера экрана
-object RotateSelectionDialog {
-    private lateinit var skin: Skin
-    private lateinit var stage: Stage
-
-    fun init(stage: Stage) {
-        this.stage = stage
-        skin = GameSkinFactory.createSelectionDialogSkin(stage)
-    }
-
+class RotateSelectionDialog {
     suspend fun show(
         stage: Stage,
         availableStates: List<DiceState>
     ): DiceState = suspendCancellableCoroutine { cont ->
+        val skin = GameSkinFactory.createSelectionDialogSkin(stage)
 
         val dialog = Dialog("", skin).apply {
             setModal(true)

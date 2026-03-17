@@ -12,7 +12,6 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import io.github.winfeo.superpositiongame.android.ui.nav.Navigation
-import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesViewModel
 import java.sql.Date
 import java.text.SimpleDateFormat
 import java.util.Locale

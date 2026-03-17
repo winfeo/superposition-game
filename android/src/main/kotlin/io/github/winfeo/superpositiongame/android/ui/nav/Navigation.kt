@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
@@ -16,9 +15,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import io.github.winfeo.superpositiongame.android.data.repository.GameRepositoryImpl
 import io.github.winfeo.superpositiongame.android.ui.screen.game.GameActivity
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesViewModel
@@ -70,6 +66,7 @@ fun Navigation(
             context.startActivity(
                 Intent(context, GameActivity::class.java)
                     .putExtra("GAME_ID", gameId)
+                    .putExtra("USER_ID", currentUserId)
             )
         }
     }
