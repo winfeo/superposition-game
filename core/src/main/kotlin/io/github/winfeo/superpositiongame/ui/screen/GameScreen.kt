@@ -1,0 +1,117 @@
+package io.github.winfeo.superpositiongame.ui.screen
+
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.viewport.ScreenViewport
+import io.github.winfeo.superpositiongame.model.game.GameState
+import io.github.winfeo.superpositiongame.model.game.Move
+import io.github.winfeo.superpositiongame.config.GameConfig
+import io.github.winfeo.superpositiongame.game.PlayerActionController
+import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
+import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
+import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
+import io.github.winfeo.superpositiongame.ui.screen.elements.CardsFan
+import io.github.winfeo.superpositiongame.ui.screen.elements.GameTable
+import io.github.winfeo.superpositiongame.ui.screen.elements.TurnLabel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import ktx.app.KtxScreen
+
+//Игровой экран, MVI паттерн
+class GameScreen(
+    private val playerId: String,
+    private val getOpponentId: () -> String,
+    private val onMove: (Move) -> Unit,
+    private val getGameState: () -> GameState
+) : KtxScreen {
+    private val stage = Stage(ScreenViewport())
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    private val playerActionController = PlayerActionController(
+        playerId = playerId,
+        getOpponentId = getOpponentId,
+        stage = stage,
+        scope = scope,
+        onMove = onMove,
+        getGameState = getGameState
+    )
+    private val dragManager = CardsDragAndDropManager(playerActionController)
+
+    private val turnLabel: TurnLabel by lazy {
+        TurnLabel(playerId = playerId)
+    }
+
+    private val cardsFan: CardsFan by lazy {
+        CardsFan(
+            playerId = playerId,
+            stage = stage,
+            dragManager = dragManager
+        )
+    }
+
+    private val gameTable: GameTable by lazy {
+        GameTable(
+            playerId = playerId,
+            dragManager = dragManager
+        )
+    }
+
+//    private lateinit var timerLabel: Label
+//    private lateinit var gameTimer: GameTimer
+
+    init {
+        Gdx.input.inputProcessor = stage
+        GameConfig.init(stage = stage)
+
+        CardsAtlasManager.loadAtlas()
+        DiceAtlasManager.loadAtlas()
+    }
+
+    fun renderState(newState: GameState) {
+        gameTable.render(newState)
+        cardsFan.render(newState)
+        turnLabel.render(newState.currentPlayerId)
+    }
+
+    override fun show() {
+        super.show()
+
+        turnLabel.setPosition( ///TODO переделать
+            400f,
+            stage.height - 400f
+        )
+        stage.addActor(turnLabel)
+
+        stage.addActor(gameTable)
+//        stage.isDebugAll = true
+
+    }
+
+    override fun render(delta: Float) {
+        super.render(delta)
+        Gdx.gl.glClearColor(0f,0f,0f,1f)
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+
+        stage.act(delta)
+        stage.draw()
+    }
+
+    override fun resize(width: Int, height: Int) {
+        super.resize(width, height)
+
+        stage.viewport.update(width, height, true)
+    }
+
+    override fun dispose() {
+        super.dispose()
+
+        stage.dispose()
+        CardsAtlasManager.dispose()
+        DiceAtlasManager.dispose()
+        dragManager.clear()
+        scope.cancel()
+    }
+}

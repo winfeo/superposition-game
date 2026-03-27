@@ -1,38 +1,44 @@
 package io.github.winfeo.superpositiongame
 
-import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.Texture.TextureFilter.Linear
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import io.github.winfeo.superpositiongame.model.game.GameState
+import io.github.winfeo.superpositiongame.model.game.Move
+import io.github.winfeo.superpositiongame.ui.screen.GameScreen
 import ktx.app.KtxGame
 import ktx.app.KtxScreen
-import ktx.app.clearScreen
-import ktx.assets.disposeSafely
-import ktx.assets.toInternalFile
 import ktx.async.KtxAsync
-import ktx.graphics.use
 
-class Main : KtxGame<KtxScreen>() {
+class Main(
+    private val playerId: String,
+    private val onMove: (Move) -> Unit,
+    private val getGameState: () -> GameState
+): KtxGame<KtxScreen>() {
+    private var opponentId = "" ///TODO удалить?
+
     override fun create() {
         KtxAsync.initiate()
 
-        addScreen(FirstScreen())
-        setScreen<FirstScreen>()
-    }
-}
-
-class FirstScreen : KtxScreen {
-    private val image = Texture("logo.png".toInternalFile(), true).apply { setFilter(Linear, Linear) }
-    private val batch = SpriteBatch()
-
-    override fun render(delta: Float) {
-        clearScreen(red = 0.7f, green = 0.7f, blue = 0.7f)
-        batch.use {
-            it.draw(image, 100f, 160f)
-        }
+        val screen = GameScreen(
+            playerId = playerId,
+            getOpponentId = { opponentId },
+            onMove = onMove,
+            getGameState = getGameState
+        )
+        addScreen(screen)
+        setScreen<GameScreen>()
     }
 
-    override fun dispose() {
-        image.disposeSafely()
-        batch.disposeSafely()
+    override fun resize(width: Int, height: Int) {
+        super.resize(width, height)
     }
+
+    fun updateState(state: GameState) {
+        val gameScreen = getScreen<GameScreen>()
+        gameScreen.renderState(state)
+    }
+
+    ///TODO удалить потом
+    fun updateOpponentId(newOpponentId: String) {
+        this.opponentId = newOpponentId
+    }
+
 }

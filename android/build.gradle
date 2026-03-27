@@ -1,10 +1,16 @@
+//plugins {
+//  id 'com.android.application'
+//  id 'kotlin-android'
+//  id 'com.google.gms.google-services'
+//}
+//
+//buildscript {
+//  repositories {
+//    mavenCentral()
+//    google()
+//  }
+//}
 
-buildscript {
-  repositories {
-    mavenCentral()
-    google()
-  }
-}
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
@@ -18,7 +24,7 @@ android {
       aidl.setSrcDirs(['src/main/java', 'src/main/kotlin'])
       renderscript.setSrcDirs(['src/main/java', 'src/main/kotlin'])
       res.setSrcDirs(['res'])
-      assets.setSrcDirs(['../assets'])
+      assets.setSrcDirs(['../assets', '../core/assets'])
       jniLibs.setSrcDirs(['libs'])
     }
   }
@@ -48,9 +54,15 @@ android {
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
   }
+  buildFeatures {
+    compose true
+  }
+//  composeOptions {
+//    kotlinCompilerExtensionVersion = "1.5.15"
+//  }
 
   kotlin.compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-  
+
 }
 
 repositories {
@@ -77,6 +89,27 @@ dependencies {
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
+
+  implementation(platform("com.google.firebase:firebase-bom:$firebaseBom"))
+  implementation("com.google.firebase:firebase-database-ktx")
+
+  implementation platform("androidx.compose:compose-bom:$composeBomVersion")
+  implementation "androidx.compose.ui:ui"
+  implementation "androidx.compose.material:material"
+  implementation "androidx.compose.ui:ui-tooling-preview"
+  implementation "androidx.activity:activity-compose"
+  implementation "androidx.lifecycle:lifecycle-runtime-compose"
+  implementation "androidx.lifecycle:lifecycle-viewmodel-compose"
+  debugImplementation "androidx.compose.ui:ui-tooling"
+
+  ///TODO поменять на Bom, а не конкретно ставить версию
+//  implementation platform("androidx.navigation:navigation-bom:$composeNavigationBomVersion")
+  implementation "androidx.navigation:navigation-compose:2.9.7"
+  implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0"
+  implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:1.10.0"
+
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlinxCoroutinesVersion"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2"
 
 }
 
@@ -134,3 +167,7 @@ tasks.register('run', Exec) {
 }
 
 eclipse.project.name = appName + "-android"
+
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
