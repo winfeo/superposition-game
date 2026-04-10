@@ -1,51 +1,78 @@
 package io.github.winfeo.superpositiongame.android.data.repository
 
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import io.github.winfeo.superpositiongame.android.data.dto.PlayerDto
+import android.util.Log
+import io.github.winfeo.superpositiongame.android.data.dto.InvitationDto
+import io.github.winfeo.superpositiongame.android.data.dto.LobbyResponse
+import io.github.winfeo.superpositiongame.android.data.source.Network
 import io.github.winfeo.superpositiongame.android.data.toDomain
 import io.github.winfeo.superpositiongame.android.domain.lobby.LobbyRepository
-import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
+import io.github.winfeo.superpositiongame.android.domain.lobby.model.User
+import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
-class LobbyRepositoryImpl(
-    private val database: FirebaseDatabase
-): LobbyRepository {
-    private val usersRef = database.getReference("users")
-    private val invitesRef = database.getReference("invitations")
+class LobbyRepositoryImpl(): LobbyRepository {
+    private val json = Json { ignoreUnknownKeys = true }
+    private val topic = "/topic/lobby"
+    private val initialData = "/app/lobby"
 
-    override fun observePlayersInLobby(currentUserId: String): Flow<List<Player>> {
+    override fun observeUsersInLobby(currentUserId: String): Flow<List<User>> {
         return callbackFlow {
-            val listener = object: ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val players = snapshot.children.mapNotNull { child ->
-                        val dto = child.getValue(PlayerDto::class.java)
-                        dto?.toDomain(child.key!!)
-                    }.filter { child -> child.id != currentUserId }
-                    trySend(players)
-                }
+            val connectionJob = launch {
+                Network.connectionState.collect { isConnected ->
+                    if (isConnected) {
+                        Log.d("STOMP", "Подключение успешно")
+                        Network.subscribeToTopic(topic) { message ->
+                            handleMessage(
+                                message = message,
+                                userId = currentUserId
+                            )
+                        }
 
-                override fun onCancelled(error: DatabaseError) {
-
+                        launch {
+                            delay(500) ///TODO переделать
+                            Network.sendMessage(initialData, "")
+                        }
+                    }
                 }
             }
 
-            usersRef.addValueEventListener(listener)
-            awaitClose { usersRef.removeEventListener(listener) }
+            awaitClose {
+                connectionJob.cancel()
+                Network.unsubscribeToTopic(topic)
+                Network.unsubscribeToTopic(initialData)
+            }
+        }
+    }
+
+    private fun ProducerScope<List<User>>.handleMessage(
+        message: String,
+        userId: String
+    ) {
+        try {
+            val dto = json.decodeFromString<LobbyResponse>(message)
+            Log.d("STOMP", "Данные из ДТО: ${dto.users.joinToString { it.id }}"
+            )
+            val lobby = dto.toDomain()
+            val users = lobby.users.filter { it.id != userId }
+            trySend(users)
+        } catch (e: Exception) {
+            Log.d("LOBBY", "Ошибка парсинга: ${e.message}")
         }
     }
 
     override suspend fun sendInvitation(fromUserId: String, toUserId: String) {
-        val inviteId = invitesRef.push().key ?: return
+        val dto = InvitationDto(fromUserId = fromUserId, toUserId = toUserId)
+        val jsonString = json.encodeToString(InvitationDto.serializer(), dto)
 
-        invitesRef.child(inviteId).setValue(mapOf(
-            "fromUserId" to fromUserId,
-            "toUserId" to toUserId
-        ))
+        Network.sendMessage(
+            destination = "/app/invite",
+            message = jsonString
+        )
     }
 
 }

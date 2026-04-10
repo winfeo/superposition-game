@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.winfeo.superpositiongame.R
-import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
+import io.github.winfeo.superpositiongame.android.domain.lobby.model.User
 import io.github.winfeo.superpositiongame.android.ui.dialog.InviteDialog
 
 ///TODO добавить bottomBar для навигации по страницам
@@ -45,7 +45,7 @@ fun LobbyScreen(
     onInvitesClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    val selectedPlayer by viewModel.selectedPlayer.collectAsState()
+    val selectedPlayer by viewModel.selectedUser.collectAsState()
 
     Scaffold(
         topBar = {
@@ -73,11 +73,11 @@ fun LobbyScreen(
         ) {
             when {
                 state.isLoading -> CircularProgressIndicator()
-                state.players.isEmpty() -> Text(text = stringResource(R.string.lobby_emptyList))
-                else -> PlayersList(
-                    players = state.players,
-                    onPlayerClick = { player ->
-                        viewModel.showInviteDialog(player)
+                state.users.isEmpty() -> Text(text = stringResource(R.string.lobby_emptyList))
+                else -> UsersList(
+                    users = state.users,
+                    onUserClick = { user ->
+                        viewModel.showInviteDialog(user)
                     }
                 )
             }
@@ -93,19 +93,19 @@ fun LobbyScreen(
 }
 
 @Composable
-fun PlayersList(
-    players: List<Player>,
-    onPlayerClick: (Player) -> Unit
+fun UsersList(
+    users: List<User>,
+    onUserClick: (User) -> Unit
 ) {
     LazyColumn (
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(players) { player ->
-            PlayerCard(
-                player = player,
-                onClick = { onPlayerClick(player) }
+        items(users) { user ->
+            UserCard(
+                user = user,
+                onClick = { onUserClick(user) }
             )
         }
     }
@@ -113,8 +113,8 @@ fun PlayersList(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PlayerCard(
-    player: Player,
+fun UserCard(
+    user: User,
     onClick: () -> Unit
 ) {
     Card(
@@ -131,7 +131,7 @@ fun PlayerCard(
         ) {
             ///TODO заменить на ники в дальнейшем
             Text(
-                text = "${stringResource(R.string.lobby_playerCardPlayer)}: ${player.id.take(5)}",
+                text = "${stringResource(R.string.lobby_playerCardPlayer)}: ${user.id.take(5)}",
                 style = MaterialTheme.typography.subtitle1
             )
         }
@@ -139,29 +139,29 @@ fun PlayerCard(
 }
 
 
-@Preview(
-    name = "Лобби",
-    showSystemUi = true,
-    showBackground = true
-)
-@Composable
-fun LobbyScreenPreview() {
-    LobbyScreen(
-        viewModel = viewModel(),
-        onInvitesClick = {}
-    )
-}
-
 //@Preview(
 //    name = "Лобби",
 //    showSystemUi = true,
 //    showBackground = true
 //)
 //@Composable
-//fun PlayerCardPreview() {
-//    PlayerCard(
-//        playerId = "12345-67890",
-//        onClick = {}
+//fun LobbyScreenPreview() {
+//    LobbyScreen(
+//        viewModel = viewModel(),
+//        onInvitesClick = {}
 //    )
 //}
+
+@Preview(
+    name = "Лобби",
+    showSystemUi = true,
+    showBackground = true
+)
+@Composable
+fun PlayerCardPreview() {
+    UserCard(
+        user = User(id = "12345-67890"),
+        onClick = {}
+    )
+}
 

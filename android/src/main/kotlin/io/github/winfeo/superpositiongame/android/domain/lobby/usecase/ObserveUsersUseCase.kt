@@ -1,14 +1,14 @@
 package io.github.winfeo.superpositiongame.android.domain.lobby.usecase
 
 import io.github.winfeo.superpositiongame.android.domain.lobby.LobbyRepository
-import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
+import io.github.winfeo.superpositiongame.android.domain.lobby.model.User
 import kotlinx.coroutines.flow.Flow
 
-class ObservePlayersUseCase(
+class ObserveUsersUseCase(
     private val repository: LobbyRepository,
     private val currentUserId: String
 ) {
-    operator fun invoke(): Flow<List<Player>> {
-        return repository.observePlayersInLobby(currentUserId)
+    operator fun invoke(): Flow<List<User>> {
+        return repository.observeUsersInLobby(currentUserId)
     }
 }

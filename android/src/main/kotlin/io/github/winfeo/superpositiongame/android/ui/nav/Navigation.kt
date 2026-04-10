@@ -23,8 +23,6 @@ import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyViewModel
 
 @Composable
 fun Navigation(
-//    observePlayersUseCase: ObservePlayersUseCase,
-//    sendInvitationUseCase: SendInvitationUseCase,
     currentUserId: String
 ) {
     val navController = rememberNavController()

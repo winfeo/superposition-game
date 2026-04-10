@@ -3,7 +3,6 @@ package io.github.winfeo.superpositiongame.android.data.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class InvitationDto(
-    val fromUserId: String = "",
-    val toUserId: String = ""
+data class LobbyResponse(
+    val users: List<UserDto>
 )

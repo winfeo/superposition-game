@@ -1,10 +1,10 @@
 package io.github.winfeo.superpositiongame.android.ui.screen.lobby
 
-import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
+import io.github.winfeo.superpositiongame.android.domain.lobby.model.User
 
 ///TODO заменить на sealed interface?
 data class LobbyState(
-    val players: List<Player> = emptyList(), ///TODO content?
+    val users: List<User> = emptyList(), ///TODO content?
     val isLoading: Boolean = true,
     val error: String? = null
 )

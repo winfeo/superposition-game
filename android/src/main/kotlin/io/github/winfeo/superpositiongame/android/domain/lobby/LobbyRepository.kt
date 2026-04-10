@@ -1,9 +1,9 @@
 package io.github.winfeo.superpositiongame.android.domain.lobby
 
-import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
+import io.github.winfeo.superpositiongame.android.domain.lobby.model.User
 import kotlinx.coroutines.flow.Flow
 
 interface LobbyRepository {
-    fun observePlayersInLobby(currentUserId: String): Flow<List<Player>>
+    fun observeUsersInLobby(currentUserId: String): Flow<List<User>>
     suspend fun sendInvitation(fromUserId: String, toUserId: String)
 }
