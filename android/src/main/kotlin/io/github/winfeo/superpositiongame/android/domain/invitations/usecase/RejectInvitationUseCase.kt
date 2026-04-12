@@ -4,7 +4,7 @@ import io.github.winfeo.superpositiongame.android.data.toDto
 import io.github.winfeo.superpositiongame.android.domain.invitations.InvitationRepository
 import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invitation
 
-class AcceptInvitationUseCase(
+class RejectInvitationUseCase(
     private val repository: InvitationRepository
 ) {
     suspend operator fun invoke(
@@ -12,6 +12,6 @@ class AcceptInvitationUseCase(
         currentUserId: String
     ) {
         val dto = invitation.toDto(currentUserId)
-        repository.acceptInvitation(dto)
+        repository.rejectInvitation(dto)
     }
 }

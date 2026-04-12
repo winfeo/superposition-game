@@ -17,7 +17,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.github.winfeo.superpositiongame.android.ui.screen.game.GameActivity
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesScreen
-import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitationViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyViewModel
 
@@ -39,10 +39,10 @@ fun Navigation(
     )
 
     ///TODO временно потом DI
-    val invitesViewModel: InvitesViewModel = viewModel(
+    val invitationViewModel: InvitationViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return InvitesViewModel(currentUserId) as T
+                return InvitationViewModel(currentUserId) as T
             }
         }
     )
@@ -85,7 +85,7 @@ fun Navigation(
 
         composable<InvitesRoute> {
             InvitesScreen(
-                viewModel = invitesViewModel,
+                viewModel = invitationViewModel,
                 onReturnToLobby = {
                     navController.popBackStack()
                 }

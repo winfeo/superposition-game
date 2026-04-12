@@ -1,86 +1,104 @@
 package io.github.winfeo.superpositiongame.android.data.repository
 
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import android.util.Log
 import io.github.winfeo.superpositiongame.android.data.dto.InvitationDto
+import io.github.winfeo.superpositiongame.android.data.dto.InvitationEventDto
+import io.github.winfeo.superpositiongame.android.data.source.Network
 import io.github.winfeo.superpositiongame.android.data.toDomain
 import io.github.winfeo.superpositiongame.android.domain.invitations.InvitationRepository
+import io.github.winfeo.superpositiongame.android.data.dto.InvitationEventType
 import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invitation
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
-class InvitationRepositoryImpl(
-    database: FirebaseDatabase
-): InvitationRepository {
-    ///TODO создать Firebase репоизторий, переделать потом
-
-    val ref = database.getReference("invitations")
-    val refGames = database.getReference("games")
+class InvitationRepositoryImpl(): InvitationRepository {
+    private val json = Json { ignoreUnknownKeys = true }
+    private val topic = "/user/queue/invitations"
+    private val acceptTopic = "/app/invite.accept"
+    private val rejectTopic = "/app/invite.reject"
+    private val initialData = "/app/invitations"
 
     override fun observeInvitations(userId: String): Flow<List<Invitation>> {
         return callbackFlow {
-            val listener = object: ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val list = snapshot.children
-                        .mapNotNull { child ->
-                            val dto = child.getValue(InvitationDto::class.java)
-                            if(dto?.toUserId == userId) {
-                                dto.toDomain(child.key!!)
+            val connectionJob = launch {
+                Network.connectionState.collect { isConnected ->
+                    if (isConnected) {
+                        Log.d("STOMP", "Подключение успешно")
+
+                        val currentInvitations = mutableListOf<Invitation>()
+                        Network.subscribeToTopic(topic) { message ->
+                            Log.d("INVITE", "Message: $message")
+                            try {
+                                val event = json.decodeFromString<InvitationEventDto>(message)
+                                val invitationEventType = InvitationEventType.valueOf(event.type)
+                                Log.d("INVITE", "Event type: ${event.type}")
+                                when(invitationEventType){
+                                    InvitationEventType.INIT -> {
+                                        currentInvitations.clear()
+                                        event.invitations?.forEach {
+                                            currentInvitations.add(it.toDomain())
+                                        }
+                                    }
+
+                                    InvitationEventType.INVITE_SEND -> {
+                                        event.invitation?.let {
+                                            currentInvitations.add(it.toDomain())
+                                        }
+                                    }
+
+                                    InvitationEventType.INVITE_REMOVED -> {
+                                        event.invitation?.let { dto ->
+                                            currentInvitations.removeIf {
+                                                it.senderId == dto.senderId
+                                            }
+                                        }
+                                    }
+
+                                    InvitationEventType.INVITE_ACCEPTED -> {
+                                        currentInvitations.clear()
+                                    }
+                                }
+
+                                trySend(currentInvitations.toList())
+                            } catch (e: Exception) {
+                                Log.d("INVITES", "Ошибка: ${e.message}")
                             }
-                            else null
                         }
-                    trySend(list)
-                }
 
-                override fun onCancelled(error: DatabaseError) {}
-            }
-
-            ref.addValueEventListener(listener)
-
-            awaitClose {
-                ref.removeEventListener(listener)
-            }
-        }
-    }
-
-    override suspend fun acceptInvitation(inviteId: String) {
-        val inviteSnapshot = ref.child(inviteId).get().await()
-        val fromUserId = inviteSnapshot.child("fromUserId").getValue(String::class.java)
-        val toUserId = inviteSnapshot.child("toUserId").getValue(String::class.java)
-        val gameId = refGames.push().key?: return
-
-        refGames.child(gameId).child("players").setValue(
-            mapOf(
-                "player1" to fromUserId,
-                "player2" to toUserId,
-            )
-        )
-
-        ref.child(inviteId).removeValue() ///TODO удалять все приглашение которые были тоже?
-    }
-
-    override suspend fun refuseInvitation(inviteId: String) {
-    }
-
-    override suspend fun addListenerToInvitation(userId: String) {
-        ref.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                snapshot.children.forEach { inviteSnapshot ->
-                    val fromUserId = inviteSnapshot.child("fromUserId").getValue(String::class.java)
-                    val toUserId = inviteSnapshot.child("toUserId").getValue(String::class.java)
-                    if (userId == fromUserId || userId == toUserId) {
-                        inviteSnapshot.ref.onDisconnect().removeValue()
+                        launch {
+                            delay(500) ///TODO переделать
+                            Network.sendMessage(initialData, "")
+                        }
                     }
                 }
             }
 
-            override fun onCancelled(error: DatabaseError) {
+            awaitClose {
+                connectionJob.cancel()
+                Network.unsubscribeToTopic(topic)
             }
-        })
+        }
+
+    }
+
+    override suspend fun acceptInvitation(invitation: InvitationDto) {
+        val payload = json.encodeToString(InvitationDto.serializer(), invitation)
+        Network.sendMessage(
+            destination = acceptTopic,
+            message = payload
+        )
+    }
+
+    override suspend fun rejectInvitation(invitation: InvitationDto) {
+        val payload = json.encodeToString(InvitationDto.serializer(), invitation)
+        Network.sendMessage(
+            destination = rejectTopic,
+            message = payload
+        )
     }
 
 }

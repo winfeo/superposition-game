@@ -19,6 +19,7 @@ class LobbyRepositoryImpl(): LobbyRepository {
     private val json = Json { ignoreUnknownKeys = true }
     private val topic = "/topic/lobby"
     private val initialData = "/app/lobby"
+    private val sendInvite = "/app/invite"
 
     override fun observeUsersInLobby(currentUserId: String): Flow<List<User>> {
         return callbackFlow {
@@ -66,11 +67,12 @@ class LobbyRepositoryImpl(): LobbyRepository {
     }
 
     override suspend fun sendInvitation(fromUserId: String, toUserId: String) {
-        val dto = InvitationDto(fromUserId = fromUserId, toUserId = toUserId)
+        val dto = InvitationDto(senderId = fromUserId, receiverId = toUserId)
+        Log.d("INVITE","senderId = $fromUserId, receiverId = $toUserId")
         val jsonString = json.encodeToString(InvitationDto.serializer(), dto)
 
         Network.sendMessage(
-            destination = "/app/invite",
+            destination = sendInvite,
             message = jsonString
         )
     }

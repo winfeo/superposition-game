@@ -35,7 +35,7 @@ import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invit
 
 @Composable
 fun InvitesScreen(
-    viewModel: InvitesViewModel,
+    viewModel: InvitationViewModel,
     onReturnToLobby: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
@@ -66,11 +66,11 @@ fun InvitesScreen(
                 state.invitations.isEmpty() -> Text(stringResource(R.string.invites_emptyList))
                 else -> InvitesList(
                     invitations = state.invitations,
-                    onAccept = { inviteId ->
-                        viewModel.acceptInvitation(inviteId)
+                    onAccept = { invitation ->
+                        viewModel.acceptInvitation(invitation)
                     },
-                    onReject = { inviteId ->
-                        viewModel.rejectInvitation(inviteId)
+                    onReject = { invitation ->
+                        viewModel.rejectInvitation(invitation)
                     }
                 )
             }
@@ -81,8 +81,8 @@ fun InvitesScreen(
 @Composable
 fun InvitesList(
     invitations: List<Invitation>,
-    onAccept: (String) -> Unit,
-    onReject: (String) -> Unit,
+    onAccept: (Invitation) -> Unit,
+    onReject: (Invitation) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -103,8 +103,8 @@ fun InvitesList(
 @Composable
 fun InviteCard(
     invitation: Invitation,
-    onAccept: (String) -> Unit,
-    onReject: (String) -> Unit,
+    onAccept: (Invitation) -> Unit,
+    onReject: (Invitation) -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -118,8 +118,9 @@ fun InviteCard(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            ///TODO добавить время отправки (поле уже есть в Invitations)
             Text(
-                text = "${stringResource(R.string.invites_inviteText)}: ${invitation.fromUserId.take(5)}",
+                text = "${stringResource(R.string.invites_inviteText)}: ${invitation.senderId.take(5)}",
                 style = MaterialTheme.typography.subtitle1
             )
 
@@ -129,7 +130,7 @@ fun InviteCard(
             ) {
                 Box(
                     modifier = Modifier.clickable {
-                        onReject(invitation.invitationId)
+                        onReject(invitation)
                     }
                 ) {
                     Icon(
@@ -142,7 +143,7 @@ fun InviteCard(
 
                 Box(
                     modifier = Modifier.clickable {
-                        onAccept(invitation.invitationId)
+                        onAccept(invitation)
                     }
                 ) {
                     Icon(
@@ -179,7 +180,7 @@ fun InviteCard(
 @Composable
 fun InvitesListPreview(){
     InvitesList(
-        listOf(Invitation("111", "test11111111")),
+        listOf(Invitation("111", "test11111111", sendTime = "10:23")),
         onAccept = {},
         onReject = {}
     )

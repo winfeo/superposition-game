@@ -1,7 +1,9 @@
 package io.github.winfeo.superpositiongame.android.data.source
 
 import android.util.Log
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import ua.naiksoftware.stomp.Stomp
@@ -10,7 +12,8 @@ import ua.naiksoftware.stomp.dto.LifecycleEvent
 import ua.naiksoftware.stomp.dto.StompHeader
 
 object StompConnection {
-    private const val HOST = "ws://10.0.2.2:8080/ws/websocket"
+//    private const val HOST = "ws://10.0.2.2:8080/ws/websocket"
+    private const val HOST = "ws://10.0.2.2:8080/ws-android"
     lateinit var client: StompClient
         private set
 
@@ -22,11 +25,14 @@ object StompConnection {
     fun connect(
         userId: String
     ) {
-        client = Stomp.over(Stomp.ConnectionProvider.OKHTTP, HOST)
+        val url = "$HOST?userId=$userId" ///TODO переделать
+        Log.d("STOMP", "Подключение к: $url")
+        client = Stomp.over(Stomp.ConnectionProvider.OKHTTP, url)
+//        client = Stomp.over(Stomp.ConnectionProvider.OKHTTP, HOST)
 
         lifecycleDisposable = client.lifecycle()
-            .subscribeOn(io.reactivex.schedulers.Schedulers.io())
-            .observeOn(io.reactivex.android.schedulers.AndroidSchedulers.mainThread())
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe { event ->
                 when (event.type) {
                     LifecycleEvent.Type.OPENED -> {
@@ -44,8 +50,9 @@ object StompConnection {
                 }
             }
 
-        val headers = listOf(StompHeader("userId", userId))
-        client.connect(headers)
+//        val headers = listOf(StompHeader("userId", userId)) ///TODO не работают кастомные заголовки?
+//        client.connect(headers)
+        client.connect()
     }
 
     fun disconnect() {

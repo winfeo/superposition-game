@@ -2,30 +2,28 @@ package io.github.winfeo.superpositiongame.android.ui.screen.invites
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import io.github.winfeo.superpositiongame.android.data.repository.InvitationRepositoryImpl
+import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invitation
 import io.github.winfeo.superpositiongame.android.domain.invitations.usecase.AcceptInvitationUseCase
-import io.github.winfeo.superpositiongame.android.domain.invitations.usecase.AddListenerToInvitationUseCase
 import io.github.winfeo.superpositiongame.android.domain.invitations.usecase.ObserveInvitationsUseCase
+import io.github.winfeo.superpositiongame.android.domain.invitations.usecase.RejectInvitationUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-class InvitesViewModel(
+class InvitationViewModel(
 //    private val observeInvitations: ObserveInvitationsUseCase,
 //    private val addListener: AddListenerToInvitationUseCase
     private val currentUserId: String
 ): ViewModel() {
-    private val database = Firebase.database ///TODO переделать
-    private val repository = InvitationRepositoryImpl(database)
+    private val repository = InvitationRepositoryImpl()
     private val observeInvitationsUseCase = ObserveInvitationsUseCase(repository)
     private val acceptInvitationUseCase = AcceptInvitationUseCase(repository)
-    private val addListener = AddListenerToInvitationUseCase(repository)
-    private val _state = MutableStateFlow(InvitesState())
-    val state: StateFlow<InvitesState> = _state
+    private val rejectInvitationUseCase = RejectInvitationUseCase(repository)
+    private val _state = MutableStateFlow(InvitationState())
+    val state: StateFlow<InvitationState> = _state
 
     init {
         loadInvitations(currentUserId)
@@ -37,23 +35,26 @@ class InvitesViewModel(
                 .onStart { _state.value = _state.value.copy(isLoading = true) }
                 .catch { _state.value = _state.value.copy(isLoading = false, error = it.message) }
                 .collect { invites ->
-                    _state.value = InvitesState(invitations = invites, isLoading = false)
+                    _state.value = InvitationState(invitations = invites, isLoading = false)
                 }
         }
     }
 
-    fun addListenerToInvitation(userId: String) {
+    fun acceptInvitation(invitation: Invitation) {
         viewModelScope.launch {
-            addListener(userId)
+            acceptInvitationUseCase(
+                invitation = invitation,
+                currentUserId = currentUserId
+            )
         }
     }
 
-    fun acceptInvitation(inviteId: String) {
+    fun rejectInvitation(invitation: Invitation) {
         viewModelScope.launch {
-            acceptInvitationUseCase(inviteId)
+            rejectInvitationUseCase(
+                invitation = invitation,
+                currentUserId = currentUserId
+            )
         }
-    }
-
-    fun rejectInvitation(inviteId: String) {
     }
 }

@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class InvitationDto(
-    val fromUserId: String = "",
-    val toUserId: String = ""
+    val senderId: String = "",
+    val receiverId: String = "",
+    val sendTime: String = ""
 )
