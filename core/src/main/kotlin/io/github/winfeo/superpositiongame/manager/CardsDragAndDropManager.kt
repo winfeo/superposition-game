@@ -1,5 +1,6 @@
 package io.github.winfeo.superpositiongame.manager
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
@@ -63,6 +64,8 @@ class CardsDragAndDropManager(
                 val card = payload.`object` as? CardActor ?: return false
 
                 val canDrop = controller.canDrop(card, slot)
+                println("Проверка правил. ${canDrop.message}")
+                Gdx.app.log("DragAndDrop", "Ошибка: ${canDrop.message}")
                 slot.setNewState(canDrop.activeState)
                 return canDrop.canDrop
             }

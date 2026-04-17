@@ -1,11 +1,11 @@
 package io.github.winfeo.superpositiongame.model.game
 
-enum class GamePhase(title: String) {
-    WAITING_FOR_SECOND_PLAYER(title = "Waiting for opponent to join the game"),
-    GAME_SETUP(title = "Game set up"),
-    DEALING_CARDS(title = "Dealing cards"),
-    PLAYER_TURN_BEGIN(title = "Player's turn"),
-    PLAYER_TURN_END(title = "Player's turn"),
-    FINISHED(title = "Game finished")
+enum class GamePhase {
+    WAITING_FOR_SECOND_PLAYER, ///TODO Добавить в начале при создании игры
 //    ANIMATED //TODO состояние для анимаций реализовать?
+    GAME_SETUP,
+    DEAL_CARDS,
+    MOVE_START,
+    MOVE_FINISH,
+    GAME_FINISHED
 }

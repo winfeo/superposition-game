@@ -8,12 +8,12 @@ sealed class Move {
     abstract val playerId: String
     abstract val type: GameMoveType
 
-    data class StartGame(
-        override val type: GameMoveType = GameMoveType.START_GAME,
-        override val playerId: String, //Отправляет первый игрок команду?
-        val playerRandomDices: Map<String, List<DiceState>>,
-        val playerRequiredDices: Map<String, List<DiceState>>
-    ): Move()
+//    data class StartGame(
+//        override val type: GameMoveType = GameMoveType.START_GAME,
+//        override val playerId: String, //Отправляет первый игрок команду?
+//        val playerRandomDices: Map<String, List<DiceState>>,
+//        val playerRequiredDices: Map<String, List<DiceState>>
+//    ): Move()
 
     data class PlayCard(
         override val type: GameMoveType = GameMoveType.PLAY_CARD,
@@ -39,21 +39,21 @@ sealed class Move {
         val secondSlotIndex: Int
     ): Move()
 
-    data class BeginTurn(
-        override val type: GameMoveType = GameMoveType.BEGIN_TURN,
-        override val playerId: String
-    ): Move()
+//    data class BeginTurn(
+//        override val type: GameMoveType = GameMoveType.BEGIN_TURN,
+//        override val playerId: String
+//    ): Move()
 
-    data class EndTurn(
-        override val type: GameMoveType = GameMoveType.END_TURN,
-        override val playerId: String
-    ): Move()
+//    data class EndTurn(
+//        override val type: GameMoveType = GameMoveType.END_TURN,
+//        override val playerId: String
+//    ): Move()
 
-    data class DealCards(
-        override val type: GameMoveType = GameMoveType.DEAL_CARDS,
-        override val playerId: String,
-        val playersNewCards: Map<String, List<String>>
-    ): Move()
+//    data class DealCards(
+//        override val type: GameMoveType = GameMoveType.DEAL_CARDS,
+//        override val playerId: String,
+//        val playersNewCards: Map<String, List<String>>
+//    ): Move()
 
     //Игрок выйграл
     /*data class FinishGame(

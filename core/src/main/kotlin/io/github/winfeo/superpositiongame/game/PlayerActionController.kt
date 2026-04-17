@@ -83,7 +83,7 @@ class PlayerActionController(
                     availableStates = availableStates
                 )
 
-                val targetPlayerId = if (slotActor.slotOwner == SlotOwner.PLAYER) playerId else getOpponentId()
+                val targetPlayerId = if (slotActor.slotOwner == SlotOwner.PLAYER) SlotOwner.PLAYER.name else SlotOwner.OPPONENT.name
                 Move.RotateDice(
                     playerId = playerId,
                     cardId = cardActor.card.id,
@@ -102,7 +102,7 @@ class PlayerActionController(
 //                )
 //            }
             else -> {
-                val targetPlayerId = if (slotActor.slotOwner == SlotOwner.PLAYER) playerId else getOpponentId()
+                val targetPlayerId = if (slotActor.slotOwner == SlotOwner.PLAYER) SlotOwner.PLAYER.name else SlotOwner.OPPONENT.name
                 Move.PlayCard(
                     playerId = playerId,
                     type = GameMoveType.PLAY_CARD,

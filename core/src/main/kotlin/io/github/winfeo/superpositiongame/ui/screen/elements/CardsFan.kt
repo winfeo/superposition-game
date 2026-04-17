@@ -27,7 +27,8 @@ class CardsFan(
     }
 
     private fun syncActors(cards: List<Card>) {
-        if (cardActors.size == cards.size) return
+//        if (cardActors.size == cards.size) return
+        if (cardActors.hashCode() == cards.hashCode()) return
 
         clearActors()
         cards.forEach { card ->

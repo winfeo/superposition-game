@@ -42,7 +42,11 @@ class ArrowCompatibilityRule: Rule {
         if (!result) {
             return ValidationResult(
                 canDrop = false,
-                message = "Невозможно использовать карту (несовместимая ось вращения)",
+                message = """
+                    Невозможно использовать карту (несовместимая ось вращения)
+                    Карта: ${card.axis}
+                    Дайс: ${dice.state.name}
+                """.trimIndent(),
                 activeState = SlotActorStates.HOVERED_CANT_PLACE
             )
         }

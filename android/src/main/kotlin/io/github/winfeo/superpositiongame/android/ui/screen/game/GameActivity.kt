@@ -12,9 +12,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 ////TODO сделать на фрагментах пока?
@@ -45,29 +42,19 @@ class GameActivity: AndroidApplication() {
             useImmersiveMode = true // Recommended, but not required.
         })
 
-        scope.launch {
-            val ids = viewModel.ids
-                .filter { it != null && it.size >= 2 }
-                .first()
-
-            val opponentId = ids!!.first { it != playerId }
-
-            Gdx.app.postRunnable {
-                game.updateOpponentId(opponentId)
-            }
-        }
-
         observeGameState()
     }
 
     private fun observeGameState() {
         scope.launch {
             viewModel.gameState.collectLatest { state ->
-                if (state?.phase == GamePhase.FINISHED) {
+                if (state == null) return@collectLatest
+
+                if (state.phase == GamePhase.GAME_FINISHED) {
                     ///TODO выводить окно победы игрока
                 }
                 Gdx.app.postRunnable {
-                    if (state != null) game.updateState(state)
+                    game.updateState(state)
                 }
             }
         }

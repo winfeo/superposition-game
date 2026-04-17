@@ -14,6 +14,7 @@ import ua.naiksoftware.stomp.dto.StompHeader
 object StompConnection {
 //    private const val HOST = "ws://10.0.2.2:8080/ws/websocket"
     private const val HOST = "ws://10.0.2.2:8080/ws-android"
+//    private const val HOST = "ws://91.237.249.20:8080/ws-android"
     lateinit var client: StompClient
         private set
 

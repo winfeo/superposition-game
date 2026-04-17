@@ -52,9 +52,7 @@ fun Navigation(
     val viewModel: GameLauncher= viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return GameLauncher(
-                    currentUserId
-                ) as T
+                return GameLauncher() as T
             }
         }
     )

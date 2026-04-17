@@ -13,7 +13,12 @@ class KroneckerMultiplicationRule: Rule {
         if (slot.slotOwner != activeSlotsRow) {
             return ValidationResult(
                 canDrop = false,
-                message = "Невозможно использовать карту (другой регистр)",
+                message = """
+                    Невозможно использовать карту (другой регистр)
+                    Активные слоты: $activeSlotsRow
+                    Слот: ${slot.slotOwner}
+                """.trimIndent(),
+
                 activeState = SlotActorStates.HOVERED_CANT_PLACE
             )
         }
