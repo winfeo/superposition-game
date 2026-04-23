@@ -36,13 +36,16 @@ fun PlayerStateDto.toDomain(playerId: String): PlayerState {
     return PlayerState(
         id = this.id,
         hand = this.hand.map { it.toDomain() },
-        slots = this.slots.map { it.toDomain(id) },
+        slots = this.slots.map { it.toDomain(playerId) },
         skipNextTurn = this.skipNextTurn,
         remainingMoves = this.remainingMoves
     )
 }
 
 fun SlotStateDto.toDomain(playerId: String): SlotState {
+    Log.d("DTO", "Id игрока: $playerId\n" +
+        "Владелец слота: ${this.ownerId}"
+    )
     return SlotState(
         index = this.index,
         slotOwner = if (this.ownerId == playerId) SlotOwner.PLAYER else SlotOwner.OPPONENT,

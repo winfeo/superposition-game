@@ -69,7 +69,8 @@ class GameRepositoryImpl(): GameRepository {
                             players:
                                 ${stateDto.players.entries.joinToString("\n") { (id, player) ->
                                     "Player ${id.take(5)} | hand=${player.hand.size} | slots=${player.slots.size}" +
-                                        "DiceState=${player.slots.joinToString { it.initialDice.state }}"
+                                        "DiceState=${player.slots.joinToString { it.initialDice.state }}" +
+                                        "SlotOwner=${player.slots.joinToString { it.ownerId }}"
                                 }}
                         """.trimIndent())
                         val gameState = stateDto.toDomain(playerId)

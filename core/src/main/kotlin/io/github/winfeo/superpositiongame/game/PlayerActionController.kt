@@ -1,5 +1,6 @@
 package io.github.winfeo.superpositiongame.game
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.graphics.Dialogs
 import io.github.winfeo.superpositiongame.model.card.Card
@@ -42,12 +43,22 @@ class PlayerActionController(
             if (slotActor.slotOwner == SlotOwner.PLAYER) player!!.slots[slotActor.slotIndex]
             else opponent.slots[slotActor.slotIndex]
 
+        val targetPlayerId = //TODO временно для отладки
+            if (slotActor.slotOwner == SlotOwner.PLAYER) player
+            else opponent
+
         val context = RuleContext(
             card = cardActor.card,
             targetSlot = targetSlot,
             playerSlots = player!!.slots,
             opponentSlots = opponent.slots,
             activeSlotsRow = gameState.activeSlotsRow,
+        )
+        Gdx.app.log("MULTI_BEFORE", "Владелец слота: ${slotActor.slotOwner}\n" +
+            "Активные ряды: ${gameState.activeSlotsRow}\n" +
+            "Таргет: $targetSlot\n" +
+            "Id игрока: $playerId\n" +
+            "Id таргет игрока: ${targetPlayerId?.id}"
         )
 
         return RuleEngine.checkRules(context)
