@@ -10,6 +10,7 @@ import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.game.PlayerActionController
 import io.github.winfeo.superpositiongame.graphics.Dialogs
 import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
+import io.github.winfeo.superpositiongame.manager.CardsDoubleTapManager
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
 import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
 import io.github.winfeo.superpositiongame.ui.screen.elements.CardsFan
@@ -43,6 +44,7 @@ class GameScreen(
         getGameState = getGameState
     )
     private val dragManager = CardsDragAndDropManager(playerActionController)
+    private val doubleTapManager = CardsDoubleTapManager(playerActionController)
 
     private val turnLabel: TurnLabel by lazy {
         TurnLabel(playerId = playerId)
@@ -52,7 +54,8 @@ class GameScreen(
         CardsFan(
             playerId = playerId,
             stage = stage,
-            dragManager = dragManager
+            dragManager = dragManager,
+            doubleTapManager = doubleTapManager
         )
     }
 
@@ -117,6 +120,7 @@ class GameScreen(
         CardsAtlasManager.dispose()
         DiceAtlasManager.dispose()
         dragManager.clear()
+        doubleTapManager.clear()
         scope.cancel()
     }
 }

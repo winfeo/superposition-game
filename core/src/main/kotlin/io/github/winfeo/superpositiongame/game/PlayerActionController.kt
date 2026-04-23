@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.game
 
 import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.graphics.Dialogs
+import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.card.CardType
 import io.github.winfeo.superpositiongame.model.card.description.AxisRotation
 import io.github.winfeo.superpositiongame.model.dice.DiceState
@@ -60,7 +61,7 @@ class PlayerActionController(
 
         if (state.currentPlayerId != playerId) return
 
-        when(cardActor.card.type) {
+        when(cardActor.card.type) { //TODO сделать только drop карты
             CardType.ROTATE -> handleRotateCard(cardActor = cardActor, slotActor = slotActor)
             else -> {
                 val move = createMove(cardActor = cardActor, slotActor = slotActor)
@@ -143,5 +144,28 @@ class PlayerActionController(
         }.filter { it != diceState }
     }
 
+    fun applyDoubleTapCard(cardActor: CardActor) {
+        val state = getGameState()
+
+        if (state.currentPlayerId != playerId) return
+
+        when(cardActor.card.type) { //TODO сделать только tap карты
+//            CardType.SWAP ->
+            else -> {
+                val move = createDoubleTapMove(card = cardActor.card)
+                onMove(move)
+            }
+        }
+
+    }
+
+    private fun createDoubleTapMove(
+        card: Card
+    ): Move {
+        return Move.DoubleTapEffect(
+            playerId = playerId,
+            cardId = card.id
+        )
+    }
 
 }

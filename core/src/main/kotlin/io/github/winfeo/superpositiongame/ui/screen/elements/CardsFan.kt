@@ -1,9 +1,10 @@
 package io.github.winfeo.superpositiongame.ui.screen.elements
 
 import com.badlogic.gdx.scenes.scene2d.Stage
-import io.github.winfeo.superpositiongame.config.GameConfig
+import io.github.winfeo.superpositiongame.manager.CardsDoubleTapManager
 import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
 import io.github.winfeo.superpositiongame.model.card.Card
+import io.github.winfeo.superpositiongame.model.card.CardType
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.ui.actor.card.CardActor
 import io.github.winfeo.superpositiongame.ui.actor.card.CardActorBuilder
@@ -11,10 +12,11 @@ import kotlin.math.PI
 import kotlin.math.sin
 
 //Веер-карт игрока
-class CardsFan(
+class CardsFan( //TODO единый контроллер входных нажатий?
     private val playerId: String,
     private val stage: Stage,
-    private val dragManager: CardsDragAndDropManager
+    private val dragManager: CardsDragAndDropManager,
+    private val doubleTapManager: CardsDoubleTapManager
 ) {
     private val cardActors = mutableListOf<CardActor>()
     private val baseY = -60f ///TODO переделать настройку (динамически от размера экрана сделать)
@@ -33,8 +35,20 @@ class CardsFan(
         clearActors()
         cards.forEach { card ->
             val actor = CardActorBuilder.buildCardActor(card)
-            ///TODO не все карты перетаскиваемые, какие-то Touchable. Переделать
-            dragManager.makeCardDraggable(actor)
+
+            when(card.type) { //TODO подумать, как улучшить (DRAG и TAP энам?)
+                CardType.SWAP,
+                CardType.KRONECKER_MULTIPLICATION,
+                CardType.IDENTITY,
+                CardType.BARRIER,
+                CardType.RESHAFFLE -> {
+                    doubleTapManager.makeCardTouchable(actor)
+                }
+                else -> {
+                    dragManager.makeCardDraggable(actor)
+                }
+            }
+
             stage.addActor(actor)
             cardActors.add(actor)
         }
@@ -42,8 +56,12 @@ class CardsFan(
         renderFan(cardActors)
     }
 
-    private fun clearActors() {
-        cardActors.forEach { it.remove() }
+    private fun clearActors() { //TODO переделать, не вызывать метод менеджера
+//        cardActors.forEach { it.remove() }
+        cardActors.forEach { card ->
+            doubleTapManager.removeCardTouchable(card)
+            card.remove()
+        }
         cardActors.clear()
     }
 
