@@ -30,6 +30,7 @@
         <activity
             android:name="io.github.winfeo.superpositiongame.android.ui.screen.game.GameActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false">
         </activity>
 

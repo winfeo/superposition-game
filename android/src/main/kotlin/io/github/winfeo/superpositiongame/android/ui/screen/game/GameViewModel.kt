@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.winfeo.superpositiongame.android.data.repository.GameRepositoryImpl
+import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogState
+import io.github.winfeo.superpositiongame.model.dice.DiceState
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.model.game.Move
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +20,9 @@ class GameViewModel(
     private val repository = GameRepositoryImpl()
     private val _gameState = MutableStateFlow<GameState?>(null)
     val gameState: StateFlow<GameState?> = _gameState
+
+    private val _dialogState = MutableStateFlow<GameDialogState?>(null)
+    val dialogState: StateFlow<GameDialogState?> = _dialogState
 
     init {
         Log.d("GAME_MODEL", "Создание ViewModel")
@@ -34,10 +39,26 @@ class GameViewModel(
 
     fun sendMove(move: Move) {
         viewModelScope.launch { //TODO переделать на use case
+            Log.d("GAME_SEND_MOVE", "Отправка хода из viewModel, ход: ${move.type}")
+            Log.d("GAME_SEND_MOVE", "gameId = '$gameId', move = ${move.type}")
             repository.sendMove(
                 gameId = gameId,
                 move = move
             )
         }
+    }
+
+    fun showRotateCardDialog(
+        availableStates: List<DiceState>,
+        onStateSelected: (DiceState) -> Unit
+    ) {
+        _dialogState.value = GameDialogState.RotateDialog(
+            availableStates = availableStates,
+            onStateSelected = onStateSelected
+        )
+    }
+
+    fun dismissDialog() {
+        _dialogState.value = null
     }
 }

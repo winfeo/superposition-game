@@ -8,6 +8,7 @@ import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.model.game.Move
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.game.PlayerActionController
+import io.github.winfeo.superpositiongame.graphics.Dialogs
 import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
 import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
@@ -24,8 +25,10 @@ import ktx.app.KtxScreen
 class GameScreen(
     private val playerId: String,
     private val getOpponentId: () -> String,
+    private val dialogs: Dialogs,
     private val onMove: (Move) -> Unit,
-    private val getGameState: () -> GameState
+    private val getGameState: () -> GameState,
+    private val applyPendingState: () -> Unit
 ) : KtxScreen {
     private val stage = Stage(ScreenViewport())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -34,6 +37,7 @@ class GameScreen(
         playerId = playerId,
         getOpponentId = getOpponentId,
         stage = stage,
+        dialogs = dialogs,
         scope = scope,
         onMove = onMove,
         getGameState = getGameState
@@ -91,7 +95,8 @@ class GameScreen(
     }
 
     override fun render(delta: Float) {
-        super.render(delta)
+//        super.render(delta)
+        applyPendingState()
         Gdx.gl.glClearColor(0f,0f,0f,1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
