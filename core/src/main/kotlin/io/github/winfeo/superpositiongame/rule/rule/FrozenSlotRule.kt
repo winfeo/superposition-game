@@ -11,7 +11,10 @@ class FrozenSlotRule: Rule {
         val slot = ruleContext.targetSlot
         val card = ruleContext.card
 
-        if (slot.isFrozen && card.type != CardType.QUANTUM_NOISE) {
+        if (
+            slot.isFrozen &&
+            card.type !in listOf(CardType.SWAP, CardType.QUANTUM_NOISE, CardType.MEASUREMENT)
+            ) {
             return ValidationResult(
                 canDrop = false,
                 message = "Невозможно использовать карту (слот заморожен)",
