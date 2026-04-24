@@ -4,6 +4,7 @@ import android.util.Log
 import io.github.winfeo.superpositiongame.android.data.dto.move.DoubleTapEffectDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.MoveDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.PlayCardDto
+import io.github.winfeo.superpositiongame.android.data.dto.move.ReshuffleCardDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.RotateDiceDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.SwapDicesDto
 import io.github.winfeo.superpositiongame.android.data.dto.state.GameStateDto
@@ -33,6 +34,7 @@ class GameRepositoryImpl(): GameRepository {
                 subclass(RotateDiceDto::class)
                 subclass(SwapDicesDto::class)
                 subclass(DoubleTapEffectDto::class)
+                subclass(ReshuffleCardDto::class)
             }
         }
     }

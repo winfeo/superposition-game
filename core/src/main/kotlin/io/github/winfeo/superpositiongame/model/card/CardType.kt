@@ -11,6 +11,6 @@ enum class CardType {
     MEASUREMENT,
     IDENTITY,
     BARRIER,
-    RESHAFFLE,
-    QUANTUM_LUCKY
+    RESHUFFLE,
+//    QUANTUM_LUCKY
 }

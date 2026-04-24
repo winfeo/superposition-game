@@ -21,7 +21,8 @@ object CardFactory {
         CardTypeNew.MEASUREMENT to "measurement",
         CardTypeNew.KRONECKER_MULTIPLICATION to "kronecker_multiplication",
         CardTypeNew.QUANTUM_NOISE to "quantum_noise",
-        CardTypeNew.SWAP to "swap"
+        CardTypeNew.SWAP to "swap",
+        CardTypeNew.RESHUFFLE to "reshuffle"
     )
     private val cardRepository: List<String> = listOf(
         "pauli_x",
@@ -41,7 +42,8 @@ object CardFactory {
         "quantum_noise",
         "kronecker_multiplication",
         "measurement",
-        "identity"
+        "identity",
+        "reshuffle"
     )
     private var idCounter = 0
 

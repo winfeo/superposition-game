@@ -74,7 +74,7 @@ object CardActorBuilder {
             CardType.KRONECKER_MULTIPLICATION,
             CardType.IDENTITY,
             CardType.BARRIER,
-            CardType.RESHAFFLE,
+            CardType.RESHUFFLE,
         )
     }
 

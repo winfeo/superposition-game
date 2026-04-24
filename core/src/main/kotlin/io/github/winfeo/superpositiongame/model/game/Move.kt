@@ -1,6 +1,5 @@
 package io.github.winfeo.superpositiongame.model.game
 
-import io.github.winfeo.superpositiongame.model.card.CardType
 import io.github.winfeo.superpositiongame.model.dice.DiceState
 
 //все команды, которые меняют состояние игры
@@ -8,6 +7,7 @@ import io.github.winfeo.superpositiongame.model.dice.DiceState
 sealed class Move {
     abstract val playerId: String
     abstract val type: GameMoveType
+    //TODO вынести cardId сюда тоже
 
     data class PlayCard(
         override val type: GameMoveType = GameMoveType.PLAY_CARD,
@@ -40,5 +40,12 @@ sealed class Move {
         override val type: GameMoveType = GameMoveType.DOUBLE_TAP,
         override val playerId: String,
         val cardId: String
+    ): Move()
+
+    data class ReshuffleCard(
+        override val type: GameMoveType = GameMoveType.RESHUFFLE_CARD,
+        override val playerId: String,
+        val cardId: String,
+        val cardsToChange: List<String>
     ): Move()
 }

@@ -45,7 +45,7 @@ class CardsFan( //TODO единый контроллер входных нажа
                 CardType.KRONECKER_MULTIPLICATION,
                 CardType.IDENTITY,
                 CardType.BARRIER,
-                CardType.RESHAFFLE -> {
+                CardType.RESHUFFLE -> {
                     doubleTapManager.makeCardTouchable(actor)
                 }
                 else -> {

@@ -3,6 +3,7 @@ package io.github.winfeo.superpositiongame.android.data
 import io.github.winfeo.superpositiongame.android.data.dto.move.DoubleTapEffectDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.MoveDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.PlayCardDto
+import io.github.winfeo.superpositiongame.android.data.dto.move.ReshuffleCardDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.RotateDiceDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.SwapDicesDto
 import io.github.winfeo.superpositiongame.model.game.Move
@@ -34,6 +35,12 @@ fun Move.toDto(): MoveDto {
         is DoubleTapEffect -> DoubleTapEffectDto(
             playerId = playerId,
             cardId = cardId
+        )
+
+        is ReshuffleCard -> ReshuffleCardDto(
+            playerId = playerId,
+            cardId = cardId,
+            cardsToChange = cardsToChange
         )
     }
 }
