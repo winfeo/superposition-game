@@ -40,7 +40,7 @@ class SlotActor(
         )
 
         borderImage.setPosition(0f, 0f)
-        borderImage.color = Color.GOLD ///TODO переделать
+        borderImage.color = Color.valueOf("aeb0a7") ///TODO переделать
         addActor(borderImage)
         borderImage.setZIndex(1)
     }
@@ -100,7 +100,8 @@ class SlotActor(
 
         state = newState
         borderImage.color = when (state) {
-            SlotActorStates.NO_ACTION -> Color.GOLD
+//            SlotActorStates.NO_ACTION -> Color.GOLD
+            SlotActorStates.NO_ACTION -> Color.valueOf("aeb0a7")
             SlotActorStates.HOVERED_CAN_PLACE -> Color.CYAN
             SlotActorStates.HOVERED_CANT_PLACE -> Color.RED
             SlotActorStates.REQUIRED_DICE_STATE -> Color.GREEN

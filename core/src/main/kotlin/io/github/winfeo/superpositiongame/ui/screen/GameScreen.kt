@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.ui.screen
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import io.github.winfeo.superpositiongame.model.game.GameState
@@ -68,6 +69,10 @@ class GameScreen(
     private val dragManager = CardsDragAndDropManager(playerActionController)
 //    private val doubleTapManager = CardsDoubleTapManager(playerActionController)
 
+    private val backgroundTexture by lazy {
+        Texture(Gdx.files.internal("background_blured2.png"))
+    }
+
     private val turnLabel: TurnLabel by lazy {
         TurnLabel(playerId = playerId)
     }
@@ -108,13 +113,13 @@ class GameScreen(
     override fun show() {
         super.show()
 
+        stage.addActor(gameTable)
+
         turnLabel.setPosition( ///TODO переделать
             400f,
             stage.height - 400f
         )
         stage.addActor(turnLabel)
-
-        stage.addActor(gameTable)
 //        stage.isDebugAll = true
 
     }
@@ -124,6 +129,11 @@ class GameScreen(
         applyPendingState()
         Gdx.gl.glClearColor(0f,0f,0f,1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+
+        val batch = stage.batch
+        batch.begin()
+        batch.draw(backgroundTexture, 0f, 0f, stage.width, stage.height)
+        batch.end()
 
         stage.act(delta)
         stage.draw()
@@ -138,6 +148,7 @@ class GameScreen(
     override fun dispose() {
         super.dispose()
 
+        backgroundTexture.dispose()
         stage.dispose()
         CardsAtlasManager.dispose()
         DiceAtlasManager.dispose()
