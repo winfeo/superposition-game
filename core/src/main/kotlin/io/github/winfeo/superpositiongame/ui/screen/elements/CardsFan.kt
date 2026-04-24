@@ -30,7 +30,11 @@ class CardsFan( //TODO единый контроллер входных нажа
 
     private fun syncActors(cards: List<Card>) {
 //        if (cardActors.size == cards.size) return
-        if (cardActors.hashCode() == cards.hashCode()) return
+//        if (cardActors.hashCode() == cards.hashCode()) return
+        if (
+            cardActors.size == cards.size &&
+            cardActors.map { it.card.id } == cards.map { it.id }
+        ) return
 
         clearActors()
         cards.forEach { card ->
@@ -86,5 +90,14 @@ class CardsFan( //TODO единый контроллер входных нажа
 
             card.zIndex = 0
         }
+    }
+
+    fun consumeCard(card: CardActor) {
+        doubleTapManager.removeCardTouchable(card)
+
+        cardActors.remove(card)
+        card.remove()
+
+        renderFan(cardActors)
     }
 }

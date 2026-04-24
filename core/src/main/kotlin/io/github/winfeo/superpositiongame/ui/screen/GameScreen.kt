@@ -13,6 +13,7 @@ import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.manager.CardsDoubleTapManager
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
 import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
+import io.github.winfeo.superpositiongame.manager.SwapSelectionManager
 import io.github.winfeo.superpositiongame.ui.screen.elements.CardsFan
 import io.github.winfeo.superpositiongame.ui.screen.elements.GameTable
 import io.github.winfeo.superpositiongame.ui.screen.elements.TurnLabel
@@ -34,6 +35,26 @@ class GameScreen(
     private val stage = Stage(ScreenViewport())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
+    private val swapManager: SwapSelectionManager by lazy {
+        SwapSelectionManager(
+            allSlotsProvider = {
+                gameTable.getAllSlots()
+            }
+        )
+    }
+
+    private val doubleTapManager by lazy {
+        CardsDoubleTapManager(
+            controller = playerActionController,
+            onCardConsumed = { card ->
+                val gameState = getGameState()
+                if (gameState.currentPlayerId == playerId) {
+                    cardsFan.consumeCard(card)
+                }
+            }
+        )
+    }
+
     private val playerActionController = PlayerActionController(
         playerId = playerId,
         getOpponentId = getOpponentId,
@@ -41,10 +62,11 @@ class GameScreen(
         dialogs = dialogs,
         scope = scope,
         onMove = onMove,
-        getGameState = getGameState
+        getGameState = getGameState,
+        swapManager = swapManager
     )
     private val dragManager = CardsDragAndDropManager(playerActionController)
-    private val doubleTapManager = CardsDoubleTapManager(playerActionController)
+//    private val doubleTapManager = CardsDoubleTapManager(playerActionController)
 
     private val turnLabel: TurnLabel by lazy {
         TurnLabel(playerId = playerId)

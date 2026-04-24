@@ -8,7 +8,8 @@ import io.github.winfeo.superpositiongame.game.PlayerActionController
 import io.github.winfeo.superpositiongame.ui.actor.card.CardActor
 
 class CardsDoubleTapManager(
-    private val controller: PlayerActionController
+    private val controller: PlayerActionController,
+    private val onCardConsumed: (CardActor) -> Unit
 ) {
     private val clickListeners = mutableMapOf<CardActor, ClickListener>()
     private val lastTapTimes = mutableMapOf<CardActor, Long>()
@@ -45,6 +46,7 @@ class CardsDoubleTapManager(
 
     private fun onDoubleTap(card: CardActor) {
         Gdx.app.log("TAP", "Карта используется: ${card.card.type}")
+        onCardConsumed(card)
         controller.applyDoubleTapCard(card)
     }
 

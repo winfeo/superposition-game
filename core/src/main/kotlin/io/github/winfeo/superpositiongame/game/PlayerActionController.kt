@@ -3,6 +3,7 @@ package io.github.winfeo.superpositiongame.game
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.graphics.Dialogs
+import io.github.winfeo.superpositiongame.manager.SwapSelectionManager
 import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.card.CardType
 import io.github.winfeo.superpositiongame.model.card.description.AxisRotation
@@ -27,7 +28,8 @@ class PlayerActionController(
     private val dialogs: Dialogs,
     private val scope: CoroutineScope,
     private val onMove: (Move) -> Unit,
-    private val getGameState: () -> GameState
+    private val getGameState: () -> GameState,
+    private val swapManager: SwapSelectionManager
 ) {
 
     fun canDrop(
@@ -161,7 +163,19 @@ class PlayerActionController(
         if (state.currentPlayerId != playerId) return
 
         when(cardActor.card.type) { //TODO сделать только tap карты
-//            CardType.SWAP ->
+            CardType.SWAP -> {
+                swapManager.startSelection { first, second ->
+                    val move = Move.SwapDices(
+                        playerId = playerId,
+                        firstSlotIndex = first.slotIndex,
+                        secondSlotIndex = second.slotIndex,
+                        firstSlotOwner = first.slotOwner.name,
+                        secondSlotOwner = second.slotOwner.name
+                    )
+
+                    onMove(move)
+                }
+            }
             else -> {
                 val move = createDoubleTapMove(card = cardActor.card)
                 onMove(move)

@@ -10,4 +10,6 @@ data class SwapDicesDto(
     override val playerId: String,
     val firstSlotIndex: Int,
     val secondSlotIndex: Int,
+    val firstSlotOwner: String,
+    val secondSlotOwner: String
 ): MoveDto()

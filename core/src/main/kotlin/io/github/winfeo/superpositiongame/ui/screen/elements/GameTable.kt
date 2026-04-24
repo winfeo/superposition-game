@@ -91,4 +91,8 @@ class GameTable(
         }
     }
 
+    fun getAllSlots(): List<SlotActor> {
+        return playerSlots + opponentSlots
+    }
+
 }

@@ -26,7 +26,9 @@ fun Move.toDto(): MoveDto {
         is SwapDices -> SwapDicesDto(
             playerId = playerId,
             firstSlotIndex = firstSlotIndex,
-            secondSlotIndex = secondSlotIndex
+            secondSlotIndex = secondSlotIndex,
+            firstSlotOwner = firstSlotOwner,
+            secondSlotOwner = secondSlotOwner
         )
         is DoubleTapEffect -> DoubleTapEffectDto(
             playerId = playerId,

@@ -30,7 +30,9 @@ sealed class Move {
         override val type: GameMoveType = GameMoveType.SWAP_DICES,
         override val playerId: String,
         val firstSlotIndex: Int,
-        val secondSlotIndex: Int
+        val secondSlotIndex: Int,
+        val firstSlotOwner: String,
+        val secondSlotOwner: String
     ): Move()
 
     data class DoubleTapEffect(
