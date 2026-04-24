@@ -29,6 +29,7 @@ sealed class Move {
     data class SwapDices(
         override val type: GameMoveType = GameMoveType.SWAP_DICES,
         override val playerId: String,
+        val cardId: String,
         val firstSlotIndex: Int,
         val secondSlotIndex: Int,
         val firstSlotOwner: String,

@@ -167,6 +167,7 @@ class PlayerActionController(
                 swapManager.startSelection { first, second ->
                     val move = Move.SwapDices(
                         playerId = playerId,
+                        cardId = cardActor.card.id,
                         firstSlotIndex = first.slotIndex,
                         secondSlotIndex = second.slotIndex,
                         firstSlotOwner = first.slotOwner.name,

@@ -25,6 +25,7 @@ fun Move.toDto(): MoveDto {
         )
         is SwapDices -> SwapDicesDto(
             playerId = playerId,
+            cardId = cardId,
             firstSlotIndex = firstSlotIndex,
             secondSlotIndex = secondSlotIndex,
             firstSlotOwner = firstSlotOwner,
