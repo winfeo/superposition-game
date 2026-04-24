@@ -15,6 +15,7 @@ import com.badlogic.gdx.backends.android.AndroidFragmentApplication
 import io.github.winfeo.superpositiongame.Main
 import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogState
 import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogs
+import io.github.winfeo.superpositiongame.android.ui.dialog.compose.ReshuffleCardDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.compose.RotateCardDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.SuperpositionGameTheme
 import io.github.winfeo.superpositiongame.model.game.GamePhase
@@ -65,6 +66,7 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                     game.applyNewState(state)
                 }
 
+                //TODO сделать отдельный stage в GameScreen для диалогов (блокировать экран игры при показе диалога)
                 Box(modifier = Modifier.fillMaxSize()) {
                     dialogState?.let { dialog ->
                         when (dialog) {
@@ -73,6 +75,17 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                                     availableStates = dialog.availableStates,
                                     onStateSelected = { selected ->
                                         dialog.onStateSelected(selected)
+                                        viewModel.dismissDialog()
+                                    }
+                                )
+                            }
+                            is GameDialogState.ReshuffleDialog -> {
+                                ReshuffleCardDialog(
+                                    cards = dialog.cards,
+                                    maxSelectable = dialog.maxSelectable,
+                                    minSelectable = dialog.minSelectable,
+                                    onCardsSelected = { selectedCards ->
+                                        dialog.onCardsSelected(selectedCards)
                                         viewModel.dismissDialog()
                                     }
                                 )

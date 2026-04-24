@@ -177,6 +177,32 @@ class PlayerActionController(
                     onMove(move)
                 }
             }
+
+            CardType.RESHUFFLE -> {
+                val gameState = getGameState()
+                val player = gameState.players[playerId] ?: return
+
+                val handCards = player.hand.filter { it.id != cardActor.card.id }
+
+                if (handCards.isEmpty()) {
+                    Gdx.app.log("RESHUFFLE", "Отладка. Все карты использованы")
+                    return
+                }
+
+                dialogs.showReshuffleDialog(
+                    cards = handCards,
+                    maxSelectable = minOf(4, handCards.size),
+                    minSelectable = 1,
+                    onCardsSelected = { selectedCards ->
+                        val move = Move.ReshuffleCard(
+                            playerId = playerId,
+                            cardId = cardActor.card.id,
+                            cardsToChange = selectedCards.map { it.id }
+                        )
+                        onMove(move)
+                    }
+                )
+            }
             else -> {
                 val move = createDoubleTapMove(card = cardActor.card)
                 onMove(move)

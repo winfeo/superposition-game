@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.winfeo.superpositiongame.android.data.repository.GameRepositoryImpl
 import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogState
+import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.dice.DiceState
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.model.game.Move
@@ -55,6 +56,20 @@ class GameViewModel(
         _dialogState.value = GameDialogState.RotateDialog(
             availableStates = availableStates,
             onStateSelected = onStateSelected
+        )
+    }
+
+    fun showReshuffleDialog(
+        cards: List<Card>,
+        maxSelectable: Int = 4,
+        minSelectable: Int = 1,
+        onCardsSelected: (List<Card>) -> Unit
+    ) {
+        _dialogState.value = GameDialogState.ReshuffleDialog(
+            cards = cards,
+            maxSelectable = maxSelectable,
+            minSelectable = minSelectable,
+            onCardsSelected = onCardsSelected
         )
     }
 
