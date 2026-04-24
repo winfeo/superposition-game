@@ -34,4 +34,8 @@ class GameDialogs(
             onCardsSelected = onCardsSelected
         )
     }
+
+    override fun showCardPreview(card: Card) {
+        viewModel.showCardPreview(card)
+    }
 }

@@ -15,4 +15,8 @@ sealed class GameDialogState {
         val minSelectable: Int = 1,
         val onCardsSelected: (List<Card>) -> Unit
     ): GameDialogState()
+
+    data class CardPreviewDialog(
+        val card: Card
+    ): GameDialogState()
 }

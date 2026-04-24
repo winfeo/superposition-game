@@ -73,6 +73,14 @@ class GameViewModel(
         )
     }
 
+    fun showCardPreview(
+        card: Card
+    ) {
+        _dialogState.value = GameDialogState.CardPreviewDialog(
+            card = card
+        )
+    }
+
     fun dismissDialog() {
         _dialogState.value = null
     }

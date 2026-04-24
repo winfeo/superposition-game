@@ -17,4 +17,8 @@ interface Dialogs {
         minSelectable: Int = 1,
         onCardsSelected: (List<Card>) -> Unit
     )
+
+    fun showCardPreview(
+        card: Card
+    )
 }
