@@ -14,6 +14,7 @@ import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.manager.CardsDoubleTapManager
 import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
 import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
+import io.github.winfeo.superpositiongame.manager.CardsLongPressManager
 import io.github.winfeo.superpositiongame.manager.SwapSelectionManager
 import io.github.winfeo.superpositiongame.ui.screen.elements.CardsFan
 import io.github.winfeo.superpositiongame.ui.screen.elements.GameTable
@@ -68,6 +69,7 @@ class GameScreen(
     )
     private val dragManager = CardsDragAndDropManager(playerActionController)
 //    private val doubleTapManager = CardsDoubleTapManager(playerActionController)
+    private val longPressManager = CardsLongPressManager(dialogs)
 
     private val backgroundTexture by lazy {
         Texture(Gdx.files.internal("background_blured2.png"))
@@ -82,7 +84,8 @@ class GameScreen(
             playerId = playerId,
             stage = stage,
             dragManager = dragManager,
-            doubleTapManager = doubleTapManager
+            doubleTapManager = doubleTapManager,
+            longPressManager = longPressManager
         )
     }
 
@@ -154,6 +157,7 @@ class GameScreen(
         DiceAtlasManager.dispose()
         dragManager.clear()
         doubleTapManager.clear()
+        longPressManager.clear()
         scope.cancel()
     }
 }

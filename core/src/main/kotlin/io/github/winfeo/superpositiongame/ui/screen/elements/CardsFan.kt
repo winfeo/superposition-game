@@ -3,6 +3,7 @@ package io.github.winfeo.superpositiongame.ui.screen.elements
 import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.manager.CardsDoubleTapManager
 import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
+import io.github.winfeo.superpositiongame.manager.CardsLongPressManager
 import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.card.CardType
 import io.github.winfeo.superpositiongame.model.game.GameState
@@ -16,7 +17,8 @@ class CardsFan( //TODO единый контроллер входных нажа
     private val playerId: String,
     private val stage: Stage,
     private val dragManager: CardsDragAndDropManager,
-    private val doubleTapManager: CardsDoubleTapManager
+    private val doubleTapManager: CardsDoubleTapManager,
+    private val longPressManager: CardsLongPressManager
 ) {
     private val cardActors = mutableListOf<CardActor>()
     private val baseY = -60f ///TODO переделать настройку (динамически от размера экрана сделать)
@@ -40,6 +42,7 @@ class CardsFan( //TODO единый контроллер входных нажа
         cards.forEach { card ->
             val actor = CardActorBuilder.buildCardActor(card)
 
+            longPressManager.makeCardLongPressable(actor)
             when(card.type) { //TODO подумать, как улучшить (DRAG и TAP энам?)
                 CardType.SWAP,
                 CardType.KRONECKER_MULTIPLICATION,
@@ -64,6 +67,7 @@ class CardsFan( //TODO единый контроллер входных нажа
 //        cardActors.forEach { it.remove() }
         cardActors.forEach { card ->
             doubleTapManager.removeCardTouchable(card)
+            longPressManager.removeCardLongPressable(card)
             card.remove()
         }
         cardActors.clear()
@@ -94,6 +98,7 @@ class CardsFan( //TODO единый контроллер входных нажа
 
     fun consumeCard(card: CardActor) {
         doubleTapManager.removeCardTouchable(card)
+        longPressManager.makeCardLongPressable(card)
 
         cardActors.remove(card)
         card.remove()

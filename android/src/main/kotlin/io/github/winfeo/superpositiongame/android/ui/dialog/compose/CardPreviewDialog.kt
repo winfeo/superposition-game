@@ -41,7 +41,8 @@ fun CardPreviewDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
-                .padding(16.dp),
+                .padding(16.dp)
+                .clickable { onDismiss() },
             shape = RoundedCornerShape(16.dp),
             elevation = 8.dp,
             backgroundColor = Color(0xFF37373C)
