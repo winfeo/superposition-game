@@ -1,31 +1,31 @@
 package io.github.winfeo.superpositiongame.android.ui.screen.lobby
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,7 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
 import io.github.winfeo.superpositiongame.android.domain.lobby.model.User
 import io.github.winfeo.superpositiongame.android.ui.dialog.InviteDialog
+import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.DiagonalCutShape
 
 ///TODO добавить bottomBar для навигации по страницам
@@ -58,49 +59,277 @@ fun LobbyScreen(
     val state by viewModel.state.collectAsState()
     val selectedPlayer by viewModel.selectedUser.collectAsState()
 
-    Scaffold(
-        topBar = {
-            ///TODO иконка колокольчика в правом углу для просмота приглашений и ответа на них (принять или удалить) (отображение оклонённых приглашений)
-            //Если есть новые приглшеня - отобрадение кружка на иконке колольчика
-            TopAppBar(
-                ///TODO отображение количества игроков в сети
-                title = { Text(text = stringResource(R.string.lobby_title)) },
-                actions = {
-                    IconButton(onClick = onInvitesClick) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_bell),
-                            contentDescription = "invites"
+    Scaffold { paddingValues ->
+        Box(
+            Modifier.background(Color(0xFF0C0813))
+        ) {
+            LobbyBackground()
+
+            Column (
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                UserBar(
+                    playerName = "12345", //TODO реальный ник или id игрока
+                    onInvitesClick = onInvitesClick
+                )
+
+                HeaderDivider()
+
+                Box {
+                    when {
+                        state.isLoading -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    strokeWidth = 2.dp,
+                                    color = Color(0xFF6C8CFF)
+                                )
+                            }
+                        }
+                        state.users.isEmpty() -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.lobby_emptyList),
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    style = MaterialTheme.typography.body1
+                                )
+                            }
+                        }
+                        else -> UsersList(
+                            users = state.users,
+                            onUserClick = { user ->
+                                viewModel.showInviteDialog(user)
+                            }
                         )
                     }
                 }
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentAlignment = Alignment.Center
-        ) {
-            when {
-                state.isLoading -> CircularProgressIndicator()
-                state.users.isEmpty() -> Text(text = stringResource(R.string.lobby_emptyList))
-                else -> UsersList(
-                    users = state.users,
-                    onUserClick = { user ->
-                        viewModel.showInviteDialog(user)
-                    }
-                )
             }
         }
-        selectedPlayer?.let { player ->
-            InviteDialog(
-                playerId = player.id,
-                onConfirm = { viewModel.sentInvite() },
-                onDismiss = { viewModel.hideInviteDialog() }
+    }
+
+    selectedPlayer?.let { player ->
+        InviteDialog(
+            playerId = player.id,
+            onConfirm = { viewModel.sentInvite() },
+            onDismiss = { viewModel.hideInviteDialog() }
+        )
+    }
+}
+
+@Composable
+fun LobbyBackground() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        BackgroundBlur()
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    Color.White.copy(alpha = 0.02f)
+                )
+        )
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.35f)
+                        ),
+                        radius = 1400f
+                    )
+                )
+        )
+    }
+}
+
+@Composable
+fun UserBar(
+    playerName: String,
+    onInvitesClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF2B36A6).copy(alpha = 0.45f),
+                        Color(0xFF15162A).copy(alpha = 0.35f)
+                    )
+                )
             )
+    ) {
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFF6C8CFF).copy(alpha = 0.15f),
+                            Color.Transparent
+                        ),
+                        radius = 900f
+                    )
+                )
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = 18.dp,
+                    vertical = 16.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            AvatarWithName(playerName)
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            NotificationButton(onInvitesClick)
         }
     }
+}
+
+@Composable
+fun AvatarWithName(
+    playerName: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .background(
+                color = Color.White.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .border(
+                color = Color.White.copy(alpha = 0.10f),
+                shape = RoundedCornerShape(16.dp),
+                width = 1.dp
+                )
+            .padding(
+                horizontal = 16.dp,
+                vertical = 8.dp
+            )
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(
+                    color = Color.White.copy(alpha = 0.10f),
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.ic_panda),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                colorFilter = ColorFilter.tint(Color.White)
+            )
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Text(
+            text = playerName,
+            color = Color.White.copy(alpha = 0.92f)
+        )
+    }
+}
+
+@Composable
+fun NotificationButton(
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(48.dp)
+            .background(
+                brush = Brush.radialGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.18f),
+                        Color.White.copy(alpha = 0.06f)
+                    )
+                ),
+                shape = CircleShape
+            )
+            .border(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.12f),
+                shape = CircleShape
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.10f),
+                            Color.Transparent
+                        )
+                    ),
+                    shape = CircleShape
+                )
+        )
+
+        Icon(
+            painter = painterResource(R.drawable.ic_bell),
+            contentDescription = null,
+            tint = Color.White.copy(alpha = 0.92f),
+            modifier = Modifier.size(24.dp)
+        )
+
+//        Box( //TODO рисовать, когда есть уведомления
+//            modifier = Modifier
+//                .align(Alignment.TopEnd)
+//                .size(8.dp)
+//                .background(
+//                    color = Color(0xFF3D4AEB),
+//                    shape = CircleShape
+//                )
+//                .border(
+//                    width = 1.dp,
+//                    color = Color.White.copy(alpha = 0.8f),
+//                    shape = CircleShape
+//                )
+//        )
+
+    }
+}
+
+@Composable
+fun HeaderDivider() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(3.dp)
+            .background(
+                Brush.horizontalGradient(
+                    listOf(
+                        Color.Transparent,
+                        Color.White.copy(alpha = 0.12f),
+                        Color.Transparent
+                    )
+                )
+            )
+    )
 }
 
 @Composable
@@ -122,58 +351,75 @@ fun UsersList(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun UserCard(
     user: User,
     onClick: () -> Unit
 ) {
-    Card(
+    Box(
         modifier = Modifier
-            .fillMaxWidth(),
-//            .background(Color.Red)
-//            .padding(8.dp),
-        elevation = 4.dp,
-//        shape = RoundedCornerShape(16.dp),
-        shape = DiagonalCutShape(),
-        onClick = onClick
+            .fillMaxWidth()
+            .heightIn(min = 64.dp)
+            .clickable { onClick() }
+            .background(
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.06f),
+                        Color.White.copy(alpha = 0.03f)
+                    )
+                ),
+                shape = RoundedCornerShape(16.dp)
+//                shape = DiagonalCutShape() //TODO закастомить тоже?
+            )
+            .border(
+                color = Color.White.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(16.dp),
+                width = 1.dp
+            )
     ) {
-        Box(
-            modifier = Modifier.fillMaxWidth()
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
+                    .size(40.dp)
+                    .background(
+                        color = Color.White.copy(alpha = 0.08f),
+                        shape = CircleShape
+                    ),
+                contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_panda),
-                    contentDescription = "Иконка игрока",
-                    modifier = Modifier
-                        .padding(horizontal = 32.dp)
-                        .size(32.dp)
+                    painter = painterResource(R.drawable.ic_panda),
+                    contentDescription = null,
+                    modifier = Modifier.size(22.dp),
+                    colorFilter = ColorFilter.tint(Color.White)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.lobby_playerCardPlayer),
+                    color = Color.White.copy(alpha = 0.5f)
                 )
                 Text(
-                    text = "${stringResource(R.string.lobby_playerCardPlayer)}: ${user.id.take(5)}",
-                    style = MaterialTheme.typography.subtitle1
+                    user.id.take(5),
+                    color = Color.White.copy(alpha = 0.9f)
                 )
             }
 
             Box(
                 modifier = Modifier
-                    .matchParentSize()
+                    .padding(end = 8.dp)
+                    .size(6.dp)
                     .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.15f)
-                            ),
-                            startX = 0f,
-                            endX = Float.POSITIVE_INFINITY
-                        )
+                        color = Color(0xFF6CFF8F),
+                        shape = CircleShape
                     )
             )
         }
@@ -194,16 +440,69 @@ fun UserCard(
 //    )
 //}
 
+//@Preview(
+//    name = "Лобби",
+//    showSystemUi = true,
+//    showBackground = true
+//)
+//@Composable
+//fun PlayerCardPreview() {
+//    UserCard(
+//        user = User(id = "12345-67890"),
+//        onClick = {}
+//    )
+//}
+
+//@Preview(
+//    name = "Лобби",
+//    showSystemUi = true,
+//    showBackground = true
+//)
+//@Composable
+//fun UserBarPrev() {
+//    UserBar(
+//        playerName = "12345",
+//        onInvitesClick = {}
+//    )
+//}
+
+
+@Composable
+fun LobbyScreenContent() {
+    Box(
+        Modifier.background(Color(0xFF0C0813))
+    ) {
+        LobbyBackground()
+
+        Column (
+            modifier = Modifier.fillMaxSize()
+        ) {
+            UserBar(
+                playerName = "12345",
+                onInvitesClick = {}
+            )
+
+            HeaderDivider()
+
+            Box {
+                UsersList(
+                    users = listOf(
+                        User(id = "12345")
+                    ),
+                    onUserClick = {}
+                )
+            }
+        }
+    }
+}
+
 @Preview(
     name = "Лобби",
     showSystemUi = true,
     showBackground = true
 )
 @Composable
-fun PlayerCardPreview() {
-    UserCard(
-        user = User(id = "12345-67890"),
-        onClick = {}
-    )
+fun LobbyScreenPrev() {
+    LobbyScreenContent()
 }
 
