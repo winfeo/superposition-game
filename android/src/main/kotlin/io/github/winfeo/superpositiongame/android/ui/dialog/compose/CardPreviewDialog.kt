@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -38,31 +40,72 @@ fun CardPreviewDialog(
             usePlatformDefaultWidth = false
         )
     ) {
-        Card(
+        Box(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .padding(16.dp)
-                .clickable { onDismiss() },
-            shape = RoundedCornerShape(16.dp),
-            elevation = 8.dp,
-            backgroundColor = Color(0xFF37373C)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF1A1B2E),
+                            Color(0xFF11121F)
+                        )
+                    ),
+                    shape = RoundedCornerShape(24.dp)
+                )
+                .border(
+                    width = 1.dp,
+                    color = Color.White.copy(alpha = 0.08f),
+                    shape = RoundedCornerShape(24.dp)
+                )
+                .clickable{ onDismiss() }
         ) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                Color(0xFF6C8CFF).copy(alpha = 0.10f),
+                                Color.Transparent
+                            ),
+                            radius = 900f
+                        )
+                    )
+            )
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 val cardImageId = getCardImageResource(card)
                 Image(
                     painter = painterResource(id = cardImageId),
                     contentDescription = "Карта: ${card.type.name}",
                     modifier = Modifier
-                        .fillMaxWidth(0.9f)
                         .aspectRatio(0.7f)
-                        .clip(RoundedCornerShape(12.dp))
-                        .border(2.dp, Color.LightGray, RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(18.dp))
+                        .border(
+                            width = 1.dp,
+                            color = Color.White.copy(alpha = 0.08f),
+                            shape = RoundedCornerShape(18.dp)
+                        )
                 )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Text( //TODO в values вынести все тексты из диалогов
+                        text = "* нажмите в любое место\nдля закрытия",
+                        color = Color.White.copy(alpha = 0.4f),
+                        style = MaterialTheme.typography.caption,
+                        textAlign = TextAlign.End
+                    )
+                }
             }
         }
     }
