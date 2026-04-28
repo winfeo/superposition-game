@@ -11,9 +11,10 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -29,41 +30,71 @@ fun RotateCardDialog(
 
     if (showDialog) {
         Dialog(
-            onDismissRequest = {
-                showDialog = false
-            },
+            onDismissRequest = { },
             properties = DialogProperties(
                 dismissOnBackPress = false,
                 dismissOnClickOutside = false,
                 usePlatformDefaultWidth = false
             )
         ) {
-            Card(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = 8.dp
+                    .fillMaxWidth(0.9f)
+                    .padding(16.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFF1A1B2E),
+                                Color(0xFF11121F)
+                            )
+                        ),
+                        shape = RoundedCornerShape(24.dp)
+                    )
+                    .border(
+                        color = Color.White.copy(alpha = 0.08f),
+                        shape = RoundedCornerShape(24.dp),
+                        width = 1.dp
+                    )
             ) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    Color(0xFF6C8CFF).copy(alpha = 0.1f),
+                                    Color.Transparent
+                                ),
+                                radius = 900f
+                            )
+                        )
+                )
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
-//                    Text(
-//                        text = "Выберите состояние кубита",
-//                        style = MaterialTheme.typography.h6,
-//                        modifier = Modifier.padding(bottom = 16.dp)
-//                    )
-
                     DiceStatesGrid(
                         availableStates = availableStates,
                         onStateClick = { selectedState ->
-                            showDialog = false
                             onStateSelected(selectedState)
                         }
                     )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            text = "* выберите новое состояние",
+                            color = Color.White.copy(alpha = 0.4f),
+                            style = MaterialTheme.typography.caption,
+                            textAlign = TextAlign.End
+                        )
+                    }
                 }
             }
         }
@@ -82,17 +113,22 @@ private fun DiceStatesGrid(
         availableStates.chunked(3).forEach { rowStates ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 rowStates.forEach { state ->
                     Box(
                         modifier = Modifier
-                            .size(100.dp)
+                            .weight(1f)
+                            .aspectRatio(1f)
                             .clickable { onStateClick(state) }
                             .border(
-                                2.dp,
-                                Color.DarkGray,
-                                RoundedCornerShape(8.dp)
+                                color = Color.White.copy(0.2f),
+                                shape = RoundedCornerShape(8.dp),
+                                width = 1.dp
+                            )
+                            .background(
+                                color = Color.White.copy(0.1f),
+                                shape = RoundedCornerShape(8.dp),
                             )
                             .padding(8.dp),
                         contentAlignment = Alignment.Center
