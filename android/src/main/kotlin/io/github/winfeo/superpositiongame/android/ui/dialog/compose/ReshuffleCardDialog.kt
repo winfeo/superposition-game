@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,39 +48,55 @@ fun ReshuffleCardDialog(
                 usePlatformDefaultWidth = false
             )
         ) {
-            Card(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
-//                    .fillMaxHeight(0.8f)
                     .wrapContentHeight()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-                elevation = 8.dp
+                    .padding(16.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFF1A1B2E),
+                                Color(0xFF11121F)
+                            )
+                        ),
+                        shape = RoundedCornerShape(24.dp)
+                    )
+                    .border(
+                        color = Color.White.copy(0.08f),
+                        shape = RoundedCornerShape(24.dp),
+                        width = 1.dp
+                    )
             ) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    Color(0xFF6C8CFF).copy(alpha = 0.10f),
+                                    Color.Transparent
+                                ),
+                                radius = 900f
+                            )
+                        )
+                )
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .padding(24.dp),
+//                    horizontalAlignment = Alignment.CenterHorizontally
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        text = "* выберите карты для сброса",
-                        style = MaterialTheme.typography.body2,
-                        color = Color.DarkGray,
-                        modifier = Modifier
-                            .align(Alignment.Start)
-                            .padding(bottom = 8.dp)
-                            .alpha(0.8f),
-                    )
-
-                    Text(
                         text = "${selectedCards.size} / $maxSelectable",
-                        style = MaterialTheme.typography.body2,
-                        color = Color.Blue,
+                        style = MaterialTheme.typography.body1,
+                        color = Color(0xFF6C8CFF),
                         modifier = Modifier
                             .align(Alignment.Start)
-                            .padding(bottom = 16.dp)
+                            .padding(start = 12.dp)
                     )
 
                     LazyVerticalGrid(
@@ -106,18 +124,62 @@ fun ReshuffleCardDialog(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = {
-                            if (selectedCards.size in minSelectable..maxSelectable) {
+                    Box(
+                        modifier = Modifier
+                            .padding(top = 64.dp) //TODO сделать адаптивно
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .then(
+                                if (selectedCards.size in minSelectable..maxSelectable) {
+                                    Modifier.background(
+                                        brush = Brush.horizontalGradient(
+                                            colors = listOf(
+                                                Color(0xFF4B5DFF),
+                                                Color(0xFF6C8CFF)
+                                            )
+                                        ),
+                                        shape = RoundedCornerShape(14.dp)
+                                    )
+                                } else {
+                                    Modifier
+                                        .background(
+                                            color = Color.White.copy(alpha = 0.04f),
+                                            shape = RoundedCornerShape(14.dp)
+                                        )
+                                        .border(
+                                            width = 1.dp,
+                                            color = Color.White.copy(alpha = 0.08f),
+                                            shape = RoundedCornerShape(14.dp)
+                                        )
+                                }
+                            )
+                            .clickable(
+                                enabled = selectedCards.size in minSelectable..maxSelectable
+                            ) {
                                 val selected = cards.filter { it.id in selectedCards }
                                 onCardsSelected(selected)
-                            }
-                        },
-                        enabled = selectedCards.size in minSelectable..maxSelectable
+                            },
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text("Подтвердить")
+                        Text( //TODO в values вынести потом текст
+                            text = "Подтвердить",
+                            color = if (selectedCards.size in minSelectable..maxSelectable)
+                                Color.White.copy(alpha = 0.92f)
+                            else
+                                Color.White.copy(alpha = 0.35f),
+                            style = MaterialTheme.typography.body1
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            text = "* выберите карты для сброса",
+                            color = Color.White.copy(alpha = 0.38f),
+                            style = MaterialTheme.typography.caption
+                        )
                     }
                 }
             }
@@ -131,48 +193,52 @@ private fun CardItem(
     isSelected: Boolean,
     onCardClick: () -> Unit
 ) {
-    val backgroundColor = if (isSelected) {
-        Color(0x4400FF00)
-    } else {
-        Color.Transparent
-    }
-
-    val borderColor = if (isSelected) {
-        Color(0xFF00FF00)
-    } else {
-        Color.Gray
-    }
-
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(backgroundColor)
-            .border(2.dp, borderColor, RoundedCornerShape(8.dp))
+            .background(
+                brush = if (isSelected) {
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color(0xFF4B5DFF).copy(alpha = 0.22f),
+                            Color(0xFF6C8CFF).copy(alpha = 0.12f)
+                        )
+                    )
+                } else {
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.08f),
+                            Color.White.copy(alpha = 0.1f)
+                        )
+                    )
+                },
+                shape = RoundedCornerShape(8.dp)
+            )
+            .border(
+                color = if (isSelected) {
+                    Color(0xFF6C8CFF).copy(alpha = 0.55f)
+                } else {
+                    Color.White.copy(alpha = 0.08f)
+                },
+                shape = RoundedCornerShape(8.dp),
+                width = 1.dp
+            )
             .clickable { onCardClick() }
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .padding(10.dp)
     ) {
-        val cardImageId = getCardImageResource(card)
-        Image(
-            painter = painterResource(id = cardImageId),
-            contentDescription = "Карта: ${card.type.name}",
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(0.7f)
-        )
-
-//        Spacer(modifier = Modifier.height(4.dp))
-//
-//        if (isSelected) {
-//            Text(
-//                text = "✓",
-//                color = Color(0xFF00FF00),
-//                style = MaterialTheme.typography.h6,
-//                modifier = Modifier.padding(top = 4.dp)
-//            )
-//        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            val cardImageId = getCardImageResource(card)
+            Image(
+                painter = painterResource(id = cardImageId),
+                contentDescription = "Карта: ${card.type.name}",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(0.7f)
+            )
+        }
     }
 }
 
