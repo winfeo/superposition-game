@@ -13,10 +13,12 @@ import io.github.winfeo.superpositiongame.game.PlayerActionController
 import io.github.winfeo.superpositiongame.graphics.Dialogs
 import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.manager.CardsDoubleTapManager
-import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
 import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
 import io.github.winfeo.superpositiongame.manager.CardsLongPressManager
+import io.github.winfeo.superpositiongame.manager.GameAssetsManager
 import io.github.winfeo.superpositiongame.manager.SwapSelectionManager
+import io.github.winfeo.superpositiongame.ui.actor.card.CardActorBuilder
+import io.github.winfeo.superpositiongame.ui.actor.dice.DiceActorBuilder
 import io.github.winfeo.superpositiongame.ui.screen.elements.CardsFan
 import io.github.winfeo.superpositiongame.ui.screen.elements.GameTable
 import io.github.winfeo.superpositiongame.ui.screen.elements.TurnLabel
@@ -28,6 +30,7 @@ import ktx.app.KtxScreen
 
 //Игровой экран, MVI паттерн
 class GameScreen(
+    private val assetsManager: GameAssetsManager,
     private val playerId: String,
     private val getOpponentId: () -> String,
     private val dialogs: Dialogs,
@@ -35,6 +38,8 @@ class GameScreen(
     private val getGameState: () -> GameState,
     private val applyPendingState: () -> Unit
 ) : KtxScreen {
+    private val cardActorBuilder = CardActorBuilder(assetsManager = assetsManager)
+    private val diceActorBuilder = DiceActorBuilder(assetsManager = assetsManager)
     private val stage = Stage(ScreenViewport())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -86,14 +91,17 @@ class GameScreen(
             stage = stage,
             dragManager = dragManager,
             doubleTapManager = doubleTapManager,
-            longPressManager = longPressManager
+            longPressManager = longPressManager,
+            cardActorBuilder = cardActorBuilder
         )
     }
 
     private val gameTable: GameTable by lazy {
         GameTable(
             playerId = playerId,
-            dragManager = dragManager
+            dragManager = dragManager,
+            cardActorBuilder = cardActorBuilder,
+            diceActorBuilder = diceActorBuilder
         )
     }
 
@@ -103,9 +111,6 @@ class GameScreen(
     init {
         Gdx.input.inputProcessor = stage
         GameConfig.init(stage = stage)
-
-        CardsAtlasManager.loadAtlas()
-        DiceAtlasManager.loadAtlas()
     }
 
     fun renderState(newState: GameState) {
@@ -124,7 +129,7 @@ class GameScreen(
             stage.height - 400f
         )
         stage.addActor(turnLabel)
-//        stage.isDebugAll = true
+        stage.isDebugAll = true
 
     }
 
@@ -157,6 +162,7 @@ class GameScreen(
 
         stage.act(delta)
         stage.draw()
+        Gdx.app.log("CARD", "акторов на сцене = ${stage.actors.size}")
     }
 
     override fun resize(width: Int, height: Int) {
@@ -170,8 +176,6 @@ class GameScreen(
 
         backgroundTexture.dispose()
         stage.dispose()
-        CardsAtlasManager.dispose()
-        DiceAtlasManager.dispose()
         dragManager.clear()
         doubleTapManager.clear()
         longPressManager.clear()

@@ -1,22 +1,21 @@
 package io.github.winfeo.superpositiongame.ui.screen.elements
 
-import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import io.github.winfeo.superpositiongame.model.game.GameState
-import io.github.winfeo.superpositiongame.model.game.Move
-import io.github.winfeo.superpositiongame.game.PlayerActionController
 import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
 import io.github.winfeo.superpositiongame.model.game.SlotOwner
 import io.github.winfeo.superpositiongame.ui.actor.SlotActor
-import io.github.winfeo.superpositiongame.ui.actor.card.CardActor
-import kotlinx.coroutines.CoroutineScope
+import io.github.winfeo.superpositiongame.ui.actor.card.CardActorBuilder
+import io.github.winfeo.superpositiongame.ui.actor.dice.DiceActorBuilder
 
 // Создание структуры слотов для отображения игральных карт
 // TODO Передаётся общее количество ячеек (пока 1 ряд из 4 карт)
 class GameTable(
     private val playerId: String,
     private val dragManager: CardsDragAndDropManager,
+    private val cardActorBuilder: CardActorBuilder,
+    private val diceActorBuilder: DiceActorBuilder
 //    private val playerActionController: PlayerActionController
 ): Table() {
     private val playerSlots = mutableListOf<SlotActor>()
@@ -52,7 +51,9 @@ class GameTable(
         repeat(GameConfig.getSlotsOnTableAmount()) { index ->
             val slot = SlotActor(
                 slotIndex = index,
-                slotOwner = SlotOwner.OPPONENT
+                slotOwner = SlotOwner.OPPONENT,
+                cardActorBuilder = cardActorBuilder,
+                diceActorBuilder = diceActorBuilder
             )
             dragManager.makeSlotTarget(slot)
             opponentSlots.add(slot)
@@ -69,7 +70,9 @@ class GameTable(
         repeat(GameConfig.getSlotsOnTableAmount()) { index ->
             val slot = SlotActor(
                 slotIndex = index,
-                slotOwner = SlotOwner.PLAYER
+                slotOwner = SlotOwner.PLAYER,
+                cardActorBuilder = cardActorBuilder,
+                diceActorBuilder = diceActorBuilder
             )
             dragManager.makeSlotTarget(slot)
             playerSlots.add(slot)

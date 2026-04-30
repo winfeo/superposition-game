@@ -1,5 +1,6 @@
 package io.github.winfeo.superpositiongame.ui.screen.elements
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.Stage
 import io.github.winfeo.superpositiongame.manager.CardsDoubleTapManager
 import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
@@ -18,7 +19,8 @@ class CardsFan( //TODO единый контроллер входных нажа
     private val stage: Stage,
     private val dragManager: CardsDragAndDropManager,
     private val doubleTapManager: CardsDoubleTapManager,
-    private val longPressManager: CardsLongPressManager
+    private val longPressManager: CardsLongPressManager,
+    private val cardActorBuilder: CardActorBuilder
 ) {
     private val cardActors = mutableListOf<CardActor>()
     private val baseY = -60f ///TODO переделать настройку (динамически от размера экрана сделать)
@@ -27,6 +29,7 @@ class CardsFan( //TODO единый контроллер входных нажа
 
     fun render(state: GameState) {
         val cards = state.players[playerId]?.hand?: return
+        Gdx.app.log("CARD","Рука: size=${cards.size} cards=${cards.map { it.id }}")
         syncActors(cards)
     }
 
@@ -40,7 +43,7 @@ class CardsFan( //TODO единый контроллер входных нажа
 
         clearActors()
         cards.forEach { card ->
-            val actor = CardActorBuilder.buildCardActor(card)
+            val actor = cardActorBuilder.buildCardActor(card)
 
             longPressManager.makeCardLongPressable(actor)
             when(card.type) { //TODO подумать, как улучшить (DRAG и TAP энам?)
@@ -58,6 +61,7 @@ class CardsFan( //TODO единый контроллер входных нажа
 
             stage.addActor(actor)
             cardActors.add(actor)
+            Gdx.app.log("CARD", "позиция: = x=${actor.x}, y=${actor.y}, size=${actor.width}x${actor.height}")
         }
 
         renderFan(cardActors)

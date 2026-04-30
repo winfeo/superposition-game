@@ -1,10 +1,13 @@
 package io.github.winfeo.superpositiongame.ui.actor.card
 
 import io.github.winfeo.superpositiongame.config.GameConfig
+import io.github.winfeo.superpositiongame.manager.GameAssetsManager
 import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.card.CardType
 
-object CardActorBuilder {
+class CardActorBuilder(
+    private val assetsManager: GameAssetsManager
+) {
     private val cardWidth = GameConfig.cardWidth
     private val cardHeight = GameConfig.cardHeight
 
@@ -61,8 +64,9 @@ object CardActorBuilder {
 
     fun buildCardActor(card: Card): CardActor {
         return CardActor(
-            cardWidth = cardWidth,
-            cardHeight = cardHeight,
+            assetsManager = assetsManager,
+            cardWidth = GameConfig.cardWidth, //TODO переделать
+            cardHeight = GameConfig.cardHeight,
             card = card,
             canDrag = isCardDraggable(card)
         )

@@ -14,10 +14,10 @@ object BorderTexture {
     //одна текстура, размер рамки статический так как?
     private var texture: Texture? = null
 
-    private val bordersThickness = GameConfig.getCardBorderThickness().toInt()
-    private val cornerRadius = GameConfig.getCardBorderRadius().toInt()
-    private val cardWidth = GameConfig.cardWidth.toInt()
-    private val cardHeight = GameConfig.cardHeight.toInt()
+//    private val bordersThickness = GameConfig.getCardBorderThickness().toInt()
+//    private val cornerRadius = GameConfig.getCardBorderRadius().toInt()
+//    private val cardWidth = GameConfig.cardWidth.toInt()
+//    private val cardHeight = GameConfig.cardHeight.toInt()
 
 
 //    fun clear() {
@@ -42,6 +42,11 @@ object BorderTexture {
     }
 
     private fun createTexture(): Texture {
+        val cardWidth = GameConfig.cardWidth.toInt()
+        val cardHeight = GameConfig.cardHeight.toInt()
+        val bordersThickness = GameConfig.getCardBorderThickness().toInt()
+        val cornerRadius = GameConfig.getCardBorderRadius().toInt()
+
         val pixmap = Pixmap(cardWidth, cardHeight, Pixmap.Format.RGBA8888)
         pixmap.setColor(0f, 0f, 0f, 0f)
         pixmap.fill()

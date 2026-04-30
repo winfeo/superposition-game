@@ -1,6 +1,7 @@
 package io.github.winfeo.superpositiongame
 
 import io.github.winfeo.superpositiongame.graphics.Dialogs
+import io.github.winfeo.superpositiongame.manager.GameAssetsManager
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.model.game.Move
 import io.github.winfeo.superpositiongame.ui.screen.GameScreen
@@ -20,10 +21,17 @@ class Main(
     private var gameScreen: GameScreen? = null
     private var opponentId = "" ///TODO удалить?
 
+    lateinit var assets: GameAssetsManager
+        private set
+
     override fun create() {
         KtxAsync.initiate()
 
+        assets = GameAssetsManager()
+        assets.load()
+
         val screen = GameScreen(
+            assetsManager = assets,
             playerId = playerId,
             getOpponentId = { opponentId },
             dialogs = dialogs,
@@ -59,6 +67,11 @@ class Main(
     ///TODO удалить потом
     fun updateOpponentId(newOpponentId: String) {
         this.opponentId = newOpponentId
+    }
+
+    override fun dispose() {
+        super.dispose()
+        assets.dispose()
     }
 
 }

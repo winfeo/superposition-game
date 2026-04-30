@@ -17,7 +17,7 @@ object GameConfig {
     val cardHeight: Float get() = _cardHeight
 
     ///TODO убрать из констант? Обновлять во время изменения размера экрана? Сделать приватной
-    lateinit var stage: Stage
+    lateinit var stage: Stage //TODO переделать?
 
     fun init(stage: Stage) {
 //        _screenWidth = stage.viewport.worldWidth.also { println("screenHeight = $it") }
