@@ -69,7 +69,7 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                     gameState?.let { state ->
                         if (state.phase == GamePhase.GAME_FINISHED) {
                             GameFinishedDialog(
-                                isWinner = (state.currentPlayerId == playerId),
+                                isWinner = (state.winnerId == playerId),
                                 onReturnToLobby = { exit() }
                             )
                         }

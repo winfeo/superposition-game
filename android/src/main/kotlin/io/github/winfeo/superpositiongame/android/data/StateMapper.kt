@@ -28,7 +28,8 @@ fun GameStateDto.toDomain(playerId: String): GameState {
         activeSlotsRow = slotOwnerOrNull(
             playerId = playerId,
             slotsId = this.activeSlotsRow
-        )
+        ),
+        winnerId = this.winnerId
     )
 }
 
