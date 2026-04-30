@@ -16,6 +16,7 @@ import io.github.winfeo.superpositiongame.Main
 import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogState
 import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogs
 import io.github.winfeo.superpositiongame.android.ui.dialog.compose.CardPreviewDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.compose.GameFinishedDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.compose.ReshuffleCardDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.compose.RotateCardDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.SuperpositionGameTheme
@@ -57,10 +58,6 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                 LaunchedEffect(gameState) {
                     val state = gameState?: return@LaunchedEffect
 
-                    if (state.phase == GamePhase.GAME_FINISHED) {
-                        // TODO: показать диалог победы
-                    }
-
 //                    Gdx.app.postRunnable {
 //                        game.updateState(state)
 //                    }
@@ -69,6 +66,15 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
 
                 //TODO сделать отдельный stage в GameScreen для диалогов (блокировать экран игры при показе диалога)
                 Box(modifier = Modifier.fillMaxSize()) {
+                    gameState?.let { state ->
+                        if (state.phase == GamePhase.GAME_FINISHED) {
+                            GameFinishedDialog(
+                                isWinner = (state.currentPlayerId == playerId),
+                                onReturnToLobby = { exit() }
+                            )
+                        }
+                    }
+
                     dialogState?.let { dialog ->
                         when (dialog) {
                             is GameDialogState.RotateDialog -> {
