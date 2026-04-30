@@ -1,6 +1,7 @@
 package io.github.winfeo.superpositiongame.ui.screen
 
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -72,7 +73,7 @@ class GameScreen(
     private val longPressManager = CardsLongPressManager(dialogs)
 
     private val backgroundTexture by lazy {
-        Texture(Gdx.files.internal("background_blured2.png"))
+        Texture(Gdx.files.internal("background_blured3.png"))
     }
 
     private val turnLabel: TurnLabel by lazy {
@@ -135,7 +136,23 @@ class GameScreen(
 
         val batch = stage.batch
         batch.begin()
-        batch.draw(backgroundTexture, 0f, 0f, stage.width, stage.height)
+        batch.color = Color.WHITE
+        val textureWidth = backgroundTexture.width.toFloat()
+        val textureHeight = backgroundTexture.height.toFloat()
+        val screenWidth = stage.width
+        val screenHeight = stage.height
+        val scale = maxOf(screenWidth / textureWidth, screenHeight / textureHeight)
+        val drawWidth = textureWidth * scale
+        val drawHeight = textureHeight * scale
+        val x = (screenWidth - drawWidth) / 2f
+        val y = (screenHeight - drawHeight) / 2f
+        batch.draw(
+            backgroundTexture,
+            x,
+            y,
+            drawWidth,
+            drawHeight
+        )
         batch.end()
 
         stage.act(delta)
