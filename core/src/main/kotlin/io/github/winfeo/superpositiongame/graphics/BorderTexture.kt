@@ -111,4 +111,9 @@ object BorderTexture {
         val aa = 1f
         return (0.5f - sdf / aa).coerceIn(0f, 1f)
     }
+
+    fun clear() {
+        texture?.dispose()
+        texture = null
+    }
 }

@@ -74,6 +74,7 @@ fun Navigation(
     ) {
         composable<LobbyRoute> {
             LobbyScreen(
+                playerName = currentUserId,
                 viewModel = lobbyViewModel,
                 onInvitesClick = {
                     navController.navigate(InvitesRoute)

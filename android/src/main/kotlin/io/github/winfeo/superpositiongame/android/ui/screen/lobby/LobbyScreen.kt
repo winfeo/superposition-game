@@ -53,6 +53,7 @@ import io.github.winfeo.superpositiongame.android.ui.theme.elements.DiagonalCutS
 //экран лобби (отображаются игроки в сети, которые тоже находятся в лобби)
 @Composable
 fun LobbyScreen(
+    playerName: String,
     viewModel: LobbyViewModel,
     onInvitesClick: () -> Unit
 ) {
@@ -71,7 +72,7 @@ fun LobbyScreen(
                     .padding(paddingValues)
             ) {
                 UserBar(
-                    playerName = "12345", //TODO реальный ник или id игрока
+                    playerName = playerName.take(5),
                     onInvitesClick = onInvitesClick
                 )
 
