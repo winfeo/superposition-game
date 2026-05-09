@@ -16,6 +16,7 @@ import io.github.winfeo.superpositiongame.android.ui.screen.game.GameStartEvent
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.model.game.Move
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
@@ -38,26 +39,28 @@ class GameRepositoryImpl(): GameRepository {
             }
         }
     }
-    val topic = "/user/queue/game"
-    val sendTopic = "/app/game/"
+//    val topic = "/user/queue/game"
+//    val sendTopic = "/app/game/"
     val gameStart = "/user/queue/game.start"
 
     override suspend fun sendMove(
         gameId: String,
         move: Move
     ) {
+        val topic = "/app/game/$gameId/move"
+
         val dto = move.toDto()
         val payload = json.encodeToString(MoveDto.serializer(), dto)
         Log.d("GAME_SEND", payload)
         Network.sendMessage(
-            destination = "$sendTopic/$gameId/move",
+            destination = topic,
             message = payload
         )
     }
 
     override fun observeGameState(gameId: String, playerId: String): Flow<GameState> {
         return callbackFlow {
-            ///TODO добавить сначала проверку, что подключились. Или отправлять на сервер сообщение о готовности
+            val topic = "/user/queue/game/$gameId"
             launch { //TODO убрать?
                 Log.d("GAME_SET", "Работа метода")
                 Log.d("GAME_SOCKET", "SUBSCRIBE: $topic, GAME: $gameId")
@@ -85,6 +88,7 @@ class GameRepositoryImpl(): GameRepository {
 
                 }
 
+                delay(300) //TODO переделать! Получать подтверждение подписки с сервера.
                 sendReady(gameId)
             }
 
