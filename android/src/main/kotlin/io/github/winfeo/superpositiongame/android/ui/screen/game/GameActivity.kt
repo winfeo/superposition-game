@@ -2,6 +2,8 @@ package io.github.winfeo.superpositiongame.android.ui.screen.game
 
 import android.content.res.Resources
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
@@ -10,7 +12,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.badlogic.gdx.Gdx
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.fragment.app.FragmentContainerView
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication
 import io.github.winfeo.superpositiongame.Main
 import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogState
@@ -31,7 +34,7 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
         val playerId = intent.getStringExtra("USER_ID")
             ?: throw Resources.NotFoundException("Отладка. Не передан id игрока")
 
-        val viewModel = GameViewModel(
+        val viewModel = GameViewModel( //TODO переделать
             gameId = gameId,
             playerId = playerId
         )
@@ -43,12 +46,12 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
             getGameState = { viewModel.gameState.value!! }
         )
 
-        if (savedInstanceState == null) {
-            val fragment = GameFragment().apply { this.game = game }
-            supportFragmentManager.beginTransaction()
-                .replace(android.R.id.content, fragment)
-                .commit()
-        }
+//        if (savedInstanceState == null) {
+//            val fragment = GameFragment().apply { this.game = game }
+//            supportFragmentManager.beginTransaction()
+//                .replace(android.R.id.content, fragment)
+//                .commit()
+//        }
 
         setContent {
             SuperpositionGameTheme {
@@ -56,16 +59,41 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                 val dialogState by viewModel.dialogState.collectAsState()
 
                 LaunchedEffect(gameState) {
-                    val state = gameState?: return@LaunchedEffect
+                    Log.d("GAME", "LaunchedEffect triggered ${gameState.hashCode()}")
+//                    val state = gameState?: return@LaunchedEffect
+//
+////                    Gdx.app.postRunnable {
+////                        game.updateState(state)
+////                    }
+//                    game.applyNewState(state)
 
-//                    Gdx.app.postRunnable {
-//                        game.updateState(state)
-//                    }
-                    game.applyNewState(state)
+                    gameState?.let { state ->
+                        game.applyNewState(state)
+                    }
                 }
 
                 //TODO сделать отдельный stage в GameScreen для диалогов (блокировать экран игры при показе диалога)
                 Box(modifier = Modifier.fillMaxSize()) {
+                    AndroidView(
+                        modifier = Modifier.fillMaxSize(),
+                        factory = { context ->
+                            val fragmentContainer = FragmentContainerView(context).apply {
+                                id = View.generateViewId()
+                            }
+
+                            val fragment = GameFragment().apply {
+                                this.game = game
+                            }
+
+                            (context as AppCompatActivity).supportFragmentManager
+                                .beginTransaction()
+                                .replace(fragmentContainer.id, fragment)
+                                .commit()
+
+                            fragmentContainer
+                        }
+                    )
+
                     gameState?.let { state ->
                         if (state.phase == GamePhase.GAME_FINISHED) {
                             GameFinishedDialog(

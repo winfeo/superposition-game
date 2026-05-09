@@ -12,7 +12,6 @@ import io.github.winfeo.superpositiongame.config.GameConfig
 import io.github.winfeo.superpositiongame.game.PlayerActionController
 import io.github.winfeo.superpositiongame.graphics.BorderTexture
 import io.github.winfeo.superpositiongame.graphics.Dialogs
-import io.github.winfeo.superpositiongame.manager.CardsAtlasManager
 import io.github.winfeo.superpositiongame.manager.CardsDoubleTapManager
 import io.github.winfeo.superpositiongame.manager.CardsDragAndDropManager
 import io.github.winfeo.superpositiongame.manager.CardsLongPressManager
@@ -106,13 +105,6 @@ class GameScreen(
         )
     }
 
-//    private lateinit var timerLabel: Label
-//    private lateinit var gameTimer: GameTimer
-
-    init {
-         //TODO тоже перенести в show?
-    }
-
     fun renderState(newState: GameState) {
         gameTable.render(newState)
         cardsFan.render(newState)
@@ -165,7 +157,7 @@ class GameScreen(
 
         stage.act(delta)
         stage.draw()
-        Gdx.app.log("CARD", "акторов на сцене = ${stage.actors.size}")
+//        Gdx.app.log("CARD", "акторов на сцене = ${stage.actors.size}")
     }
 
     override fun resize(width: Int, height: Int) {

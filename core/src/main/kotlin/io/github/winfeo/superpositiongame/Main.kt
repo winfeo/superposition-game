@@ -1,5 +1,6 @@
 package io.github.winfeo.superpositiongame
 
+import com.badlogic.gdx.Gdx
 import io.github.winfeo.superpositiongame.graphics.Dialogs
 import io.github.winfeo.superpositiongame.manager.GameAssetsManager
 import io.github.winfeo.superpositiongame.model.game.GameState
@@ -45,6 +46,10 @@ class Main(
     }
 
     fun applyNewState(state: GameState) {
+        Gdx.app.log("GAME_STATE_APPLY", "Применение обновлённого состояния\n" +
+            "Фаза: ${state.phase}\n" +
+            "Ход: ${state.turnNumber}\n" +
+            "Карты в руке игрока: ${state.players[playerId]?.hand?.joinToString(", ")?: "пусто"}")
         pendingState = state
     }
 
@@ -62,11 +67,6 @@ class Main(
             gameScreen?.renderState(state)
             pendingState = null
         }
-    }
-
-    ///TODO удалить потом
-    fun updateOpponentId(newOpponentId: String) {
-        this.opponentId = newOpponentId
     }
 
     override fun dispose() {
