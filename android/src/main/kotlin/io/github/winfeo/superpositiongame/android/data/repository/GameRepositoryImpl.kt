@@ -58,10 +58,12 @@ class GameRepositoryImpl(): GameRepository {
     override fun observeGameState(gameId: String, playerId: String): Flow<GameState> {
         return callbackFlow {
             ///TODO добавить сначала проверку, что подключились. Или отправлять на сервер сообщение о готовности
-            launch {
+            launch { //TODO убрать?
                 Log.d("GAME_SET", "Работа метода")
+                Log.d("GAME_SOCKET", "SUBSCRIBE: $topic, GAME: $gameId")
                 Network.subscribeToTopic(topic) { message ->
                     try {
+                        Log.d("GAME_SOCKET", "MESSAGE: $topic, GAME: $gameId")
                         val stateDto = json.decodeFromString<GameStateDto>(message)
                         Log.d("GAME_STATE", """
                             Получено состояние:
@@ -82,13 +84,24 @@ class GameRepositoryImpl(): GameRepository {
                     }
 
                 }
+
+                sendReady(gameId)
             }
 
 
             awaitClose {
+                Log.d("GAME_SOCKET", "UNSUBSCRIBE: $topic, GAME: $gameId")
                 Network.unsubscribeToTopic(topic)
             }
         }
+    }
+
+    private fun sendReady(gameId: String) {
+        Log.d("GAME_READY", "Отправка READY для игры $gameId")
+        Network.sendMessage(
+            destination = "/app/game/$gameId/ready",
+            message = ""
+        )
     }
 
     override fun observeGameStart(): Flow<String> {
