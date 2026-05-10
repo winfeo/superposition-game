@@ -6,12 +6,16 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.FragmentContainerView
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication
@@ -23,6 +27,7 @@ import io.github.winfeo.superpositiongame.android.ui.dialog.compose.GameFinished
 import io.github.winfeo.superpositiongame.android.ui.dialog.compose.ReshuffleCardDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.compose.RotateCardDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.SuperpositionGameTheme
+import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 import io.github.winfeo.superpositiongame.model.game.GamePhase
 
 class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
@@ -57,6 +62,7 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
             SuperpositionGameTheme {
                 val gameState by viewModel.gameState.collectAsState()
                 val dialogState by viewModel.dialogState.collectAsState()
+                val timerSeconds by viewModel.timerSeconds.collectAsState()
 
                 LaunchedEffect(gameState) {
                     Log.d("GAME", "LaunchedEffect triggered ${gameState.hashCode()}")
@@ -69,35 +75,66 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
 
                     gameState?.let { state ->
                         game.applyNewState(state)
+                        viewModel.startTimer()
                     }
                 }
 
                 //TODO сделать отдельный stage в GameScreen для диалогов (блокировать экран игры при показе диалога)
-                Box(modifier = Modifier.fillMaxSize()) {
-                    AndroidView(
-                        modifier = Modifier.fillMaxSize(),
-                        factory = { context ->
-                            val fragmentContainer = FragmentContainerView(context).apply {
-                                id = View.generateViewId()
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF0C0813))
+//                        .background(Color.Red)
+                ) {
+                    BackgroundBlur()
+
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                        ) {
+                            if (gameState != null) {
+                                PlayerInfoPanel( //TODO сделать адаптивным под размеры разные
+                                    gameState = gameState!!,
+                                    playerId = playerId,
+                                    timerSeconds = timerSeconds,
+                                    onPause = { exit() }
+                                )
                             }
-
-                            val fragment = GameFragment().apply {
-                                this.game = game
-                            }
-
-                            (context as AppCompatActivity).supportFragmentManager
-                                .beginTransaction()
-                                .replace(fragmentContainer.id, fragment)
-                                .commit()
-
-                            fragmentContainer
                         }
-                    )
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(2f)
+                        ) {
+                            AndroidView(
+                                modifier = Modifier.fillMaxSize(),
+                                factory = { context ->
+                                    val fragmentContainer = FragmentContainerView(context).apply {
+                                        id = View.generateViewId()
+                                    }
+
+                                    val fragment = GameFragment().apply {
+                                        this.game = game
+                                    }
+
+                                    (context as AppCompatActivity).supportFragmentManager
+                                        .beginTransaction()
+                                        .replace(fragmentContainer.id, fragment)
+                                        .commit()
+
+                                    fragmentContainer
+                                }
+                            )
+                        }
+                    }
 
                     gameState?.let { state ->
                         if (state.phase == GamePhase.GAME_FINISHED) {
-                            GameFinishedDialog(
-                                isWinner = (state.winnerId == playerId),
+                            viewModel.showGameFinishedDialog(
+                                isWinner = state.winnerId == playerId,
                                 onReturnToLobby = { exit() }
                             )
                         }
@@ -129,6 +166,12 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                                 CardPreviewDialog(
                                     card = dialog.card,
                                     onDismiss = { viewModel.dismissDialog() }
+                                )
+                            }
+                            is GameDialogState.GameFinishedDialog -> {
+                                GameFinishedDialog(
+                                    isWinner = dialog.isWinner,
+                                    onReturnToLobby = dialog.onReturnToLobby
                                 )
                             }
                         }

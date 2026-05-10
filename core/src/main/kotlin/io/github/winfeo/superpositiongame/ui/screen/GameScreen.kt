@@ -1,10 +1,8 @@
 package io.github.winfeo.superpositiongame.ui.screen
 
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.model.game.Move
@@ -21,7 +19,6 @@ import io.github.winfeo.superpositiongame.ui.actor.card.CardActorBuilder
 import io.github.winfeo.superpositiongame.ui.actor.dice.DiceActorBuilder
 import io.github.winfeo.superpositiongame.ui.screen.elements.CardsFan
 import io.github.winfeo.superpositiongame.ui.screen.elements.GameTable
-import io.github.winfeo.superpositiongame.ui.screen.elements.TurnLabel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -77,14 +74,6 @@ class GameScreen(
 //    private val doubleTapManager = CardsDoubleTapManager(playerActionController)
     private val longPressManager = CardsLongPressManager(dialogs)
 
-    private val backgroundTexture by lazy {
-        Texture(Gdx.files.internal("background_blured3.png"))
-    }
-
-    private val turnLabel: TurnLabel by lazy {
-        TurnLabel(playerId = playerId)
-    }
-
     private val cardsFan: CardsFan by lazy {
         CardsFan(
             playerId = playerId,
@@ -108,7 +97,6 @@ class GameScreen(
     fun renderState(newState: GameState) {
         gameTable.render(newState)
         cardsFan.render(newState)
-        turnLabel.render(newState.currentPlayerId)
     }
 
     override fun show() {
@@ -119,11 +107,6 @@ class GameScreen(
         stage.clear()
         stage.addActor(gameTable)
 
-        turnLabel.setPosition( ///TODO переделать
-            400f,
-            stage.height - 400f
-        )
-        stage.addActor(turnLabel)
 //        stage.isDebugAll = true
 
     }
@@ -131,29 +114,9 @@ class GameScreen(
     override fun render(delta: Float) {
 //        super.render(delta)
         applyPendingState()
-        Gdx.gl.glClearColor(0f,0f,0f,1f)
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-
-        val batch = stage.batch
-        batch.begin()
-        batch.color = Color.WHITE
-        val textureWidth = backgroundTexture.width.toFloat()
-        val textureHeight = backgroundTexture.height.toFloat()
-        val screenWidth = stage.width
-        val screenHeight = stage.height
-        val scale = maxOf(screenWidth / textureWidth, screenHeight / textureHeight)
-        val drawWidth = textureWidth * scale
-        val drawHeight = textureHeight * scale
-        val x = (screenWidth - drawWidth) / 2f
-        val y = (screenHeight - drawHeight) / 2f
-        batch.draw(
-            backgroundTexture,
-            x,
-            y,
-            drawWidth,
-            drawHeight
-        )
-        batch.end()
+//        Gdx.gl.glClearColor(0f,0f,0f,0f)
+//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+        ScreenUtils.clear(0f,0f,0f,0f);
 
         stage.act(delta)
         stage.draw()
@@ -170,7 +133,6 @@ class GameScreen(
         super.dispose()
 
         BorderTexture.clear()
-        backgroundTexture.dispose()
         stage.dispose()
         dragManager.clear()
         doubleTapManager.clear()

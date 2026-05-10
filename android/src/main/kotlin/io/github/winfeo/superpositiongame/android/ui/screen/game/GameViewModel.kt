@@ -9,6 +9,8 @@ import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.dice.DiceState
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.model.game.Move
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -24,6 +26,11 @@ class GameViewModel(
 
     private val _dialogState = MutableStateFlow<GameDialogState?>(null)
     val dialogState: StateFlow<GameDialogState?> = _dialogState
+
+    private val _timerSeconds = MutableStateFlow(45)
+    val timerSeconds: StateFlow<Int> = _timerSeconds
+    private var timerJob: Job? = null
+    private var isTimerFrozen = false
 
     init {
         Log.d("GAME_MODEL", "Создание ViewModel")
@@ -47,6 +54,28 @@ class GameViewModel(
                 move = move
             )
         }
+    }
+
+    fun startTimer() {
+        timerJob?.cancel()
+        _timerSeconds.value = 45
+        isTimerFrozen = false //TODO убать LaunchedEffect таймера из GameActivity? Всё-равно сбрасывается при окончании игры
+
+        timerJob = viewModelScope.launch {
+            while (_timerSeconds.value > 0) {
+                delay(1000L)
+                if (!isTimerFrozen) {
+                    _timerSeconds.value -= 1
+                }
+            }
+            if (!isTimerFrozen) {
+                onTimerFinished()
+            }
+        }
+    }
+
+    private fun onTimerFinished() {
+        // TODO отправлять пустой ход?
     }
 
     fun showRotateCardDialog(
@@ -81,7 +110,25 @@ class GameViewModel(
         )
     }
 
+    fun showGameFinishedDialog(
+        isWinner: Boolean,
+        onReturnToLobby: () -> Unit
+    ) {
+        isTimerFrozen = true
+
+        _dialogState.value = GameDialogState.GameFinishedDialog(
+            isWinner = isWinner,
+            onReturnToLobby = onReturnToLobby
+        )
+    }
+
     fun dismissDialog() {
         _dialogState.value = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        timerJob?.cancel()
+        timerJob = null
     }
 }

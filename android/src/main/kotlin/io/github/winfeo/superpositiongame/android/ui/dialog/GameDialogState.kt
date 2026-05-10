@@ -20,9 +20,8 @@ sealed class GameDialogState {
         val card: Card
     ): GameDialogState()
 
-    //TODO сделать диалог через state тоже?
     data class GameFinishedDialog(
         val isWinner: Boolean,
         val onReturnToLobby: () -> Unit
-    )
+    ): GameDialogState()
 }
