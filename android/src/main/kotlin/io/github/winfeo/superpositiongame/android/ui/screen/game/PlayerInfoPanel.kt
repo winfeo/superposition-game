@@ -103,6 +103,7 @@ fun GameHud(
         ) {
             PlayerCard(
                 name = playerId.take(5),
+                isCurrentPlayerCard = true,
                 isCurrentTurn = isPlayerTurn,
                 modifier = Modifier.weight(1f)
             )
@@ -118,6 +119,7 @@ fun GameHud(
 
             PlayerCard(
                 name = opponentId.take(5),
+                isCurrentPlayerCard = false,
                 isCurrentTurn = !isPlayerTurn,
                 modifier = Modifier.weight(1f)
             )
@@ -133,6 +135,7 @@ fun GameHud(
 @Composable
 fun PlayerCard(
     name: String,
+    isCurrentPlayerCard: Boolean,
     isCurrentTurn: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -141,6 +144,8 @@ fun PlayerCard(
 
     val border = if (isCurrentTurn) Color(0xFF6C8CFF).copy(alpha = 0.35f)
     else Color.White.copy(alpha = 0.06f)
+
+    val playerTag = if (isCurrentPlayerCard) "(you)" else ""
 
     Box(
         modifier = modifier
@@ -179,7 +184,7 @@ fun PlayerCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = name,
+                text = "$name $playerTag",
                 color = Color.White.copy(alpha = 0.9f),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,

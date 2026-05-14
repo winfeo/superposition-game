@@ -24,11 +24,13 @@ import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogState
 import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogs
 import io.github.winfeo.superpositiongame.android.ui.dialog.compose.CardPreviewDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.compose.GameFinishedDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.compose.GameMenuDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.compose.ReshuffleCardDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.compose.RotateCardDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.SuperpositionGameTheme
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 import io.github.winfeo.superpositiongame.model.game.GamePhase
+import io.github.winfeo.superpositiongame.model.game.Move
 
 class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,7 +101,13 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                                     gameState = gameState!!,
                                     playerId = playerId,
                                     timerSeconds = timerSeconds,
-                                    onPause = { exit() }
+                                    onPause = { viewModel.showGameMenuDialog(
+                                        onResume = { viewModel.dismissDialog() },
+                                        onRules = {},
+                                        onSettings = {},
+                                        onSurrender = { viewModel.sendMove(Move.Surrender(playerId = playerId)) },
+                                        onDismiss = { viewModel.dismissDialog() }
+                                    ) }
                                 )
                             }
                         }
@@ -172,6 +180,16 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                                 GameFinishedDialog(
                                     isWinner = dialog.isWinner,
                                     onReturnToLobby = dialog.onReturnToLobby
+                                )
+                            }
+
+                            is GameDialogState.GameMenuDialog -> {
+                                GameMenuDialog(
+                                    onResume = dialog.onResume,
+                                    onRules = dialog.onRules,
+                                    onSettings = dialog.onSettings,
+                                    onSurrender = dialog.onSurrender,
+                                    onDismiss = dialog.onDismiss
                                 )
                             }
                         }

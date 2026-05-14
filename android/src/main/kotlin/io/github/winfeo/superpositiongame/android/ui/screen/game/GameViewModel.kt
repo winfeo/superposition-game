@@ -122,6 +122,22 @@ class GameViewModel(
         )
     }
 
+    fun showGameMenuDialog(
+        onResume: () -> Unit,
+        onRules: () -> Unit,
+        onSettings: () -> Unit,
+        onSurrender: () -> Unit,
+        onDismiss: () -> Unit
+    ) {
+        _dialogState.value = GameDialogState.GameMenuDialog(
+            onResume = onResume,
+            onRules = onRules,
+            onSettings = onSettings,
+            onSurrender = onSurrender,
+            onDismiss = onDismiss
+        )
+    }
+
     fun dismissDialog() {
         _dialogState.value = null
     }

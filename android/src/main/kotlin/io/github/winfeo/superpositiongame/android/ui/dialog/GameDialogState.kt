@@ -24,4 +24,12 @@ sealed class GameDialogState {
         val isWinner: Boolean,
         val onReturnToLobby: () -> Unit
     ): GameDialogState()
+
+    data class GameMenuDialog(
+        val onResume: () -> Unit,
+        val onRules: () -> Unit,
+        val onSettings: () -> Unit,
+        val onSurrender: () -> Unit,
+        val onDismiss: () -> Unit
+    ): GameDialogState()
 }
