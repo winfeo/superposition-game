@@ -48,4 +48,9 @@ sealed class Move {
         val cardId: String,
         val cardsToChange: List<String>
     ): Move()
+
+    data class Surrender(
+        override val type: GameMoveType = GameMoveType.SURRENDER,
+        override val playerId: String
+    ): Move()
 }

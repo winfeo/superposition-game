@@ -5,5 +5,6 @@ enum class GameMoveType {
     ROTATE_DICE,
     SWAP_DICES,
     DOUBLE_TAP,
-    RESHUFFLE_CARD
+    RESHUFFLE_CARD,
+    SURRENDER
 }

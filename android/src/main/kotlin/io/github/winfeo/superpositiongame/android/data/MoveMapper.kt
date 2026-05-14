@@ -5,6 +5,7 @@ import io.github.winfeo.superpositiongame.android.data.dto.move.MoveDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.PlayCardDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.ReshuffleCardDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.RotateDiceDto
+import io.github.winfeo.superpositiongame.android.data.dto.move.SurrenderDto
 import io.github.winfeo.superpositiongame.android.data.dto.move.SwapDicesDto
 import io.github.winfeo.superpositiongame.model.game.Move
 import io.github.winfeo.superpositiongame.model.game.Move.*
@@ -41,6 +42,10 @@ fun Move.toDto(): MoveDto {
             playerId = playerId,
             cardId = cardId,
             cardsToChange = cardsToChange
+        )
+
+        is Surrender -> SurrenderDto(
+            playerId = playerId
         )
     }
 }
