@@ -1,4 +1,4 @@
-package io.github.winfeo.superpositiongame.android.ui.nav
+package io.github.winfeo.superpositiongame.android.ui.nav.route
 
 import kotlinx.serialization.Serializable
 
