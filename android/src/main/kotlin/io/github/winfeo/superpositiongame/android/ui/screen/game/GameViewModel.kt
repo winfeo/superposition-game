@@ -27,20 +27,28 @@ class GameViewModel(
     private val _dialogState = MutableStateFlow<GameDialogState?>(null)
     val dialogState: StateFlow<GameDialogState?> = _dialogState
 
-    private val _timerSeconds = MutableStateFlow(45)
+    private val _timerSeconds = MutableStateFlow(0)
     val timerSeconds: StateFlow<Int> = _timerSeconds
     private var timerJob: Job? = null
-    private var isTimerFrozen = false
+    private var isTimerFinished = false
+    private var lastServerTime: Long = 0L
+    private var lastClientTime: Long = 0L
+
 
     init {
         Log.d("GAME_MODEL", "Создание ViewModel")
         observeGame()
+        startTimer()
     }
 
     private fun observeGame() {
         viewModelScope.launch { //TODO переделать на use case
             repository.observeGameState(gameId, playerId).collect { newState ->
                 _gameState.value = newState
+
+                lastServerTime = newState.serverTime
+                lastClientTime = System.currentTimeMillis()
+                isTimerFinished = false
             }
         }
     }
@@ -58,24 +66,47 @@ class GameViewModel(
 
     fun startTimer() {
         timerJob?.cancel()
-        _timerSeconds.value = 45
-        isTimerFrozen = false //TODO убать LaunchedEffect таймера из GameActivity? Всё-равно сбрасывается при окончании игры
+//        isTimerFrozen = false //TODO убать LaunchedEffect таймера из GameActivity? Всё-равно сбрасывается при окончании игры
 
+//        timerJob = viewModelScope.launch {
+//            while (_timerSeconds.value > 0) {
+//                delay(1000L)
+//                if (!isTimerFrozen) {
+//                    _timerSeconds.value -= 1
+//                }
+//            }
+//            if (!isTimerFrozen) {
+//                onTimerFinished()
+//            }
+//        }
         timerJob = viewModelScope.launch {
-            while (_timerSeconds.value > 0) {
+            while (true) {
                 delay(1000L)
-                if (!isTimerFrozen) {
-                    _timerSeconds.value -= 1
-                }
-            }
-            if (!isTimerFrozen) {
-                onTimerFinished()
-            }
-        }
-    }
 
-    private fun onTimerFinished() {
-        // TODO отправлять пустой ход?
+                if (isTimerFinished) continue
+
+                val state = _gameState.value?: continue
+                if (state.turnEndsAt <= 0L) {
+                    _timerSeconds.value = 0
+                    continue
+                }
+
+                val localTimeNow = System.currentTimeMillis()
+                val timePassedClient = localTimeNow - lastClientTime //локально времени прошло
+                val timePassedServer = lastServerTime + timePassedClient //время сервера (предполож)
+                val remainingTime = state.turnEndsAt - timePassedServer //остаток времени
+
+                val seconds = (remainingTime / 1000L).coerceAtLeast(0L).toInt()
+                _timerSeconds.value = seconds
+
+                if (seconds <= 0 && !isTimerFinished) {
+                    isTimerFinished = true
+                    ///TODO "замораживать время?"
+                }
+
+            }
+
+        }
     }
 
     fun showRotateCardDialog(
@@ -114,7 +145,7 @@ class GameViewModel(
         isWinner: Boolean,
         onReturnToLobby: () -> Unit
     ) {
-        isTimerFrozen = true
+        isTimerFinished = true
 
         _dialogState.value = GameDialogState.GameFinishedDialog(
             isWinner = isWinner,

@@ -29,7 +29,9 @@ fun GameStateDto.toDomain(playerId: String): GameState {
             playerId = playerId,
             slotsId = this.activeSlotsRow
         ),
-        winnerId = this.winnerId
+        winnerId = this.winnerId,
+        serverTime = this.serverTime?: 0L,
+        turnEndsAt = this.turnEndsAt?: 0L
     )
 }
 

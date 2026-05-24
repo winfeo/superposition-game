@@ -564,7 +564,9 @@ fun GameScreenPreview() {
         ),
         turnNumber = 3,
         activeSlotsRow = SlotOwner.PLAYER,
-        winnerId = null
+        winnerId = null,
+        serverTime = 0L,
+        turnEndsAt = 0L
     )
 
     PlayerInfoPanel(

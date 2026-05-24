@@ -5,13 +5,66 @@ package io.github.winfeo.superpositiongame.lwjgl3
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import io.github.winfeo.superpositiongame.Main
+import io.github.winfeo.superpositiongame.graphics.Dialogs
+import io.github.winfeo.superpositiongame.model.card.Card
+import io.github.winfeo.superpositiongame.model.dice.DiceState
+import io.github.winfeo.superpositiongame.model.game.GamePhase
+import io.github.winfeo.superpositiongame.model.game.GameState
+import io.github.winfeo.superpositiongame.model.game.PlayerState
+import io.github.winfeo.superpositiongame.model.game.SlotOwner
 
 /** Launches the desktop (LWJGL3) application. */
 fun main() {
     // This handles macOS support and helps on Windows.
     if (StartupHelper.startNewJvmIfRequired())
       return
-    Lwjgl3Application(Main(), Lwjgl3ApplicationConfiguration().apply {
+
+    val mockDialogs = object: Dialogs {
+        override fun showRotateCardDialog(
+            availableStates: List<DiceState>,
+            onStateSelected: (DiceState) -> Unit
+        ) {}
+        override fun showReshuffleDialog(
+            cards: List<Card>,
+            maxSelectable: Int,
+            minSelectable: Int,
+            onCardsSelected: (List<Card>) -> Unit
+        ) {}
+        override fun showCardPreview(card: Card) {}
+    }
+
+    val mockGetGameState: () -> GameState = {
+        GameState(
+            phase = GamePhase.DEAL_CARDS,
+            turnNumber = 1,
+            currentPlayerId = "1234",
+            players = mapOf(
+                "1234" to PlayerState(
+                    id = "1234",
+                    hand = emptyList(),
+                    slots = emptyList(),
+                    skipNextTurn = false,
+                    remainingMoves = 1
+                ),
+                "5678" to PlayerState(
+                    id = "5678",
+                    hand = emptyList(),
+                    slots = emptyList(),
+                    skipNextTurn = false,
+                    remainingMoves = 1
+                )
+            ),
+            activeSlotsRow = SlotOwner.OPPONENT,
+            winnerId = null
+        )
+    }
+
+    Lwjgl3Application(Main(
+        playerId = "1234",
+        dialogs = mockDialogs,
+        onMove = {},
+        getGameState = mockGetGameState
+    ), Lwjgl3ApplicationConfiguration().apply {
         setTitle("Superposition Game")
         //// Vsync limits the frames per second to what your hardware can display, and helps eliminate
         //// screen tearing. This setting doesn't always work on Linux, so the line after is a safeguard.

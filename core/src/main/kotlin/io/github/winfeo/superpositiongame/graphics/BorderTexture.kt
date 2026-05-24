@@ -39,6 +39,9 @@ object BorderTexture {
             texture = createTexture()
         }
         return texture!!
+//        texture = Texture("cards/backfround_transp.png")
+//        texture?.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+//        return texture!!
     }
 
     private fun createTexture(): Texture {
