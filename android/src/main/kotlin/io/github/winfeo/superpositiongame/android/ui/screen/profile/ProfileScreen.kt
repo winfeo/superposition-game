@@ -1,0 +1,703 @@
+package io.github.winfeo.superpositiongame.android.ui.screen.profile
+
+import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
+import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import io.github.winfeo.superpositiongame.R
+import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
+
+data class MatchHistoryItem(
+    val enemyName: String,
+    val result: String,
+    val turns: Int,
+    val ratingChange: Int
+)
+
+@Composable
+fun ProfileScreen() {
+
+    val recentMatches = listOf(
+        MatchHistoryItem(
+            enemyName = "QuantumFox",
+            result = "Победа",
+            turns = 14,
+            ratingChange = +24
+        ),
+
+        MatchHistoryItem(
+            enemyName = "EntangledCat",
+            result = "Поражение",
+            turns = 9,
+            ratingChange = -11
+        ),
+
+        MatchHistoryItem(
+            enemyName = "WaveCrusher",
+            result = "Победа",
+            turns = 17,
+            ratingChange = +18
+        ),
+
+        MatchHistoryItem(
+            enemyName = "SuperNova",
+            result = "Победа",
+            turns = 11,
+            ratingChange = +31
+        )
+    )
+
+    val currentRating = 2480
+    val nextRankRating = 3000
+    val progress = currentRating / nextRankRating.toFloat()
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF0B0812))
+    ) {
+
+        BackgroundBlur()
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(Color.White.copy(alpha = 0.015f))
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+
+            /* ------------------------------------------------ */
+            /* ---------------- MAIN CONTENT ------------------ */
+            /* ------------------------------------------------ */
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Spacer(modifier = Modifier.height(22.dp))
+
+                /* ---------------- HEADER ---------------- */
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Box(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.04f))
+                            .border(
+                                width = 1.dp,
+                                color = Color.White.copy(alpha = 0.06f),
+                                shape = CircleShape
+                            )
+                            .clickable { },
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.75f)
+                        )
+                    }
+                }
+
+                /* ---------------- AVATAR ---------------- */
+
+                Box(
+                    contentAlignment = Alignment.Center
+                ) {
+
+                    Box(
+                        modifier = Modifier
+                            .size(190.dp)
+                            .blur(48.dp, BlurredEdgeTreatment.Unbounded)
+                            .background(
+                                brush = Brush.radialGradient(
+                                    colors = listOf(
+                                        Color(0xFF6C8CFF).copy(alpha = 0.12f),
+                                        Color.Transparent
+                                    ),
+                                    radius = 420f
+                                ),
+                                shape = CircleShape
+                            )
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .size(150.dp)
+                            .blur(80.dp, BlurredEdgeTreatment.Unbounded)
+                            .background(
+                                brush = Brush.radialGradient(
+                                    colors = listOf(
+                                        Color(0xFF9DB2FF).copy(alpha = 0.22f),
+                                        Color.Transparent
+                                    ),
+                                    radius = 240f
+                                ),
+                                shape = CircleShape
+                            )
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .size(132.dp)
+                            .clip(CircleShape)
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color(0xFF1A1B2E),
+                                        Color(0xFF10111D)
+                                    )
+                                )
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = Color.White.copy(alpha = 0.08f),
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color.White.copy(alpha = 0.08f),
+                                            Color.Transparent
+                                        )
+                                    ),
+                                    shape = CircleShape
+                                )
+                        )
+
+                        Image(
+                            painter = painterResource(R.drawable.ic_panda),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp)
+                        )
+                    }
+                }
+
+                /* ---------------- USERNAME ---------------- */
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Text(
+                        text = "Winfeo",
+                        color = Color.White,
+                        style = MaterialTheme.typography.h5,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.05f))
+                            .clickable { },
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.65f),
+                            modifier = Modifier.size(14.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = "#QNT-24801",
+                    color = Color.White.copy(alpha = 0.36f),
+                    style = MaterialTheme.typography.body2
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Топ 3% игроков",
+                    color = Color(0xFF9DB2FF),
+                    style = MaterialTheme.typography.body1
+                )
+
+                Spacer(modifier = Modifier.height(34.dp))
+
+                /* ---------------- STATS ---------------- */
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+
+                    ProfileStatCard(
+                        modifier = Modifier.weight(1f),
+                        title = "Рейтинг",
+                        value = "2480",
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = Color(0xFF9DB2FF)
+                            )
+                        }
+                    )
+
+                    ProfileStatCard(
+                        modifier = Modifier.weight(1f),
+                        title = "Победы",
+                        value = "124",
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                tint = Color(0xFFFFD166)
+                            )
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                RankedSeasonCard(
+                    currentRating = currentRating,
+                    nextRankRating = nextRankRating,
+                    progress = progress
+                )
+
+                Spacer(modifier = Modifier.height(28.dp))
+            }
+
+            /* ------------------------------------------------ */
+            /* -------------- RECENT MATCHES ------------------ */
+            /* ------------------------------------------------ */
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Text(
+                    text = "Последние матчи",
+                    color = Color.White,
+                    style = MaterialTheme.typography.h6,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Color.White.copy(alpha = 0.05f))
+                        .clickable { }
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Default.DateRange,
+                        contentDescription = null,
+                        tint = Color.White.copy(alpha = 0.72f),
+                        modifier = Modifier.size(18.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        text = "История",
+                        color = Color.White.copy(alpha = 0.72f),
+                        style = MaterialTheme.typography.body2
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /* ---------------- FULL WIDTH LAZYROW ---------------- */
+
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp)
+            ) {
+
+                items(recentMatches) { match ->
+
+                    MatchCard(match)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(160.dp))
+        }
+    }
+}
+
+@Composable
+fun ProfileStatCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: String,
+    icon: @Composable () -> Unit
+) {
+
+    Box(
+        modifier = modifier
+            .height(120.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF1A1B2E),
+                        Color(0xFF10111D)
+                    )
+                )
+            )
+            .border(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(28.dp)
+            )
+    ) {
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.07f),
+                            Color.Transparent
+                        )
+                    )
+                )
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(18.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            icon()
+
+            Column {
+
+                Text(
+                    text = value,
+                    color = Color.White,
+                    style = MaterialTheme.typography.h5,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = title,
+                    color = Color.White.copy(alpha = 0.45f),
+                    style = MaterialTheme.typography.body2
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun RankedSeasonCard(
+    currentRating: Int,
+    nextRankRating: Int,
+    progress: Float
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .clip(RoundedCornerShape(30.dp))
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF1A1B2E),
+                        Color(0xFF10111D)
+                    )
+                )
+            )
+            .border(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(30.dp)
+            )
+    ) {
+
+        /* ---------------- BLUE GLOW ---------------- */
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFF6C8CFF).copy(alpha = 0.16f),
+                            Color.Transparent
+                        ),
+                        radius = 900f
+                    )
+                )
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Icon(
+                    imageVector = Icons.Default.ThumbUp,
+                    contentDescription = null,
+                    tint = Color(0xFF9DB2FF)
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Text(
+                    text = "РАНГОВЫЙ ПРОГРЕСС",
+                    color = Color.White.copy(alpha = 0.55f),
+                    style = MaterialTheme.typography.body2
+                )
+            }
+
+            Column {
+
+                Text(
+                    text = "Diamond III",
+                    color = Color.White,
+                    style = MaterialTheme.typography.h4,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "$currentRating MMR • Top 3%",
+                    color = Color(0xFF9DB2FF),
+                    style = MaterialTheme.typography.body1
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                /* ---------------- PROGRESS ---------------- */
+                LinearProgressIndicator(
+                    progress = progress,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(999.dp)),
+                    color = Color(0xFF6C8CFF),
+                    backgroundColor = Color.White.copy(alpha = 0.08f)
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Text(
+                        text = "$currentRating",
+                        color = Color.White.copy(alpha = 0.55f),
+                        style = MaterialTheme.typography.caption
+                    )
+
+                    Text(
+                        text = "$nextRankRating",
+                        color = Color.White.copy(alpha = 0.55f),
+                        style = MaterialTheme.typography.caption
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MatchCard(
+    match: MatchHistoryItem
+) {
+
+    val isVictory = match.result == "Победа"
+
+    Box(
+        modifier = Modifier
+            .widthIn(min = 190.dp, max = 220.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF171827),
+                        Color(0xFF10111D)
+                    )
+                )
+            )
+            .border(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(28.dp)
+            )
+            .padding(18.dp)
+    ) {
+
+        Column {
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (isVictory) {
+                                Color(0xFF4CFF93)
+                            } else {
+                                Color(0xFFFF6B6B)
+                            }
+                        )
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Text(
+                    text = match.result,
+                    color = Color.White,
+                    style = MaterialTheme.typography.body1,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = match.enemyName,
+                color = Color.White.copy(alpha = 0.92f),
+                style = MaterialTheme.typography.h6,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Ходов: ${match.turns}",
+                color = Color.White.copy(alpha = 0.45f),
+                style = MaterialTheme.typography.body2
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text =
+                    if (match.ratingChange > 0) {
+                        "+${match.ratingChange} рейтинга"
+                    } else {
+                        "${match.ratingChange} рейтинга"
+                    },
+
+                color =
+                    if (match.ratingChange > 0) {
+                        Color(0xFF6CFF9D)
+                    } else {
+                        Color(0xFFFF6B6B)
+                    },
+
+                style = MaterialTheme.typography.body2
+            )
+        }
+    }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
+@Composable
+fun ProfileScreenPreview() {
+    ProfileScreen()
+}

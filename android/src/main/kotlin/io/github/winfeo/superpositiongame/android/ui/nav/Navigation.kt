@@ -20,6 +20,7 @@ import androidx.navigation.compose.rememberNavController
 import io.github.winfeo.superpositiongame.android.ui.nav.route.InvitesRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LibraryRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LobbyRoute
+import io.github.winfeo.superpositiongame.android.ui.nav.route.ProfileRoute
 import io.github.winfeo.superpositiongame.android.ui.screen.game.GameActivity
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitationViewModel
@@ -27,6 +28,7 @@ import io.github.winfeo.superpositiongame.android.ui.screen.library.LibraryScree
 import io.github.winfeo.superpositiongame.android.ui.screen.library.LibraryViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileScreen
 
 @Composable
 fun Navigation(
@@ -121,11 +123,18 @@ fun Navigation(
                     viewModel = libraryViewModel
                 )
             }
+
+            composable<ProfileRoute> {
+                ProfileScreen(
+
+                )
+            }
         }
 
         val showBottomBar = currentRoute in listOf(
             LobbyRoute::class.qualifiedName,
-            LibraryRoute::class.qualifiedName
+            LibraryRoute::class.qualifiedName,
+            ProfileRoute::class.qualifiedName
         )
 
         if (showBottomBar) {

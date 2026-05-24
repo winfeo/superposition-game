@@ -22,6 +22,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,6 +43,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LibraryRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LobbyRoute
+import io.github.winfeo.superpositiongame.android.ui.nav.route.ProfileRoute
 
 @Composable
 fun BottomNavBar(
@@ -62,6 +64,12 @@ fun BottomNavBar(
             route = LibraryRoute,
             icon = Icons.Default.Info,
             label = "Картотека"
+        ),
+
+        BottomNavItem(
+            route = ProfileRoute,
+            icon = Icons.Default.Person,
+            label = "Профиль"
         )
     )
 
