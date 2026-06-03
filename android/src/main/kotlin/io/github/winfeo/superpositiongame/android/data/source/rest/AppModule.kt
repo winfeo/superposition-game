@@ -1,6 +1,7 @@
 package io.github.winfeo.superpositiongame.android.data.source.rest
 
 import io.github.winfeo.superpositiongame.android.data.repository.AuthRepository
+import io.github.winfeo.superpositiongame.android.data.repository.GameHistoryRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -21,4 +22,6 @@ object AppModule {
 
     val authApi by lazy { AuthApi(client) }
     val authRepository by lazy { AuthRepository(authApi) }
+    val gameHistoryApi by lazy { GameHistoryApi(client) }
+    val gameHistoryRepository by lazy { GameHistoryRepository(gameHistoryApi) }
 }
