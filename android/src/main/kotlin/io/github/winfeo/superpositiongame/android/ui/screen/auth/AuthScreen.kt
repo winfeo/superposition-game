@@ -53,7 +53,10 @@ fun AuthScreen(
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(state.isSuccess) {
-        if (state.isSuccess) onSuccess()
+        if (state.isSuccess) {
+            onSuccess()
+            viewModel.resetSuccess()
+        }
     }
 
     Box(

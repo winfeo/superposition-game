@@ -156,6 +156,10 @@ fun Navigation(
             }
 
             composable<AuthRoute> {
+                LaunchedEffect(Unit) {
+                    authViewModel.resetForm()
+                }
+
                 AuthScreen(
                     viewModel = authViewModel,
                     onSuccess = {

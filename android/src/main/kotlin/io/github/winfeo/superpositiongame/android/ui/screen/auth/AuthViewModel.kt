@@ -63,4 +63,12 @@ class AuthViewModel(): ViewModel() {
             )
         }
     }
+
+    fun resetForm() {
+        _state.value = AuthState()
+    }
+
+    fun resetSuccess() {
+        _state.value = _state.value.copy(isSuccess = false)
+    }
 }
