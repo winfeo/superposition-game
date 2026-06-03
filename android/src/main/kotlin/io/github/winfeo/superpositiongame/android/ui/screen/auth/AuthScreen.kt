@@ -1,5 +1,6 @@
 package io.github.winfeo.superpositiongame.android.ui.screen.auth
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +38,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
 import io.github.winfeo.superpositiongame.android.ui.screen.auth.AuthViewModel
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
@@ -47,8 +50,6 @@ fun AuthScreen(
     viewModel: AuthViewModel,
     onSuccess: () -> Unit
 ) {
-    val authRepository = remember { AppModule.authRepository }
-
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(state.isSuccess) {
@@ -233,4 +234,17 @@ fun AuthScreen(
             }
         }
     }
+}
+
+@SuppressLint("ViewModelConstructorInComposable")
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
+@Composable
+fun AuthScreenPrev() {
+    AuthScreen(
+        viewModel = AuthViewModel(),
+        onSuccess = {}
+    )
 }

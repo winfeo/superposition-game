@@ -50,6 +50,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
+import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorisedUserDTO
+import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 
 data class MatchHistoryItem(
@@ -60,8 +62,9 @@ data class MatchHistoryItem(
 )
 
 @Composable
-fun ProfileScreen() {
-
+fun AuthorizedProfileScreen(
+    user: AuthorisedUserDTO
+) {
     val recentMatches = listOf(
         MatchHistoryItem(
             enemyName = "QuantumFox",
@@ -69,21 +72,18 @@ fun ProfileScreen() {
             turns = 14,
             ratingChange = +24
         ),
-
         MatchHistoryItem(
             enemyName = "EntangledCat",
             result = "Поражение",
             turns = 9,
             ratingChange = -11
         ),
-
         MatchHistoryItem(
             enemyName = "WaveCrusher",
             result = "Победа",
             turns = 17,
             ratingChange = +18
         ),
-
         MatchHistoryItem(
             enemyName = "SuperNova",
             result = "Победа",
@@ -92,9 +92,10 @@ fun ProfileScreen() {
         )
     )
 
-    val currentRating = 2480
+    // Данные из DTO
+    val currentRating = user.ratingPoints
     val nextRankRating = 3000
-    val progress = currentRating / nextRankRating.toFloat()
+    val progress = currentRating.toFloat() / nextRankRating.toFloat()
 
     Box(
         modifier = Modifier
@@ -116,10 +117,6 @@ fun ProfileScreen() {
                 .verticalScroll(rememberScrollState())
         ) {
 
-            /* ------------------------------------------------ */
-            /* ---------------- MAIN CONTENT ------------------ */
-            /* ------------------------------------------------ */
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -129,13 +126,28 @@ fun ProfileScreen() {
 
                 Spacer(modifier = Modifier.height(22.dp))
 
-                /* ---------------- HEADER ---------------- */
-
+                /* ---------------- Настройки ---------------- */
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Кнопка ВЫХОД
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.White.copy(alpha = 0.05f))
+                            .clickable { UserSession.logout() }
+                            .padding(horizontal = 14.dp, vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = "Выйти",
+                            color = Color.White.copy(alpha = 0.75f),
+                            style = MaterialTheme.typography.body2
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
 
                     Box(
                         modifier = Modifier
@@ -150,7 +162,6 @@ fun ProfileScreen() {
                             .clickable { },
                         contentAlignment = Alignment.Center
                     ) {
-
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = null,
@@ -159,12 +170,10 @@ fun ProfileScreen() {
                     }
                 }
 
-                /* ---------------- AVATAR ---------------- */
-
+                /* ---------------- Аватарка ---------------- */
                 Box(
                     contentAlignment = Alignment.Center
                 ) {
-
                     Box(
                         modifier = Modifier
                             .size(190.dp)
@@ -216,7 +225,6 @@ fun ProfileScreen() {
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-
                         Box(
                             modifier = Modifier
                                 .matchParentSize()
@@ -242,14 +250,12 @@ fun ProfileScreen() {
                     }
                 }
 
-                /* ---------------- USERNAME ---------------- */
-
+                /* ---------------- Ник ---------------- */
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Text(
-                        text = "Winfeo",
+                        text = user.nickname,
                         color = Color.White,
                         style = MaterialTheme.typography.h5,
                         fontWeight = FontWeight.Bold
@@ -265,7 +271,6 @@ fun ProfileScreen() {
                             .clickable { },
                         contentAlignment = Alignment.Center
                     ) {
-
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = null,
@@ -278,7 +283,7 @@ fun ProfileScreen() {
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = "#QNT-24801",
+                    text = "#${user.id}",
                     color = Color.White.copy(alpha = 0.36f),
                     style = MaterialTheme.typography.body2
                 )
@@ -286,24 +291,23 @@ fun ProfileScreen() {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Топ 3% игроков",
+                    text = user.league,
                     color = Color(0xFF9DB2FF),
                     style = MaterialTheme.typography.body1
                 )
 
                 Spacer(modifier = Modifier.height(34.dp))
 
-                /* ---------------- STATS ---------------- */
-
+                /* ---------------- Статистика ---------------- */
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-
+                    //Очки рейтинга
                     ProfileStatCard(
                         modifier = Modifier.weight(1f),
                         title = "Рейтинг",
-                        value = "2480",
+                        value = "${user.ratingPoints}",
                         icon = {
                             Icon(
                                 imageVector = Icons.Default.Star,
@@ -313,10 +317,11 @@ fun ProfileScreen() {
                         }
                     )
 
+                    //Количество побед
                     ProfileStatCard(
                         modifier = Modifier.weight(1f),
                         title = "Победы",
-                        value = "124",
+                        value = "${user.winsAmount}",
                         icon = {
                             Icon(
                                 imageVector = Icons.Default.Person,
@@ -329,18 +334,16 @@ fun ProfileScreen() {
 
                 Spacer(modifier = Modifier.height(18.dp))
 
+                //Ранговый прогресс
                 RankedSeasonCard(
                     currentRating = currentRating,
                     nextRankRating = nextRankRating,
-                    progress = progress
+                    progress = progress,
+                    league = user.league
                 )
 
                 Spacer(modifier = Modifier.height(28.dp))
             }
-
-            /* ------------------------------------------------ */
-            /* -------------- RECENT MATCHES ------------------ */
-            /* ------------------------------------------------ */
 
             Row(
                 modifier = Modifier
@@ -348,7 +351,6 @@ fun ProfileScreen() {
                     .padding(horizontal = 24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Text(
                     text = "Последние матчи",
                     color = Color.White,
@@ -364,7 +366,6 @@ fun ProfileScreen() {
                         .padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     Icon(
                         imageVector = Icons.Default.DateRange,
                         contentDescription = null,
@@ -384,15 +385,12 @@ fun ProfileScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            /* ---------------- FULL WIDTH LAZYROW ---------------- */
-
+            //Посление матчи
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
                 contentPadding = PaddingValues(horizontal = 24.dp)
             ) {
-
                 items(recentMatches) { match ->
-
                     MatchCard(match)
                 }
             }
@@ -409,7 +407,6 @@ fun ProfileStatCard(
     value: String,
     icon: @Composable () -> Unit
 ) {
-
     Box(
         modifier = modifier
             .height(120.dp)
@@ -428,7 +425,6 @@ fun ProfileStatCard(
                 shape = RoundedCornerShape(28.dp)
             )
     ) {
-
         Box(
             modifier = Modifier
                 .matchParentSize()
@@ -448,11 +444,9 @@ fun ProfileStatCard(
                 .padding(18.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-
             icon()
 
             Column {
-
                 Text(
                     text = value,
                     color = Color.White,
@@ -476,9 +470,9 @@ fun ProfileStatCard(
 fun RankedSeasonCard(
     currentRating: Int,
     nextRankRating: Int,
-    progress: Float
+    progress: Float,
+    league: String
 ) {
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -498,8 +492,6 @@ fun RankedSeasonCard(
                 shape = RoundedCornerShape(30.dp)
             )
     ) {
-
-        /* ---------------- BLUE GLOW ---------------- */
         Box(
             modifier = Modifier
                 .matchParentSize()
@@ -520,11 +512,9 @@ fun RankedSeasonCard(
                 .padding(24.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Icon(
                     imageVector = Icons.Default.ThumbUp,
                     contentDescription = null,
@@ -541,9 +531,8 @@ fun RankedSeasonCard(
             }
 
             Column {
-
                 Text(
-                    text = "Diamond III",
+                    text = league,
                     color = Color.White,
                     style = MaterialTheme.typography.h4,
                     fontWeight = FontWeight.Bold
@@ -552,14 +541,14 @@ fun RankedSeasonCard(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "$currentRating MMR • Top 3%",
+//                    text = "$currentRating MMR • Top 3%",
+                    text = "$currentRating MMR",
                     color = Color(0xFF9DB2FF),
                     style = MaterialTheme.typography.body1
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                /* ---------------- PROGRESS ---------------- */
                 LinearProgressIndicator(
                     progress = progress,
                     modifier = Modifier
@@ -576,7 +565,6 @@ fun RankedSeasonCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-
                     Text(
                         text = "$currentRating",
                         color = Color.White.copy(alpha = 0.55f),
@@ -598,7 +586,6 @@ fun RankedSeasonCard(
 fun MatchCard(
     match: MatchHistoryItem
 ) {
-
     val isVictory = match.result == "Победа"
 
     Box(
@@ -620,23 +607,17 @@ fun MatchCard(
             )
             .padding(18.dp)
     ) {
-
         Column {
-
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 Box(
                     modifier = Modifier
                         .size(12.dp)
                         .clip(CircleShape)
                         .background(
-                            if (isVictory) {
-                                Color(0xFF4CFF93)
-                            } else {
-                                Color(0xFFFF6B6B)
-                            }
+                            if (isVictory) Color(0xFF4CFF93)
+                            else Color(0xFFFF6B6B)
                         )
                 )
 
@@ -671,20 +652,10 @@ fun MatchCard(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text =
-                    if (match.ratingChange > 0) {
-                        "+${match.ratingChange} рейтинга"
-                    } else {
-                        "${match.ratingChange} рейтинга"
-                    },
-
-                color =
-                    if (match.ratingChange > 0) {
-                        Color(0xFF6CFF9D)
-                    } else {
-                        Color(0xFFFF6B6B)
-                    },
-
+                text = if (match.ratingChange > 0) "+${match.ratingChange} рейтинга"
+                else "${match.ratingChange} рейтинга",
+                color = if (match.ratingChange > 0) Color(0xFF6CFF9D)
+                else Color(0xFFFF6B6B),
                 style = MaterialTheme.typography.body2
             )
         }
@@ -697,6 +668,16 @@ fun MatchCard(
     showSystemUi = true
 )
 @Composable
-fun ProfileScreenPreview() {
-    ProfileScreen()
+fun AuthorizedProfileScreenPreview() {
+    AuthorizedProfileScreen(
+        user = AuthorisedUserDTO(
+            id = 24801,
+            league = "Diamond III",
+            nickname = "Winfeo",
+            ratingPoints = 2480,
+            winsAmount = 124,
+            gamesPlayed = 312,
+            createdAt = "2026-05-20"
+        )
+    )
 }

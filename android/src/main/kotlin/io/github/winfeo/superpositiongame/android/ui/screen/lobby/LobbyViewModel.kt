@@ -22,6 +22,7 @@ class LobbyViewModel(
     private val sendInvitation = SendInvitationUseCase(repository)
 
     private val _state = MutableStateFlow(LobbyState())
+//    private val _state = MutableStateFlow(LobbyState.Loading) //TODO sealed?
     val state: StateFlow<LobbyState> = _state.asStateFlow()
 
     private val _selectedUser = MutableStateFlow<User?>(null)
