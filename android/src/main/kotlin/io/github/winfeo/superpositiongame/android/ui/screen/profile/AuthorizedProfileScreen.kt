@@ -24,6 +24,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -36,6 +37,9 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
@@ -49,8 +53,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.winfeo.superpositiongame.R
 import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorisedUserDTO
+import io.github.winfeo.superpositiongame.android.data.dto.rest.GameHistoryDTO
 import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 
@@ -63,39 +69,43 @@ data class MatchHistoryItem(
 
 @Composable
 fun AuthorizedProfileScreen(
-    user: AuthorisedUserDTO
+    viewModel: ProfileViewModel
 ) {
-    val recentMatches = listOf(
-        MatchHistoryItem(
-            enemyName = "QuantumFox",
-            result = "Победа",
-            turns = 14,
-            ratingChange = +24
-        ),
-        MatchHistoryItem(
-            enemyName = "EntangledCat",
-            result = "Поражение",
-            turns = 9,
-            ratingChange = -11
-        ),
-        MatchHistoryItem(
-            enemyName = "WaveCrusher",
-            result = "Победа",
-            turns = 17,
-            ratingChange = +18
-        ),
-        MatchHistoryItem(
-            enemyName = "SuperNova",
-            result = "Победа",
-            turns = 11,
-            ratingChange = +31
-        )
-    )
+    val state by viewModel.state.collectAsState()
+    val recentGameHistory by viewModel.recentGameHistory.collectAsState()
+    val user = state.user
 
-    // Данные из DTO
+    LaunchedEffect(Unit) {
+        user?.let {
+            viewModel.loadGameHistory(it.id)
+        }
+    }
+
+    if (user == null) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF0B0812)),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(color = Color(0xFF6C8CFF))
+        }
+        return
+    }
+
+    val matchHistoryItems = recentGameHistory.map { game ->
+        MatchHistoryItem(
+            enemyName = game.opponentNickname,
+            result = if (game.isWinner) "Победа" else "Поражение",
+            turns = game.totalMoves,
+            ratingChange = game.ratingChange
+        )
+    }
+
     val currentRating = user.ratingPoints
-    val nextRankRating = 3000
+    val nextRankRating = 3000 //TODO доделать лиги
     val progress = currentRating.toFloat() / nextRankRating.toFloat()
+
 
     Box(
         modifier = Modifier
@@ -137,7 +147,7 @@ fun AuthorizedProfileScreen(
                         modifier = Modifier
                             .clip(RoundedCornerShape(12.dp))
                             .background(Color.White.copy(alpha = 0.05f))
-                            .clickable { UserSession.logout() }
+                            .clickable { viewModel.logout() }
                             .padding(horizontal = 14.dp, vertical = 10.dp)
                     ) {
                         Text(
@@ -390,7 +400,7 @@ fun AuthorizedProfileScreen(
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
                 contentPadding = PaddingValues(horizontal = 24.dp)
             ) {
-                items(recentMatches) { match ->
+                items(matchHistoryItems) { match ->
                     MatchCard(match)
                 }
             }
@@ -670,14 +680,6 @@ fun MatchCard(
 @Composable
 fun AuthorizedProfileScreenPreview() {
     AuthorizedProfileScreen(
-        user = AuthorisedUserDTO(
-            id = 24801,
-            league = "Diamond III",
-            nickname = "Winfeo",
-            ratingPoints = 2480,
-            winsAmount = 124,
-            gamesPlayed = 312,
-            createdAt = "2026-05-20"
-        )
+        viewModel = ProfileViewModel()
     )
 }
