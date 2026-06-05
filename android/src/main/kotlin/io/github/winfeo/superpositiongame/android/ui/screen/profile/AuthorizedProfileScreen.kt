@@ -54,6 +54,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
+import io.github.winfeo.superpositiongame.android.ui.dialog.EditNicknameDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 
 data class MatchHistoryItem(
@@ -71,6 +72,9 @@ fun AuthorizedProfileScreen(
     val state by viewModel.state.collectAsState()
     val recentGameHistory by viewModel.recentGameHistory.collectAsState()
     val user = state.user
+
+    val isEditDialogVisible by viewModel.isEditNicknameDialogVisible.collectAsState()
+    val editError by viewModel.editNicknameError.collectAsState()
 
     LaunchedEffect(Unit) {
         user?.let {
@@ -260,7 +264,8 @@ fun AuthorizedProfileScreen(
 
                 /* ---------------- Ник ---------------- */
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable { viewModel.showEditNicknameDialog() }
                 ) {
                     Text(
                         text = user.nickname,
@@ -275,8 +280,7 @@ fun AuthorizedProfileScreen(
                         modifier = Modifier
                             .size(28.dp)
                             .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.05f))
-                            .clickable { },
+                            .background(Color.White.copy(alpha = 0.05f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -420,6 +424,17 @@ fun AuthorizedProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(160.dp))
+        }
+
+        if (isEditDialogVisible) {
+            EditNicknameDialog(
+                currentNickname = user.nickname,
+                errorMessage = editError,
+                onConfirm = { newNickname ->
+                    viewModel.updateNickname(newNickname)
+                },
+                onDismiss = { viewModel.hideEditNicknameDialog() }
+            )
         }
     }
 }

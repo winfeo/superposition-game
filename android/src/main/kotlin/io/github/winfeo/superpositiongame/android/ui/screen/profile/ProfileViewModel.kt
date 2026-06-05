@@ -3,6 +3,7 @@ package io.github.winfeo.superpositiongame.android.ui.screen.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.winfeo.superpositiongame.android.data.dto.rest.GameHistoryDTO
+import io.github.winfeo.superpositiongame.android.data.dto.rest.UpdateUserDTO
 import io.github.winfeo.superpositiongame.android.data.source.Network
 import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
 import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
@@ -21,6 +22,13 @@ class ProfileViewModel : ViewModel() {
 
     private val _recentGameHistory = MutableStateFlow<List<GameHistoryDTO>>(emptyList())
     val recentGameHistory: StateFlow<List<GameHistoryDTO>> = _recentGameHistory.asStateFlow()
+
+    private val _isEditNicknameDialogVisible = MutableStateFlow(false)
+    val isEditNicknameDialogVisible: StateFlow<Boolean> = _isEditNicknameDialogVisible.asStateFlow()
+
+    private val _editNicknameError = MutableStateFlow<String?>(null)
+    val editNicknameError: StateFlow<String?> = _editNicknameError.asStateFlow()
+
 
     init {
         viewModelScope.launch {
@@ -82,6 +90,38 @@ class ProfileViewModel : ViewModel() {
                 _state.value = _state.value.copy(user = updatedUser)
                 UserSession.updateUser(updatedUser)
             }
+        }
+    }
+
+    fun showEditNicknameDialog() {
+        _editNicknameError.value = null
+        _isEditNicknameDialogVisible.value = true
+    }
+
+    fun hideEditNicknameDialog() {
+        _isEditNicknameDialogVisible.value = false
+        _editNicknameError.value = null
+    }
+
+    fun updateNickname(newNickname: String) {
+        val currentUser = _state.value.user ?: return
+        viewModelScope.launch {
+            val updateDTO = UpdateUserDTO(
+                id = currentUser.id,
+                nickname = newNickname,
+                email = currentUser.email
+            )
+            val result = userRepository.updateUser(updateDTO)
+            result.fold(
+                onSuccess = { updatedUser ->
+                    _state.value = _state.value.copy(user = updatedUser)
+                    UserSession.updateUser(updatedUser)
+                    hideEditNicknameDialog()
+                },
+                onFailure = { error ->
+                    _editNicknameError.value = error.message
+                }
+            )
         }
     }
 }
