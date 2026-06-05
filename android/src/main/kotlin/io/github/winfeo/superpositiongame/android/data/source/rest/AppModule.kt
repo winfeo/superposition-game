@@ -19,6 +19,7 @@ object AppModule {
                     isLenient = true
                 })
             }
+            expectSuccess = true
         }
     }
 

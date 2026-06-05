@@ -41,7 +41,8 @@ class AuthRepository(
                 catch (_: Exception) { "Ошибка запроса" }
             }
             is ServerResponseException -> {
-                try { e.response.bodyAsText() } catch (_: Exception) { "Ошибка сервера" }
+                try { e.response.bodyAsText() }
+                catch (_: Exception) { "Ошибка сервера" }
             }
             is ConnectException -> "Нет подключения к серверу"
             is UnknownHostException -> "Нет подключения к серверу"

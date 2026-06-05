@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AuthorisedUserDTO(
     val id: Long,
+    val email: String,
     val league: String,
     val nickname: String,
     val ratingPoints: Int,
