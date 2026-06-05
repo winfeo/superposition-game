@@ -12,6 +12,9 @@ object UserSession {
     private val _currentUser = MutableStateFlow<AuthorisedUserDTO?>(null)
     val currentUser: StateFlow<AuthorisedUserDTO?> = _currentUser.asStateFlow()
 
+    private val _currentUserId = MutableStateFlow<String?>(null)
+    val currentUserId: StateFlow<String?> = _currentUserId.asStateFlow()
+
     fun login(user: AuthorisedUserDTO) {
         _currentUser.value = user
         _isAuthorized.value = true
@@ -20,5 +23,17 @@ object UserSession {
     fun logout() {
         _currentUser.value = null
         _isAuthorized.value = false
+    }
+
+    fun setUserId(userId: String) {
+        _currentUserId.value = userId
+    }
+
+    fun updateUser(user: AuthorisedUserDTO) {
+        _currentUser.value = user
+    }
+
+    fun clear() {
+        _currentUserId.value = null
     }
 }
