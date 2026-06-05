@@ -1,21 +1,23 @@
 package io.github.winfeo.superpositiongame.android.data
 
-import io.github.winfeo.superpositiongame.android.data.dto.InvitationDto
+import io.github.winfeo.superpositiongame.android.data.dto.InvitationDTO
 import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invitation
 
-fun InvitationDto.toDomain(): Invitation {
+fun InvitationDTO.toDomain(): Invitation {
     return Invitation(
         senderId = senderId,
+        senderNickname = senderNickname,
         receiverId = receiverId,
-        sendTime = sendTime
+        sendTime = sendTime?: ""
     )
 }
 
 fun Invitation.toDto(
-    currentUserId: String
-): InvitationDto {
-    return InvitationDto(
+    currentUserId: String,
+): InvitationDTO {
+    return InvitationDTO(
         senderId = senderId,
+        senderNickname = senderNickname,
         receiverId = currentUserId,
         sendTime = sendTime
     )

@@ -24,7 +24,7 @@ import androidx.compose.ui.window.Dialog
 
 @Composable
 fun InviteDialog(
-    playerId: String,
+    playerName: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -83,7 +83,7 @@ fun InviteDialog(
                     )
 
                     Text(
-                        text = playerId.take(5),
+                        text = playerName.take(9),
                         color = Color.White.copy(alpha = 0.9f),
                         style = MaterialTheme.typography.body1
                     )
@@ -170,7 +170,7 @@ fun DialogButton(
 @Composable
 fun InviteDialogPrev() {
     InviteDialog(
-        playerId = "12345",
+        playerName = "12345",
         onConfirm = {},
         onDismiss = {}
     )

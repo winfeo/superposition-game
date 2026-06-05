@@ -220,8 +220,9 @@ fun InviteCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
+                val senderName = invitation.senderNickname?: invitation.senderId
                 Text(
-                    text = invitation.senderId.take(5),
+                    text = senderName.take(9),
                     color = Color.White.copy(alpha = 0.92f),
                     style = MaterialTheme.typography.body1
                 )
@@ -313,7 +314,8 @@ fun InvitesScreenContent() {
 
             InvitesList(
                 invitations = listOf(Invitation(
-                    senderId = "12345",
+                    senderId = "guest-12345",
+                    senderNickname = null,
                     receiverId = "12345",
                     sendTime = "22:30"
                 )),

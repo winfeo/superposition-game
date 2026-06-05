@@ -3,6 +3,7 @@ package io.github.winfeo.superpositiongame.android.ui.screen.invites
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.winfeo.superpositiongame.android.data.repository.InvitationRepositoryImpl
+import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
 import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invitation
 import io.github.winfeo.superpositiongame.android.domain.invitations.usecase.AcceptInvitationUseCase
 import io.github.winfeo.superpositiongame.android.domain.invitations.usecase.ObserveInvitationsUseCase
@@ -13,11 +14,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-class InvitationViewModel(
-//    private val observeInvitations: ObserveInvitationsUseCase,
-//    private val addListener: AddListenerToInvitationUseCase
-    private val currentUserId: String
-): ViewModel() {
+class InvitationViewModel(): ViewModel() {
     private val repository = InvitationRepositoryImpl()
     private val observeInvitationsUseCase = ObserveInvitationsUseCase(repository)
     private val acceptInvitationUseCase = AcceptInvitationUseCase(repository)
@@ -26,7 +23,13 @@ class InvitationViewModel(
     val state: StateFlow<InvitationState> = _state
 
     init {
-        loadInvitations(currentUserId)
+        viewModelScope.launch {
+            UserSession.currentUserId.collect { userId ->
+                if (userId != null) {
+                    loadInvitations(userId)
+                }
+            }
+        }
     }
 
     fun loadInvitations(userId: String) {
@@ -41,6 +44,7 @@ class InvitationViewModel(
     }
 
     fun acceptInvitation(invitation: Invitation) {
+        val currentUserId = UserSession.currentUserId.value?: return
         viewModelScope.launch {
             acceptInvitationUseCase(
                 invitation = invitation,
@@ -50,6 +54,7 @@ class InvitationViewModel(
     }
 
     fun rejectInvitation(invitation: Invitation) {
+        val currentUserId = UserSession.currentUserId.value?: return
         viewModelScope.launch {
             rejectInvitationUseCase(
                 invitation = invitation,

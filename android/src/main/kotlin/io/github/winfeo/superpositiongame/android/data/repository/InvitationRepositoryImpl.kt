@@ -1,8 +1,8 @@
 package io.github.winfeo.superpositiongame.android.data.repository
 
 import android.util.Log
-import io.github.winfeo.superpositiongame.android.data.dto.InvitationDto
-import io.github.winfeo.superpositiongame.android.data.dto.InvitationEventDto
+import io.github.winfeo.superpositiongame.android.data.dto.InvitationDTO
+import io.github.winfeo.superpositiongame.android.data.dto.InvitationEventDTO
 import io.github.winfeo.superpositiongame.android.data.source.Network
 import io.github.winfeo.superpositiongame.android.data.toDomain
 import io.github.winfeo.superpositiongame.android.domain.invitations.InvitationRepository
@@ -33,7 +33,7 @@ class InvitationRepositoryImpl(): InvitationRepository {
                         Network.subscribeToTopic(topic) { message ->
                             Log.d("INVITE", "Message: $message")
                             try {
-                                val event = json.decodeFromString<InvitationEventDto>(message)
+                                val event = json.decodeFromString<InvitationEventDTO>(message)
                                 val invitationEventType = InvitationEventType.valueOf(event.type)
                                 Log.d("INVITE", "Event type: ${event.type}")
                                 when(invitationEventType){
@@ -85,16 +85,16 @@ class InvitationRepositoryImpl(): InvitationRepository {
 
     }
 
-    override suspend fun acceptInvitation(invitation: InvitationDto) {
-        val payload = json.encodeToString(InvitationDto.serializer(), invitation)
+    override suspend fun acceptInvitation(invitation: InvitationDTO) {
+        val payload = json.encodeToString(InvitationDTO.serializer(), invitation)
         Network.sendMessage(
             destination = acceptTopic,
             message = payload
         )
     }
 
-    override suspend fun rejectInvitation(invitation: InvitationDto) {
-        val payload = json.encodeToString(InvitationDto.serializer(), invitation)
+    override suspend fun rejectInvitation(invitation: InvitationDTO) {
+        val payload = json.encodeToString(InvitationDTO.serializer(), invitation)
         Network.sendMessage(
             destination = rejectTopic,
             message = payload
