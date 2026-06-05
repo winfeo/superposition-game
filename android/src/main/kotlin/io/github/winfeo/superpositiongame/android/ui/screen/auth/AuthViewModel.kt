@@ -2,16 +2,17 @@ package io.github.winfeo.superpositiongame.android.ui.screen.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorisedUserDTO
 import io.github.winfeo.superpositiongame.android.data.dto.rest.NewUserDTO
-import io.github.winfeo.superpositiongame.android.data.repository.AuthRepository
+import io.github.winfeo.superpositiongame.android.data.source.Network
 import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
-import io.github.winfeo.superpositiongame.android.ui.screen.auth.AuthState
+import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel(): ViewModel() {
+class AuthViewModel : ViewModel() {
     private val repository = AppModule.authRepository
 
     private val _state = MutableStateFlow(AuthState())
@@ -36,8 +37,8 @@ class AuthViewModel(): ViewModel() {
             _state.value = _state.value.copy(isLoading = true, error = null)
             val result = repository.login(NewUserDTO(currentState.email, currentState.password))
             result.fold(
-                onSuccess = { _state.value = _state.value.copy(isLoading = false, isSuccess = true) },
-                onFailure = { _state.value = _state.value.copy(isLoading = false, error = it.message) }
+                onSuccess = { user -> performLogin(user) },
+                onFailure = { error -> _state.value = _state.value.copy(isLoading = false, error = error.message) }
             )
         }
     }
@@ -51,17 +52,21 @@ class AuthViewModel(): ViewModel() {
 
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            val result = repository.register(
-                NewUserDTO(
-                    currentState.email,
-                    currentState.password
-                )
-            )
+            val result = repository.register(NewUserDTO(currentState.email, currentState.password))
             result.fold(
-                onSuccess = { _state.value = _state.value.copy(isLoading = false, isSuccess = true) },
-                onFailure = { _state.value = _state.value.copy(isLoading = false, error = it.message) }
+                onSuccess = { user -> performLogin(user) },
+                onFailure = { error -> _state.value = _state.value.copy(isLoading = false, error = error.message) }
             )
         }
+    }
+
+    private fun performLogin(user: AuthorisedUserDTO) {
+        UserSession.login(user)
+        val realUserId = user.id.toString()
+        UserSession.setUserId(realUserId)
+        Network.disconnect()
+        Network.connect(userId = realUserId)
+        _state.value = _state.value.copy(isLoading = false, isSuccess = true)
     }
 
     fun resetForm() {

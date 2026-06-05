@@ -3,6 +3,7 @@ package io.github.winfeo.superpositiongame.android.ui.screen.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.winfeo.superpositiongame.android.data.dto.rest.GameHistoryDTO
+import io.github.winfeo.superpositiongame.android.data.source.Network
 import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
 import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 
 class ProfileViewModel : ViewModel() {
     private val repository = AppModule.gameHistoryRepository
+    private val userRepository = AppModule.userRepository
 
     private val _state = MutableStateFlow(ProfileState())
     val state: StateFlow<ProfileState> = _state.asStateFlow()
@@ -29,6 +31,7 @@ class ProfileViewModel : ViewModel() {
 
                 if (newState.isAuthorized && newState.user != null) {
                     loadGameHistory(newState.user.id)
+                    loadUserStats(newState.user.id)
                 }
             }
         }
@@ -36,6 +39,13 @@ class ProfileViewModel : ViewModel() {
 
     fun logout() {
         UserSession.logout()
+        viewModelScope.launch {
+            val guestIdResult = AppModule.guestRepository.createGuest()
+            val guestId = guestIdResult.getOrNull()?: "guest-fallback-${System.currentTimeMillis()}"
+            UserSession.setUserId(guestId)
+            Network.disconnect()
+            Network.connect(userId = guestId)
+        }
     }
 
     fun loadGameHistory(userId: Long) {
@@ -53,7 +63,6 @@ class ProfileViewModel : ViewModel() {
                         isLoadingHistory = false,
                         gameHistory = history
                     )
-
                     _recentGameHistory.value = history.take(5)
                 },
                 onFailure = { error ->
@@ -63,6 +72,16 @@ class ProfileViewModel : ViewModel() {
                     )
                 }
             )
+        }
+    }
+
+    fun loadUserStats(userId: Long) {
+        viewModelScope.launch {
+            val result = userRepository.getUserStats(userId)
+            result.onSuccess { updatedUser ->
+                _state.value = _state.value.copy(user = updatedUser)
+                UserSession.updateUser(updatedUser)
+            }
         }
     }
 }

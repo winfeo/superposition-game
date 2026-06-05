@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
 import io.github.winfeo.superpositiongame.android.ui.nav.route.AuthRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.InvitesRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LibraryRoute
@@ -35,9 +36,7 @@ import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileScree
 import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileViewModel
 
 @Composable
-fun Navigation(
-    currentUserId: String
-) {
+fun Navigation() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -48,7 +47,7 @@ fun Navigation(
     val lobbyViewModel: LobbyViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return LobbyViewModel(currentUserId) as T
+                return LobbyViewModel() as T
             }
         }
     )
@@ -57,7 +56,7 @@ fun Navigation(
     val invitationViewModel: InvitationViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return InvitationViewModel(currentUserId) as T
+                return InvitationViewModel() as T
             }
         }
     )
@@ -91,23 +90,26 @@ fun Navigation(
 
 
     /* --------------- Запуск игры --------------- */
-    ///TODO временно, подумать как переписать
+    val currentUserId by UserSession.currentUserId.collectAsState()
     val context = LocalContext.current
     val viewModel: GameLauncher= viewModel(
+        key = currentUserId,
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return GameLauncher() as T
             }
         }
     )
+
     val gameId by viewModel.gameFlow.collectAsState()
     LaunchedEffect(gameId) {
-        if (gameId != null) {
+        if (gameId != null && currentUserId != null) {
             context.startActivity(
                 Intent(context, GameActivity::class.java)
                     .putExtra("GAME_ID", gameId)
                     .putExtra("USER_ID", currentUserId)
             )
+            viewModel.resetGameId()
         }
     }
 
@@ -123,7 +125,6 @@ fun Navigation(
         ) {
             composable<LobbyRoute> {
                 LobbyScreen(
-                    playerName = currentUserId,
                     viewModel = lobbyViewModel,
                     onInvitesClick = {
                         navController.navigate(InvitesRoute)

@@ -53,11 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.winfeo.superpositiongame.R
-import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorisedUserDTO
-import io.github.winfeo.superpositiongame.android.data.dto.rest.GameHistoryDTO
-import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 
 data class MatchHistoryItem(
@@ -78,6 +74,7 @@ fun AuthorizedProfileScreen(
     LaunchedEffect(Unit) {
         user?.let {
             viewModel.loadGameHistory(it.id)
+            viewModel.loadUserStats(it.id)
         }
     }
 
