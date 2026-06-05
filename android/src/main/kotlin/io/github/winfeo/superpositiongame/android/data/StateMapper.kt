@@ -38,6 +38,7 @@ fun GameStateDto.toDomain(playerId: String): GameState {
 fun PlayerStateDto.toDomain(playerId: String): PlayerState {
     return PlayerState(
         id = this.id,
+        nickname = this.nickname,
         hand = this.hand.map { it.toDomain() },
         slots = this.slots.map { it.toDomain(playerId) },
         skipNextTurn = this.skipNextTurn,

@@ -75,9 +75,16 @@ fun PlayerInfoPanel(
                 PauseButton(onClick = onPause)
             }
 
+            val player = gameState.players[playerId]
+            val playerName = player?.nickname?: playerId
+
+            val opponentId = gameState.players.keys.first { it != playerId }
+            val opponent = gameState.players[opponentId]
+            val opponentName = opponent?.nickname?: opponentId
+
             GameHud(
-                playerId = playerId,
-                opponentId = gameState.players.keys.first { it != playerId },
+                playerName = playerName,
+                opponentName = opponentName,
                 isPlayerTurn = gameState.currentPlayerId == playerId,
                 timerSeconds = timerSeconds
             )
@@ -88,8 +95,8 @@ fun PlayerInfoPanel(
 /* ---------------- Игровой худ ---------------- */
 @Composable
 fun GameHud(
-    playerId: String,
-    opponentId: String,
+    playerName: String,
+    opponentName: String,
     isPlayerTurn: Boolean,
     timerSeconds: Int
 ) {
@@ -102,7 +109,7 @@ fun GameHud(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             PlayerCard(
-                name = playerId.take(5),
+                name = playerName.take(9),
                 isCurrentPlayerCard = true,
                 isCurrentTurn = isPlayerTurn,
                 modifier = Modifier.weight(1f)
@@ -118,7 +125,7 @@ fun GameHud(
             Spacer(modifier = Modifier.width(16.dp))
 
             PlayerCard(
-                name = opponentId.take(5),
+                name = opponentName.take(9),
                 isCurrentPlayerCard = false,
                 isCurrentTurn = !isPlayerTurn,
                 modifier = Modifier.weight(1f)
@@ -378,7 +385,8 @@ fun GameScreenPreview() {
         currentPlayerId = "player_2",
         players = mapOf(
             "player_1" to PlayerState(
-                id = "player_1",
+                id = "123",
+                nickname = null,
                 hand = listOf(
                     Card(
                         id = "card_1",
@@ -481,6 +489,7 @@ fun GameScreenPreview() {
             ),
             "player_2" to PlayerState(
                 id = "player_2",
+                nickname = "Winfeo",
                 hand = listOf(
                     Card(
                         id = "card_7",

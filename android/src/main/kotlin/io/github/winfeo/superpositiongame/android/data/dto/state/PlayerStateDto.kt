@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PlayerStateDto(
     val id: String,
+    val nickname: String?,
     val hand: List<CardDto> = emptyList(),
     val slots: List<SlotStateDto> = emptyList(),
     val skipNextTurn: Boolean = false,
