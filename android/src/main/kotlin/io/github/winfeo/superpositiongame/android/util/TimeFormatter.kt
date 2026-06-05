@@ -1,20 +1,29 @@
 package io.github.winfeo.superpositiongame.android.util
 
-import android.util.Log
+import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 object TimeFormatter {
-    private val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-    private val outputFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    private val timePattern = DateTimeFormatter.ofPattern("HH:mm")
+    private val dateTimePattern = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
 
-    fun formatTime(iso: String): String {
+    fun formatTime(iso: String): String = format(iso, timePattern)
+    fun formatDateTime(iso: String): String = format(iso, dateTimePattern)
+
+    private fun format(
+        iso: String,
+        formatter: DateTimeFormatter
+    ): String {
         return try {
-            val dateTime = OffsetDateTime.parse(iso)
-            dateTime.format(outputFormatter)
-        } catch (e: Exception) {
-            Log.d("TIME_FORMATTER", "Ошибка конфертации: ${e.message}")
-            iso
+            LocalDateTime.parse(iso, DateTimeFormatter.ISO_LOCAL_DATE_TIME).format(formatter)
+        } catch (_: DateTimeParseException) {
+            try {
+                OffsetDateTime.parse(iso).format(formatter)
+            } catch (_: DateTimeParseException) {
+                iso
+            }
         }
     }
 }

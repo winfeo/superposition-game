@@ -7,5 +7,6 @@ data class GameHistoryDTO(
     val isWinner: Boolean,
     val opponentNickname: String,
     val totalMoves: Int,
-    val ratingChange: Int
+    val ratingChange: Int,
+    val playedAt: String
 )

@@ -19,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
 import io.github.winfeo.superpositiongame.android.ui.nav.route.AuthRoute
+import io.github.winfeo.superpositiongame.android.ui.nav.route.GameHistory
 import io.github.winfeo.superpositiongame.android.ui.nav.route.InvitesRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LibraryRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LobbyRoute
@@ -32,6 +33,8 @@ import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.auth.AuthScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.auth.AuthViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.history.GameHistoryScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.history.GameHistoryViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileViewModel
 
@@ -84,6 +87,15 @@ fun Navigation() {
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return ProfileViewModel() as T
+            }
+        }
+    )
+
+    ///TODO временно потом DI
+    val gameHistoryViewModel: GameHistoryViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return GameHistoryViewModel() as T
             }
         }
     )
@@ -152,6 +164,9 @@ fun Navigation() {
                     viewModel = profileViewModel,
                     onNavigateToAuth = {
                         navController.navigate(AuthRoute)
+                    },
+                    onNavigateToGameHistory = {
+                        navController.navigate(GameHistory)
                     }
                 )
             }
@@ -164,6 +179,15 @@ fun Navigation() {
                 AuthScreen(
                     viewModel = authViewModel,
                     onSuccess = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable<GameHistory> {
+                GameHistoryScreen(
+                    viewModel = gameHistoryViewModel,
+                    onReturnToProfile = {
                         navController.popBackStack()
                     }
                 )

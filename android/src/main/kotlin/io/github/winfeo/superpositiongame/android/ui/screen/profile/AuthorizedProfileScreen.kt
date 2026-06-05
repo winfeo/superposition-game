@@ -65,7 +65,8 @@ data class MatchHistoryItem(
 
 @Composable
 fun AuthorizedProfileScreen(
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel,
+    onNavigateToGameHistory: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     val recentGameHistory by viewModel.recentGameHistory.collectAsState()
@@ -368,25 +369,41 @@ fun AuthorizedProfileScreen(
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(18.dp))
-                        .background(Color.White.copy(alpha = 0.05f))
-                        .clickable { }
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color(0xFF2B36A6).copy(alpha = 0.4f),
+                                    Color(0xFF1A1B2E).copy(alpha = 0.3f)
+                                )
+                            )
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = Color.White.copy(alpha = 0.12f),
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .clickable { onNavigateToGameHistory()  }
                         .padding(horizontal = 14.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.DateRange,
-                        contentDescription = null,
-                        tint = Color.White.copy(alpha = 0.72f),
-                        modifier = Modifier.size(18.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.72f),
+                            modifier = Modifier.size(16.dp)
+                        )
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        text = "История",
-                        color = Color.White.copy(alpha = 0.72f),
-                        style = MaterialTheme.typography.body2
-                    )
+                        Text(
+                            text = "История",
+                            color = Color.White.copy(alpha = 0.85f),
+                            style = MaterialTheme.typography.body2,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             }
 
@@ -677,6 +694,7 @@ fun MatchCard(
 @Composable
 fun AuthorizedProfileScreenPreview() {
     AuthorizedProfileScreen(
-        viewModel = ProfileViewModel()
+        viewModel = ProfileViewModel(),
+        onNavigateToGameHistory = {}
     )
 }
