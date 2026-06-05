@@ -39,10 +39,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
-import io.github.winfeo.superpositiongame.android.domain.lobby.model.User
+import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
+import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 import io.github.winfeo.superpositiongame.android.ui.dialog.InviteDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
-import io.github.winfeo.superpositiongame.android.ui.theme.elements.DiagonalCutShape
 
 ///TODO добавить bottomBar для навигации по страницам
 ///TODO добавить тост или снекбар после отправки уведомления
@@ -53,12 +53,13 @@ import io.github.winfeo.superpositiongame.android.ui.theme.elements.DiagonalCutS
 //экран лобби (отображаются игроки в сети, которые тоже находятся в лобби)
 @Composable
 fun LobbyScreen(
-    playerName: String,
     viewModel: LobbyViewModel,
     onInvitesClick: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    val selectedPlayer by viewModel.selectedUser.collectAsState()
+    val selectedPlayer by viewModel.selectedPlayer.collectAsState()
+    val user by UserSession.currentUser.collectAsState()
+    val userId by UserSession.currentUserId.collectAsState()
 
     Scaffold { paddingValues ->
         Box(
@@ -71,8 +72,9 @@ fun LobbyScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
+                val playerName = user?.nickname?: userId?: ""
                 UserBar(
-                    playerName = playerName.take(5),
+                    playerName = playerName.take(9),
                     onInvitesClick = onInvitesClick
                 )
 
@@ -91,7 +93,7 @@ fun LobbyScreen(
                                 )
                             }
                         }
-                        state.users.isEmpty() -> {
+                        state.players.isEmpty() -> {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
@@ -104,7 +106,7 @@ fun LobbyScreen(
                             }
                         }
                         else -> UsersList(
-                            users = state.users,
+                            players = state.players,
                             onUserClick = { user ->
                                 viewModel.showInviteDialog(user)
                             }
@@ -117,8 +119,8 @@ fun LobbyScreen(
 
     selectedPlayer?.let { player ->
         InviteDialog(
-            playerId = player.id,
-            onConfirm = { viewModel.sentInvite() },
+            playerName = player.nickname?: player.id,
+            onConfirm = { viewModel.sendInvite() },
             onDismiss = { viewModel.hideInviteDialog() }
         )
     }
@@ -335,17 +337,18 @@ fun HeaderDivider() {
 
 @Composable
 fun UsersList(
-    users: List<User>,
-    onUserClick: (User) -> Unit
+    players: List<Player>,
+    onUserClick: (Player) -> Unit
 ) {
     LazyColumn (
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(users) { user ->
+        items(players) { user ->
+            val playerName = user.nickname?: user.id
             UserCard(
-                user = user,
+                playerName = playerName.take(9),
                 onClick = { onUserClick(user) }
             )
         }
@@ -354,7 +357,7 @@ fun UsersList(
 
 @Composable
 fun UserCard(
-    user: User,
+    playerName: String,
     onClick: () -> Unit
 ) {
     Box(
@@ -409,7 +412,7 @@ fun UserCard(
                     color = Color.White.copy(alpha = 0.5f)
                 )
                 Text(
-                    user.id.take(5),
+                    playerName,
                     color = Color.White.copy(alpha = 0.9f)
                 )
             }
@@ -479,7 +482,7 @@ fun LobbyScreenContent() {
             modifier = Modifier.fillMaxSize()
         ) {
             UserBar(
-                playerName = "12345",
+                playerName = "guest-1111111111",
                 onInvitesClick = {}
             )
 
@@ -487,8 +490,11 @@ fun LobbyScreenContent() {
 
             Box {
                 UsersList(
-                    users = listOf(
-                        User(id = "12345")
+                    players = listOf(
+                        Player(
+                            id = "1234567890",
+                            nickname = "Winfeo"
+                        )
                     ),
                     onUserClick = {}
                 )

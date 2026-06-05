@@ -1,6 +1,6 @@
 package io.github.winfeo.superpositiongame.android.domain.lobby.model
 
-data class GameUser (
+data class Player (
     val id: String,
     val nickname: String?
 )

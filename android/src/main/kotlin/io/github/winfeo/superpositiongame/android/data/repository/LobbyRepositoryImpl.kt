@@ -1,12 +1,12 @@
 package io.github.winfeo.superpositiongame.android.data.repository
 
 import android.util.Log
-import io.github.winfeo.superpositiongame.android.data.dto.InvitationDto
+import io.github.winfeo.superpositiongame.android.data.dto.InvitationDTO
 import io.github.winfeo.superpositiongame.android.data.dto.LobbyResponse
 import io.github.winfeo.superpositiongame.android.data.source.Network
 import io.github.winfeo.superpositiongame.android.data.toDomain
 import io.github.winfeo.superpositiongame.android.domain.lobby.LobbyRepository
-import io.github.winfeo.superpositiongame.android.domain.lobby.model.User
+import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -21,7 +21,7 @@ class LobbyRepositoryImpl(): LobbyRepository {
     private val initialData = "/app/lobby"
     private val sendInvite = "/app/invite"
 
-    override fun observeUsersInLobby(currentUserId: String): Flow<List<User>> {
+    override fun observePlayersInLobby(currentUserId: String): Flow<List<Player>> {
         return callbackFlow {
             val connectionJob = launch {
                 Network.connectionState.collect { isConnected ->
@@ -50,26 +50,35 @@ class LobbyRepositoryImpl(): LobbyRepository {
         }
     }
 
-    private fun ProducerScope<List<User>>.handleMessage(
+    private fun ProducerScope<List<Player>>.handleMessage(
         message: String,
         userId: String
     ) {
         try {
             val dto = json.decodeFromString<LobbyResponse>(message)
-            Log.d("STOMP", "Данные из ДТО: ${dto.users.joinToString { it.id }}"
+            Log.d("STOMP", "Данные из ДТО: ${dto.players.joinToString { it.id }}"
             )
             val lobby = dto.toDomain()
-            val users = lobby.users.filter { it.id != userId }
+            val users = lobby.players.filter { it.id != userId }
             trySend(users)
         } catch (e: Exception) {
             Log.d("LOBBY", "Ошибка парсинга: ${e.message}")
         }
     }
 
-    override suspend fun sendInvitation(fromUserId: String, toUserId: String) {
-        val dto = InvitationDto(senderId = fromUserId, receiverId = toUserId)
-        Log.d("INVITE","senderId = $fromUserId, receiverId = $toUserId")
-        val jsonString = json.encodeToString(InvitationDto.serializer(), dto)
+    override suspend fun sendInvitation(
+        senderId: String,
+        senderNickname: String?,
+        receiverId: String
+    ) {
+        val dto = InvitationDTO(
+            senderId = senderId,
+            senderNickname = senderNickname,
+            receiverId = receiverId,
+            sendTime = null
+        )
+        Log.d("INVITE","senderId = $senderId, receiverId = $receiverId")
+        val jsonString = json.encodeToString(InvitationDTO.serializer(), dto)
 
         Network.sendMessage(
             destination = sendInvite,
