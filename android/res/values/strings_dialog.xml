@@ -40,4 +40,15 @@
     <string name="dialog_invitation_cancel">Отмена</string>
     <string name="dialog_invitation_send">Отмена</string>
 
+    <!-- Диалог смены почты -->
+    <string name="dialog_settings_email">Email</string>
+    <string name="dialog_settings_change_email">Сменить почту</string>
+    <string name="dialog_settings_cancel">Отмена</string>
+    <string name="dialog_settings_save">Сохранить</string>
+
+    <!-- Диалог удаления аккаунта -->
+    <string name="dialog_settings_delete_account">Удалить аккаунт</string>
+    <string name="dialog_settings_delete_info">Вы уверены? Ваши данные будут удалены безвозвратно</string>
+    <string name="dialog_settings_delete_confirm">Удалить</string>
+
 </resources>

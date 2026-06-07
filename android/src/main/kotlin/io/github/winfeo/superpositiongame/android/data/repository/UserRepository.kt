@@ -31,6 +31,33 @@ class UserRepository(
         }
     }
 
+    suspend fun updateEmail(
+        userId: Long,
+        newEmail: String
+    ): Result<AuthorisedUserDTO> {
+        return try {
+            val currentUser = api.getUserById(userId)
+            val updateDTO = UpdateUserDTO(
+                id = userId,
+                nickname = currentUser.nickname,
+                email = newEmail
+            )
+            val updatedUser = api.updateUser(updateDTO)
+            Result.success(updatedUser)
+        } catch (e: Exception) {
+            Result.failure(Exception(extractErrorMessage(e)))
+        }
+    }
+
+    suspend fun deleteAccount(userId: Long): Result<Unit> {
+        return try {
+            api.deleteUser(userId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(Exception(extractErrorMessage(e)))
+        }
+    }
+
     private suspend fun extractErrorMessage(e: Exception): String {
         return when (e) {
             is ClientRequestException -> {

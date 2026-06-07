@@ -4,6 +4,7 @@ import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorisedUserDT
 import io.github.winfeo.superpositiongame.android.data.dto.rest.UpdateUserDTO
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -25,5 +26,9 @@ class UserApi(
             contentType(ContentType.Application.Json)
             setBody(updateUserDTO)
         }.body()
+    }
+
+    suspend fun deleteUser(userId: Long) {
+        client.delete("$HOST/api/users/$userId")
     }
 }

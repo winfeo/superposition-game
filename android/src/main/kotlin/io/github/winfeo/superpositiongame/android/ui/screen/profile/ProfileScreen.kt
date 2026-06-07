@@ -14,7 +14,8 @@ import androidx.compose.ui.graphics.Color
 fun ProfileScreen(
     viewModel: ProfileViewModel,
     onNavigateToAuth: () -> Unit = {},
-    onNavigateToGameHistory: () -> Unit
+    onNavigateToGameHistory: () -> Unit,
+    onNavigateToSettings: () -> Unit,
 ) {
     val state by viewModel.state.collectAsState()
 
@@ -30,7 +31,8 @@ fun ProfileScreen(
         state.isAuthorized && state.user != null -> {
             AuthorizedProfileScreen(
                 viewModel = viewModel,
-                onNavigateToGameHistory = onNavigateToGameHistory
+                onNavigateToGameHistory = onNavigateToGameHistory,
+                onNavigateToSettings = onNavigateToSettings
             )
         }
         else -> {

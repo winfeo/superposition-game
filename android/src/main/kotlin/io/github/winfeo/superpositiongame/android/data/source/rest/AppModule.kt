@@ -1,9 +1,11 @@
 package io.github.winfeo.superpositiongame.android.data.source.rest
 
+import android.content.Context
 import io.github.winfeo.superpositiongame.android.data.repository.AuthRepository
 import io.github.winfeo.superpositiongame.android.data.repository.GameHistoryRepository
 import io.github.winfeo.superpositiongame.android.data.repository.GuestRepository
 import io.github.winfeo.superpositiongame.android.data.repository.UserRepository
+import io.github.winfeo.superpositiongame.android.ui.screen.settings.SettingsManager
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -11,6 +13,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 object AppModule {
+    private lateinit var appContext: Context
     private val client by lazy {
         HttpClient(Android) {
             install(ContentNegotiation) {
@@ -21,6 +24,14 @@ object AppModule {
             }
             expectSuccess = true
         }
+    }
+
+    fun init(context: Context) {
+        appContext = context
+    }
+
+    val settingsManager by lazy {
+        SettingsManager(appContext)
     }
 
     val authApi by lazy { AuthApi(client) }

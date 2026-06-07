@@ -68,7 +68,8 @@ data class MatchHistoryItem(
 @Composable
 fun AuthorizedProfileScreen(
     viewModel: ProfileViewModel,
-    onNavigateToGameHistory: () -> Unit
+    onNavigateToGameHistory: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     val recentGameHistory by viewModel.recentGameHistory.collectAsState()
@@ -175,7 +176,7 @@ fun AuthorizedProfileScreen(
                                 color = Color.White.copy(alpha = 0.06f),
                                 shape = CircleShape
                             )
-                            .clickable { },
+                            .clickable { onNavigateToSettings() },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -718,6 +719,7 @@ fun MatchCard(
 fun AuthorizedProfileScreenPreview() {
     AuthorizedProfileScreen(
         viewModel = ProfileViewModel(),
-        onNavigateToGameHistory = {}
+        onNavigateToGameHistory = {},
+        onNavigateToSettings = {}
     )
 }

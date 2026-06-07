@@ -41,7 +41,7 @@
     <!-- Экран профиля (авторизованный) -->
     <string name="authorized_profile_tag_victory">Победа</string>
     <string name="authorized_profile_tag_defeat">Поражение</string>
-    <string name="authorized_profile_logOut_button">Поражение</string>
+    <string name="authorized_profile_logOut_button">Выйти</string>
     <string name="authorized_profile_rating">Рейтинг</string>
     <string name="authorized_profile_victory_amount">Победы</string>
     <string name="authorized_profile_recent_games">Недавние игры</string>
@@ -49,5 +49,22 @@
     <string name="authorized_profile_rang_progress">Ранговый прогресс</string>
     <string name="authorized_profile_moves_made">Ходов</string>
     <string name="authorized_profile_rating_change">рейтинга</string>
+
+    <!-- Экран настроек -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_sound_section">Звук</string>
+    <string name="settings_music">Музыка в игре</string>
+    <string name="settings_invite_sound">Звук приглашений</string>
+
+    <string name="settings_account_section">Аккаунт</string>
+    <string name="settings_change_email">Сменить почту</string>
+    <string name="settings_delete_account">Удалить аккаунт</string>
+
+    <string name="settings_info_section">О приложении</string>
+    <string name="settings_about">О приложении</string>
+    <string name="settings_version">Версия</string>
+
+    <string name="settings_toast_email_successful">Email успешно изменён</string>
+    <string name="settings_toast_delete_successful">Изменить</string>
 
 </resources>

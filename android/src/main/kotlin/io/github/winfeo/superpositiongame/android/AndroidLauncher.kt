@@ -27,6 +27,8 @@ class AndroidLauncher : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        AppModule.init(applicationContext)
+
         setContent {
             val userIdState by UserSession.currentUserId.collectAsState()
             val currentUserId = userIdState

@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
 import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
 import io.github.winfeo.superpositiongame.android.ui.nav.route.AuthRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.GameHistory
@@ -24,6 +25,7 @@ import io.github.winfeo.superpositiongame.android.ui.nav.route.InvitesRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LibraryRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LobbyRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.ProfileRoute
+import io.github.winfeo.superpositiongame.android.ui.nav.route.SettingsRoute
 import io.github.winfeo.superpositiongame.android.ui.screen.game.GameActivity
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitationViewModel
@@ -37,6 +39,8 @@ import io.github.winfeo.superpositiongame.android.ui.screen.history.GameHistoryS
 import io.github.winfeo.superpositiongame.android.ui.screen.history.GameHistoryViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.settings.SettingsScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.settings.SettingsViewModel
 
 @Composable
 fun Navigation() {
@@ -96,6 +100,14 @@ fun Navigation() {
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return GameHistoryViewModel() as T
+            }
+        }
+    )
+
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return SettingsViewModel(AppModule.settingsManager) as T
             }
         }
     )
@@ -167,6 +179,9 @@ fun Navigation() {
                     },
                     onNavigateToGameHistory = {
                         navController.navigate(GameHistory)
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate(SettingsRoute)
                     }
                 )
             }
@@ -190,6 +205,13 @@ fun Navigation() {
                     onReturnToProfile = {
                         navController.popBackStack()
                     }
+                )
+            }
+
+            composable<SettingsRoute> {
+                SettingsScreen(
+                    viewModel = settingsViewModel,
+                    onBack = { navController.popBackStack() }
                 )
             }
         }
