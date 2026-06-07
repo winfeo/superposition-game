@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -152,7 +153,7 @@ fun PlayerCard(
     val border = if (isCurrentTurn) Color(0xFF6C8CFF).copy(alpha = 0.35f)
     else Color.White.copy(alpha = 0.06f)
 
-    val playerTag = if (isCurrentPlayerCard) "(you)" else ""
+    val playerTag = if (isCurrentPlayerCard) "(${stringResource(R.string.panel_player_tag)})" else ""
 
     Box(
         modifier = modifier
@@ -202,9 +203,16 @@ fun PlayerCard(
 
             Spacer(modifier = Modifier.height(4.dp))
 
+            val text =
+                if (isCurrentTurn) { stringResource(R.string.panel_turn_tag_active).uppercase() }
+                else { stringResource(R.string.panel_turn_tag_wait).uppercase() }
+            val color =
+                if (isCurrentTurn) Color(0xFF9DB2FF)
+                else Color.White.copy(alpha = 0.35f)
+
             Text(
-                text = if (isCurrentTurn) "YOUR TURN" else "WAIT",
-                color = if (isCurrentTurn) Color(0xFF9DB2FF) else Color.White.copy(alpha = 0.35f),
+                text = text,
+                color = color,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 1.sp

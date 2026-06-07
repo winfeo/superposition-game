@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -89,7 +90,7 @@ fun RotateCardDialog(
                         horizontalArrangement = Arrangement.End
                     ) {
                         Text(
-                            text = "* выберите новое состояние",
+                            text = stringResource(R.string.dialog_rotate_card),
                             color = Color.White.copy(alpha = 0.4f),
                             style = MaterialTheme.typography.caption,
                             textAlign = TextAlign.End
@@ -144,7 +145,7 @@ private fun DiceStatesGrid(
 
                         Image(
                             painter = painterResource(id = stateId),
-                            contentDescription = "Состояние: ${state.name}",
+                            contentDescription = state.name,
                             modifier = Modifier.fillMaxSize()
                         )
                     }

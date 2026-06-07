@@ -19,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -126,7 +127,7 @@ fun ReshuffleCardDialog(
 
                     Box(
                         modifier = Modifier
-                            .padding(top = 64.dp) //TODO сделать адаптивно
+                            .padding(top = 64.dp)
                             .fillMaxWidth()
                             .height(56.dp)
                             .then(
@@ -161,12 +162,13 @@ fun ReshuffleCardDialog(
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text( //TODO в values вынести потом текст
-                            text = "Подтвердить",
-                            color = if (selectedCards.size in minSelectable..maxSelectable)
-                                Color.White.copy(alpha = 0.92f)
-                            else
-                                Color.White.copy(alpha = 0.35f),
+                        val color =
+                            if (selectedCards.size in minSelectable..maxSelectable) Color.White.copy(alpha = 0.92f)
+                            else Color.White.copy(alpha = 0.35f)
+
+                        Text(
+                            text = stringResource(R.string.dialog_reshuffle_card_confirm),
+                            color = color,
                             style = MaterialTheme.typography.body1
                         )
                     }
@@ -176,7 +178,7 @@ fun ReshuffleCardDialog(
                         horizontalArrangement = Arrangement.End
                     ) {
                         Text(
-                            text = "* выберите карты для сброса",
+                            text = stringResource(R.string.dialog_reshuffle_card_info),
                             color = Color.White.copy(alpha = 0.38f),
                             style = MaterialTheme.typography.caption
                         )
@@ -233,7 +235,7 @@ private fun CardItem(
             val cardImageId = getCardImageResource(card)
             Image(
                 painter = painterResource(id = cardImageId),
-                contentDescription = "Карта: ${card.type.name}",
+                contentDescription = card.type.name,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(0.7f)

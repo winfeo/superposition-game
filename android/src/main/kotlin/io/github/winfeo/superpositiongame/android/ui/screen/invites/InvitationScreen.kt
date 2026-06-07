@@ -73,7 +73,7 @@ fun InvitesScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = stringResource(R.string.invites_emptyList),
+                            text = stringResource(R.string.invites_empty_list),
                             color = Color.White.copy(alpha = 0.8f),
                             style = MaterialTheme.typography.body1
                         )
@@ -94,7 +94,7 @@ fun InvitesScreen(
 }
 
 @Composable
-fun InvitesHeader( //TODO написать как отдельный элемент top Bar?
+fun InvitesHeader(
     onReturnToLobby: () -> Unit
 ) {
     Box(

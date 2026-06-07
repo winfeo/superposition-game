@@ -29,20 +29,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
-import io.github.winfeo.superpositiongame.android.ui.screen.auth.AuthViewModel
+import io.github.winfeo.superpositiongame.R
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 
 @Composable
@@ -81,7 +79,7 @@ fun AuthScreen(
         ) {
             //Заголовок
             Text(
-                text = "Суперпозиция",
+                text = stringResource(R.string.auth_title),
                 color = Color.White,
                 style = MaterialTheme.typography.h4,
                 fontWeight = FontWeight.Bold
@@ -90,7 +88,7 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Войдите или создайте аккаунт",
+                text = stringResource(R.string.auth_info),
                 color = Color.White.copy(alpha = 0.45f),
                 style = MaterialTheme.typography.body1
             )
@@ -101,7 +99,12 @@ fun AuthScreen(
             OutlinedTextField(
                 value = state.email,
                 onValueChange = viewModel::onEmailChange,
-                label = { Text("Email", color = Color.White.copy(alpha = 0.45f)) },
+                label = {
+                    Text(
+                        stringResource(R.string.auth_email_field),
+                        color = Color.White.copy(alpha = 0.45f)
+                    )
+                },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Email,
@@ -128,7 +131,11 @@ fun AuthScreen(
             OutlinedTextField(
                 value = state.password,
                 onValueChange = viewModel::onPasswordChange,
-                label = { Text("Пароль", color = Color.White.copy(alpha = 0.45f)) },
+                label = {
+                    Text(stringResource(R.string.auth_password_field),
+                        color = Color.White.copy(alpha = 0.45f)
+                    )
+                },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Lock,
@@ -151,7 +158,6 @@ fun AuthScreen(
             )
 
             //Ошибка
-            //TODO перенести в стейт?
             state.error?.let {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
@@ -196,7 +202,7 @@ fun AuthScreen(
                         )
                     } else {
                         Text(
-                            text = "Войти",
+                            text = stringResource(R.string.auth_logIn_button),
                             color = Color.White,
                             style = MaterialTheme.typography.button,
                             fontWeight = FontWeight.Bold
@@ -228,7 +234,7 @@ fun AuthScreen(
                     elevation = ButtonDefaults.elevation(defaultElevation = 0.dp, pressedElevation = 0.dp)
                 ) {
                     Text(
-                        text = "Зарегистрироваться",
+                        text = stringResource(R.string.auth_signUp_button),
                         color = Color.White.copy(alpha = 0.85f),
                         style = MaterialTheme.typography.button,
                         fontWeight = FontWeight.Medium

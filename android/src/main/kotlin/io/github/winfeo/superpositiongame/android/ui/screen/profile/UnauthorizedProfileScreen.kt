@@ -26,10 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.winfeo.superpositiongame.R
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 
 @Composable
@@ -89,7 +91,7 @@ fun UnauthorizedProfileScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Вы не авторизованы",
+                text = stringResource(R.string.unauthorized_profile_general_info),
                 color = Color.White,
                 style = MaterialTheme.typography.h5,
                 fontWeight = FontWeight.Bold,
@@ -99,7 +101,7 @@ fun UnauthorizedProfileScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Войдите или создайте аккаунт\nдля доступа к профилю",
+                text = stringResource(R.string.unauthorized_profile_info),
                 color = Color.White.copy(alpha = 0.45f),
                 style = MaterialTheme.typography.body1,
                 textAlign = TextAlign.Center
@@ -130,7 +132,7 @@ fun UnauthorizedProfileScreen(
                     elevation = ButtonDefaults.elevation(defaultElevation = 0.dp, pressedElevation = 0.dp)
                 ) {
                     Text(
-                        "Войти",
+                        text = stringResource(R.string.unauthorized_profile_logInButton),
                         color = Color.White,
                         style = MaterialTheme.typography.button,
                         fontWeight = FontWeight.Bold

@@ -18,9 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import io.github.winfeo.superpositiongame.R
 
 @Composable
 fun InviteDialog(
@@ -70,14 +72,14 @@ fun InviteDialog(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Text(
-                    text = "Предложение сыграть",
+                    text = stringResource(R.string.dialog_invitation_title),
                     color = Color.White.copy(alpha = 0.9f),
                     style = MaterialTheme.typography.h6
                 )
 
                 Column {
                     Text(
-                        text = "Отправить приглашение игроку",
+                        text = stringResource(R.string.dialog_invitation_send_info),
                         color = Color.White.copy(alpha = 0.65f),
                         style = MaterialTheme.typography.body2
                     )
@@ -95,14 +97,14 @@ fun InviteDialog(
                 ) {
                     DialogButton(
                         modifier = Modifier.weight(1f),
-                        text = "Отмена",
+                        text = stringResource(R.string.dialog_invitation_cancel),
                         isPrimary = false,
                         onClick = onDismiss
                     )
 
                     DialogButton(
                         modifier = Modifier.weight(1f),
-                        text = "Отправить",
+                        text = stringResource(R.string.dialog_invitation_send),
                         isPrimary = true,
                         onClick = onConfirm
                     )

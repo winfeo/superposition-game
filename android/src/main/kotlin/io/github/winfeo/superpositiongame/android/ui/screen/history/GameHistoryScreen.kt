@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -82,7 +83,7 @@ fun GameHistoryScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Ошибка: ${state.error}",
+                            text = "${stringResource(R.string.app_error)}: ${state.error}",
                             color = Color.White.copy(alpha = 0.7f),
                             style = MaterialTheme.typography.body1
                         )
@@ -94,7 +95,7 @@ fun GameHistoryScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Нет сыгранных матчей",
+                            text = stringResource(R.string.history_empty_list),
                             color = Color.White.copy(alpha = 0.45f),
                             style = MaterialTheme.typography.body1
                         )
@@ -166,7 +167,7 @@ fun HistoryHeader(onBack: () -> Unit) {
             Spacer(modifier = Modifier.width(12.dp))
 
             Text(
-                text = "История",
+                text = stringResource(R.string.history_title),
                 color = Color.White.copy(alpha = 0.92f),
                 style = MaterialTheme.typography.h6,
                 fontWeight = FontWeight.SemiBold
@@ -242,8 +243,12 @@ fun HistoryMatchCard(game: GameHistoryDTO) {
                             )
                     )
                     Spacer(modifier = Modifier.width(6.dp))
+                    val text =
+                        if (isVictory) stringResource(R.string.history_tag_victory)
+                        else stringResource(R.string.history_tag_defeat)
+
                     Text(
-                        text = if (isVictory) "Победа" else "Поражение",
+                        text = text,
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 14.sp
                     )
@@ -257,13 +262,17 @@ fun HistoryMatchCard(game: GameHistoryDTO) {
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "Ходов: ${game.totalMoves}",
+                    text = "${stringResource(R.string.history_moves_made)}: ${game.totalMoves}",
                     color = Color.White.copy(alpha = 0.7f),
                     fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
+                val ratingChange =
+                    if (game.ratingChange > 0) "+${game.ratingChange}"
+                    else "${game.ratingChange}"
+
                 Text(
-                    text = if (game.ratingChange > 0) "+${game.ratingChange}" else "${game.ratingChange}",
+                    text = ratingChange,
                     color = ratingColor,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold

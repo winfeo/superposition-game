@@ -24,12 +24,14 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import io.github.winfeo.superpositiongame.R
 
 @Composable
 fun GameMenuDialog(
@@ -86,7 +88,7 @@ fun GameMenuDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "МЕНЮ",
+                        text = stringResource(R.string.dialog_menu_title).uppercase(),
                         color = Color.White,
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
@@ -113,37 +115,40 @@ fun GameMenuDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                /* ---------------- BUTTONS ---------------- */
+                //Правила
                 MenuButton(
-                    title = "Правила",
-                    subtitle = "Механики игровых карт",
+                    title = stringResource(R.string.dialog_menu_rules),
+                    subtitle = stringResource(R.string.dialog_menu_rules_detailed),
                     accent = Color(0xFFA98CFF),
                     onClick = onRules
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                //Настройки
                 MenuButton(
-                    title = "Настройки",
-                    subtitle = "Игровые настройки",
+                    title = stringResource(R.string.dialog_menu_settings),
+                    subtitle = stringResource(R.string.dialog_menu_settings_detailed),
                     accent = Color(0xFF8CE6FF),
                     onClick = onSettings
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                //Продолжить
                 MenuButton(
-                    title = "Продолжить",
-                    subtitle = "Вернуться в игру",
+                    title = stringResource(R.string.dialog_menu_continue),
+                    subtitle = stringResource(R.string.dialog_menu_continue_detailed),
                     accent = Color(0xFF6C8CFF),
                     onClick = onResume
                 )
 
                 Spacer(modifier = Modifier.height(48.dp))
 
+                //Сдаться
                 MenuSurrenderButton(
-                    title = "Сдаться",
-                    subtitle = "Закончить игру с поражением",
+                    title = stringResource(R.string.dialog_menu_surrender),
+                    subtitle = stringResource(R.string.dialog_menu_surrender_detailed),
                     onClick = onSurrender
                 )
 

@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -96,9 +97,12 @@ fun AuthorizedProfileScreen(
     }
 
     val matchHistoryItems = recentGameHistory.map { game ->
+        val result =
+            if (game.isWinner) stringResource(R.string.authorized_profile_tag_victory)
+            else stringResource(R.string.authorized_profile_tag_defeat)
         MatchHistoryItem(
             enemyName = game.opponentNickname,
-            result = if (game.isWinner) "Победа" else "Поражение",
+            result = result,
             turns = game.totalMoves,
             ratingChange = game.ratingChange
         )
@@ -153,7 +157,7 @@ fun AuthorizedProfileScreen(
                             .padding(horizontal = 14.dp, vertical = 10.dp)
                     ) {
                         Text(
-                            text = "Выйти",
+                            text = stringResource(R.string.authorized_profile_logOut_button),
                             color = Color.White.copy(alpha = 0.75f),
                             style = MaterialTheme.typography.body2
                         )
@@ -318,7 +322,7 @@ fun AuthorizedProfileScreen(
                     //Очки рейтинга
                     ProfileStatCard(
                         modifier = Modifier.weight(1f),
-                        title = "Рейтинг",
+                        title = stringResource(R.string.authorized_profile_rating),
                         value = "${user.ratingPoints}",
                         icon = {
                             Icon(
@@ -332,7 +336,7 @@ fun AuthorizedProfileScreen(
                     //Количество побед
                     ProfileStatCard(
                         modifier = Modifier.weight(1f),
-                        title = "Победы",
+                        title = stringResource(R.string.authorized_profile_victory_amount),
                         value = "${user.winsAmount}",
                         icon = {
                             Icon(
@@ -364,7 +368,7 @@ fun AuthorizedProfileScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Последние матчи",
+                    text = stringResource(R.string.authorized_profile_recent_games),
                     color = Color.White,
                     style = MaterialTheme.typography.h6,
                     modifier = Modifier.weight(1f)
@@ -402,7 +406,7 @@ fun AuthorizedProfileScreen(
                         )
 
                         Text(
-                            text = "История",
+                            text = stringResource(R.string.authorized_profile_history),
                             color = Color.White.copy(alpha = 0.85f),
                             style = MaterialTheme.typography.body2,
                             fontWeight = FontWeight.Medium
@@ -563,7 +567,7 @@ fun RankedSeasonCard(
                 Spacer(modifier = Modifier.width(10.dp))
 
                 Text(
-                    text = "РАНГОВЫЙ ПРОГРЕСС",
+                    text = stringResource(R.string.authorized_profile_rang_progress).uppercase(),
                     color = Color.White.copy(alpha = 0.55f),
                     style = MaterialTheme.typography.body2
                 )
@@ -580,7 +584,6 @@ fun RankedSeasonCard(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-//                    text = "$currentRating MMR • Top 3%",
                     text = "$currentRating MMR",
                     color = Color(0xFF9DB2FF),
                     style = MaterialTheme.typography.body1
@@ -625,7 +628,7 @@ fun RankedSeasonCard(
 fun MatchCard(
     match: MatchHistoryItem
 ) {
-    val isVictory = match.result == "Победа"
+    val isVictory = match.result == stringResource(R.string.authorized_profile_tag_victory)
 
     Box(
         modifier = Modifier
@@ -683,18 +686,23 @@ fun MatchCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Ходов: ${match.turns}",
+                text = "${stringResource(R.string.authorized_profile_moves_made)}: ${match.turns}",
                 color = Color.White.copy(alpha = 0.45f),
                 style = MaterialTheme.typography.body2
             )
 
             Spacer(modifier = Modifier.height(6.dp))
 
+            val text =
+                if (match.ratingChange > 0) "+${match.ratingChange} ${stringResource(R.string.authorized_profile_rating_change)}"
+                else "${match.ratingChange} ${stringResource(R.string.authorized_profile_rating_change)}"
+            val color =
+                if (match.ratingChange > 0) Color(0xFF6CFF9D)
+                else Color(0xFFFF6B6B)
+
             Text(
-                text = if (match.ratingChange > 0) "+${match.ratingChange} рейтинга"
-                else "${match.ratingChange} рейтинга",
-                color = if (match.ratingChange > 0) Color(0xFF6CFF9D)
-                else Color(0xFFFF6B6B),
+                text = text,
+                color = color,
                 style = MaterialTheme.typography.body2
             )
         }

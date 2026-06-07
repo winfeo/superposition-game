@@ -28,9 +28,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import io.github.winfeo.superpositiongame.R
 import io.github.winfeo.superpositiongame.android.domain.library.Card
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 import kotlin.math.absoluteValue
@@ -68,7 +70,7 @@ fun LibraryScreen(
             Spacer(modifier = Modifier.height(52.dp))
 
             Text(
-                text = "Картотека",
+                text = stringResource(R.string.library_title),
                 color = Color.White.copy(alpha = 0.92f),
                 style = MaterialTheme.typography.h4
             )
@@ -76,7 +78,7 @@ fun LibraryScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Коллекция квантовых карт",
+                text = stringResource(R.string.library_info),
                 color = Color.White.copy(alpha = 0.45f),
                 style = MaterialTheme.typography.body1
             )

@@ -99,7 +99,7 @@ fun LobbyScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = stringResource(R.string.lobby_emptyList),
+                                    text = stringResource(R.string.lobby_empty_list),
                                     color = Color.White.copy(alpha = 0.8f),
                                     style = MaterialTheme.typography.body1
                                 )
@@ -408,7 +408,7 @@ fun UserCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    stringResource(R.string.lobby_playerCardPlayer),
+                    stringResource(R.string.lobby_player_card_player),
                     color = Color.White.copy(alpha = 0.5f)
                 )
                 Text(

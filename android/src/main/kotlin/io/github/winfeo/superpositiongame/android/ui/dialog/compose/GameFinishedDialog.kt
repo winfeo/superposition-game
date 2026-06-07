@@ -17,11 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import io.github.winfeo.superpositiongame.R
 
 @Composable
 fun GameFinishedDialog(
@@ -80,17 +82,22 @@ fun GameFinishedDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Text( //TODO текст в vlues сделать потом
-                    text = if (isWinner) "Победа" else "Поражение",
+                val textType =
+                    if (isWinner) stringResource(R.string.dialog_game_finished_victory)
+                    else stringResource(R.string.dialog_game_finished_defeat)
+
+                Text(
+                    text = textType,
                     color = Color.White,
                     style = MaterialTheme.typography.h5
                 )
 
+                val textInfo =
+                    if (isWinner) stringResource(R.string.dialog_game_finished_victory_info)
+                    else stringResource(R.string.dialog_game_finished_defeat_info)
+
                 Text(
-                    text = if (isWinner)
-                        "Вы успешно завершили квантовую партию"
-                    else
-                        "В этот раз победа досталась сопернику",
+                    text = textInfo,
                     color = Color.White.copy(alpha = 0.72f),
                     style = MaterialTheme.typography.body2,
                     textAlign = TextAlign.Center
@@ -115,7 +122,7 @@ fun GameFinishedDialog(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Вернуться в лобби",
+                        text = stringResource(R.string.dialog_game_finished_return_to_lobby),
                         color = Color.White,
                         style = MaterialTheme.typography.body1
                     )

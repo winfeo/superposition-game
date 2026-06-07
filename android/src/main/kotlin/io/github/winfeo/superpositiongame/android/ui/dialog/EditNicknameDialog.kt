@@ -22,10 +22,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import io.github.winfeo.superpositiongame.R
 
 @Composable
 fun EditNicknameDialog(
@@ -76,7 +78,7 @@ fun EditNicknameDialog(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Text(
-                    text = "Изменить никнейм",
+                    text = stringResource(R.string.dialog_edit_nickname_title),
                     color = Color.White.copy(alpha = 0.9f),
                     style = MaterialTheme.typography.h6,
                     modifier = Modifier.padding(start = 16.dp)
@@ -85,7 +87,12 @@ fun EditNicknameDialog(
                 OutlinedTextField(
                     value = newNickname,
                     onValueChange = { newNickname = it },
-                    label = { Text("Новый ник", color = Color.White.copy(alpha = 0.45f)) },
+                    label = {
+                        Text(
+                            text = stringResource(R.string.dialog_edit_nickname_new),
+                            color = Color.White.copy(alpha = 0.45f)
+                        )
+                    },
                     isError = errorMessage != null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                     singleLine = true,
@@ -116,14 +123,14 @@ fun EditNicknameDialog(
                 ) {
                     DialogButton(
                         modifier = Modifier.weight(1f),
-                        text = "Отмена",
+                        text = stringResource(R.string.dialog_edit_nickname_cancel),
                         isPrimary = false,
                         onClick = onDismiss
                     )
 
                     DialogButton(
                         modifier = Modifier.weight(1f),
-                        text = "Сохранить",
+                        text = stringResource(R.string.dialog_edit_nickname_save),
                         isPrimary = true,
                         onClick = {
                             onConfirm(newNickname.trim())
