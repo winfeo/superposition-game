@@ -31,4 +31,8 @@ class UserApi(
     suspend fun deleteUser(userId: Long) {
         client.delete("$HOST/api/users/$userId")
     }
+
+    suspend fun getCurrentUser(): AuthorisedUserDTO {
+        return client.get("$HOST/api/users/me").body()
+    }
 }

@@ -2,7 +2,8 @@ package io.github.winfeo.superpositiongame.android.ui.screen.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorisedUserDTO
+import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthRequestDTO
+import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthResponseDTO
 import io.github.winfeo.superpositiongame.android.data.dto.rest.NewUserDTO
 import io.github.winfeo.superpositiongame.android.data.source.Network
 import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
@@ -35,9 +36,9 @@ class AuthViewModel : ViewModel() {
 
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            val result = repository.login(NewUserDTO(currentState.email, currentState.password))
+            val result = repository.login(AuthRequestDTO(currentState.email, currentState.password))
             result.fold(
-                onSuccess = { user -> performLogin(user) },
+                onSuccess = { response -> performLogin(response) },
                 onFailure = { error -> _state.value = _state.value.copy(isLoading = false, error = error.message) }
             )
         }
@@ -54,14 +55,23 @@ class AuthViewModel : ViewModel() {
             _state.value = _state.value.copy(isLoading = true, error = null)
             val result = repository.register(NewUserDTO(currentState.email, currentState.password))
             result.fold(
-                onSuccess = { user -> performLogin(user) },
+                onSuccess = { result ->
+                    val loginResult = repository.login(AuthRequestDTO(currentState.email, currentState.password))
+                    loginResult.fold(
+                        onSuccess = { response -> performLogin(response) },
+                        onFailure = { error -> _state.value = _state.value.copy(isLoading = false, error = error.message) }
+                    )
+                },
                 onFailure = { error -> _state.value = _state.value.copy(isLoading = false, error = error.message) }
             )
         }
     }
 
-    private fun performLogin(user: AuthorisedUserDTO) {
-        UserSession.login(user)
+    private fun performLogin(response: AuthResponseDTO) {
+        val user = response.user
+        val token = response.token
+        UserSession.login(user, token)
+
         val realUserId = user.id.toString()
         UserSession.setUserId(realUserId)
         Network.disconnect()

@@ -29,6 +29,27 @@ class AndroidLauncher : ComponentActivity() {
 
         AppModule.init(applicationContext)
 
+        val savedToken = AppModule.tokenManager.getToken()
+        if (savedToken != null) {
+            UserSession.restoreToken(savedToken)
+            lifecycleScope.launch {
+                val result = AppModule.userRepository.getCurrentUser()
+                result.fold(
+                    onSuccess = { user ->
+                        UserSession.restoreSession(user, savedToken)
+                        UserSession.setUserId(user.id.toString())
+                        Network.connect(userId = user.id.toString())
+                    },
+                    onFailure = {
+                        UserSession.logout()
+                        startGuestMode()
+                    }
+                )
+            }
+        } else {
+            startGuestMode()
+        }
+
         setContent {
             val userIdState by UserSession.currentUserId.collectAsState()
             val currentUserId = userIdState
@@ -46,7 +67,9 @@ class AndroidLauncher : ComponentActivity() {
                 Navigation()
             }
         }
+    }
 
+    private fun startGuestMode() {
         lifecycleScope.launch {
             while (true) {
                 val guestIdResult = AppModule.guestRepository.createGuest()

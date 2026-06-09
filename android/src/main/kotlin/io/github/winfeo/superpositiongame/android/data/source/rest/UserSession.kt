@@ -15,14 +15,31 @@ object UserSession {
     private val _currentUserId = MutableStateFlow<String?>(null)
     val currentUserId: StateFlow<String?> = _currentUserId.asStateFlow()
 
-    fun login(user: AuthorisedUserDTO) {
+    private val _token = MutableStateFlow<String?>(null)
+    val token: StateFlow<String?> = _token.asStateFlow()
+
+    fun login(user: AuthorisedUserDTO, token: String) {
         _currentUser.value = user
         _isAuthorized.value = true
+        _token.value = token
+        AppModule.tokenManager.saveToken(token)
+    }
+
+    fun restoreToken(token: String) {
+        _token.value = token
+    }
+
+    fun restoreSession(user: AuthorisedUserDTO, token: String) {
+        _currentUser.value = user
+        _isAuthorized.value = true
+        _token.value = token
     }
 
     fun logout() {
         _currentUser.value = null
         _isAuthorized.value = false
+        _token.value = null
+        AppModule.tokenManager.clearToken()
     }
 
     fun setUserId(userId: String) {

@@ -47,6 +47,7 @@ class ProfileViewModel : ViewModel() {
 
     fun logout() {
         UserSession.logout()
+
         viewModelScope.launch {
             val guestIdResult = AppModule.guestRepository.createGuest()
             val guestId = guestIdResult.getOrNull()?: "guest-fallback-${System.currentTimeMillis()}"

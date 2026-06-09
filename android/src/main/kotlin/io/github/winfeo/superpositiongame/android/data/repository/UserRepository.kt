@@ -58,6 +58,15 @@ class UserRepository(
         }
     }
 
+    suspend fun getCurrentUser(): Result<AuthorisedUserDTO> {
+        return try {
+            val user = api.getCurrentUser()
+            Result.success(user)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private suspend fun extractErrorMessage(e: Exception): String {
         return when (e) {
             is ClientRequestException -> {

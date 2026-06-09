@@ -1,5 +1,7 @@
 package io.github.winfeo.superpositiongame.android.data.source.rest
 
+import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthRequestDTO
+import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthResponseDTO
 import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorisedUserDTO
 import io.github.winfeo.superpositiongame.android.data.dto.rest.NewUserDTO
 import io.ktor.client.HttpClient
@@ -30,7 +32,7 @@ class AuthApi(
         return response.body()
     }
 
-    suspend fun login(dto: NewUserDTO): AuthorisedUserDTO {
+    suspend fun login(dto: AuthRequestDTO): AuthResponseDTO {
         val response = client.post("$HOST/api/auth/login") {
             contentType(ContentType.Application.Json)
             setBody(dto)

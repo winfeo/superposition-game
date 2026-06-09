@@ -9,6 +9,8 @@ import io.github.winfeo.superpositiongame.android.ui.screen.settings.SettingsMan
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
@@ -23,6 +25,11 @@ object AppModule {
                 })
             }
             expectSuccess = true
+            defaultRequest {
+                UserSession.token.value?.let { token ->
+                    header("Authorization", "Bearer $token")
+                }
+            }
         }
     }
 
@@ -30,9 +37,8 @@ object AppModule {
         appContext = context
     }
 
-    val settingsManager by lazy {
-        SettingsManager(appContext)
-    }
+    val settingsManager by lazy { SettingsManager(appContext) }
+    val tokenManager by lazy { TokenManager(appContext) }
 
     val authApi by lazy { AuthApi(client) }
     val authRepository by lazy { AuthRepository(authApi) }
