@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -151,11 +152,9 @@ fun HistoryHeader(onBack: () -> Unit) {
                 .padding(horizontal = 18.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .clickable { onBack() },
-                contentAlignment = Alignment.Center
+            IconButton(
+                onClick = { onBack() },
+                modifier = Modifier.size(42.dp)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_back),

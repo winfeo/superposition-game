@@ -16,6 +16,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -121,6 +122,8 @@ fun DialogButton(
     isPrimary: Boolean,
     onClick: () -> Unit
 ) {
+    val shape = RoundedCornerShape(14.dp)
+
     Box(
         modifier = modifier
             .height(52.dp)
@@ -133,21 +136,22 @@ fun DialogButton(
                                 Color(0xFF6C8CFF)
                             )
                         ),
-                        shape = RoundedCornerShape(14.dp)
+                        shape = shape
                     )
                 } else {
                     Modifier
                         .background(
                             color = Color.White.copy(alpha = 0.04f),
-                            shape = RoundedCornerShape(14.dp)
+                            shape = shape
                         )
                         .border(
                             width = 1.dp,
                             color = Color.White.copy(alpha = 0.08f),
-                            shape = RoundedCornerShape(14.dp)
+                            shape = shape
                         )
                 }
             )
+            .clip(shape)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {

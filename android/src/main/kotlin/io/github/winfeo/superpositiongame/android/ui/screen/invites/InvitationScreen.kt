@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -143,11 +145,22 @@ fun InvitesHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
 
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .clickable { onReturnToLobby() },
-                contentAlignment = Alignment.Center
+//            Box(
+//                modifier = Modifier
+//                    .size(42.dp)
+//                    .clickable { onReturnToLobby() },
+//                contentAlignment = Alignment.Center
+//            ) {
+//                Icon(
+//                    painter = painterResource(R.drawable.ic_arrow_back),
+//                    contentDescription = null,
+//                    tint = Color.White.copy(alpha = 0.9f)
+//                )
+//            }
+
+            IconButton(
+                onClick = { onReturnToLobby() },
+                modifier = Modifier.size(42.dp)
             ) {
                 Icon(
                     painter = painterResource(R.drawable.ic_arrow_back),
@@ -262,18 +275,21 @@ fun IconButton(
     tint: Color,
     onClick: () -> Unit
 ) {
+    val shape = RoundedCornerShape(10.dp)
+
     Box(
         modifier = Modifier
             .size(48.dp)
             .background(
                 color = Color.White.copy(alpha = 0.05f),
-                shape = RoundedCornerShape(10.dp)
+                shape = shape
             )
             .border(
                 width = 1.dp,
                 color = Color.White.copy(alpha = 0.06f),
-                shape = RoundedCornerShape(10.dp)
+                shape = shape
             )
+            .clip(shape)
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {

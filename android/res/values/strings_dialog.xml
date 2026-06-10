@@ -38,7 +38,7 @@
     <string name="dialog_invitation_title">Предложение сыграть</string>
     <string name="dialog_invitation_send_info">Отправить приглашение игроку</string>
     <string name="dialog_invitation_cancel">Отмена</string>
-    <string name="dialog_invitation_send">Отмена</string>
+    <string name="dialog_invitation_send">Отправить</string>
 
     <!-- Диалог смены почты -->
     <string name="dialog_settings_email">Email</string>

@@ -19,8 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
@@ -67,13 +69,13 @@ fun SettingsScreen(
             val soundTitle = stringResource(R.string.settings_sound_section)
             SettingsSection(title = soundTitle) {
                 SettingsSwitchItem(
-                    icon = Icons.Default.Notifications, //TODO поменять
+                    icon = painterResource(R.drawable.ic_note), //TODO поменять
                     title = stringResource(R.string.settings_music),
                     checked = state.isMusicEnabled,
                     onCheckedChange = { viewModel.toggleMusic(it) }
                 )
                 SettingsSwitchItem(
-                    icon = Icons.Default.Notifications,
+                    icon = painterResource(R.drawable.ic_bell),
                     title = stringResource(R.string.settings_invite_sound),
                     checked = state.isInviteSoundEnabled,
                     onCheckedChange = { viewModel.toggleInviteSound(it) }
@@ -172,11 +174,9 @@ fun SettingsHeader(onBack: () -> Unit) {
                 .padding(horizontal = 18.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(42.dp)
-                    .clickable { onBack() },
-                contentAlignment = Alignment.Center
+            IconButton(
+                onClick = { onBack() },
+                modifier = Modifier.size(42.dp)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -184,7 +184,9 @@ fun SettingsHeader(onBack: () -> Unit) {
                     tint = Color.White.copy(alpha = 0.9f)
                 )
             }
+
             Spacer(modifier = Modifier.width(12.dp))
+
             Text(
                 text = stringResource(R.string.settings_title),
                 color = Color.White.copy(alpha = 0.92f),
@@ -239,7 +241,7 @@ fun SettingsSection(
 
 @Composable
 fun SettingsSwitchItem(
-    icon: ImageVector,
+    icon: Painter,
     title: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
@@ -252,7 +254,7 @@ fun SettingsSwitchItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icon,
+            painter = icon,
             contentDescription = null,
             tint = Color.White.copy(alpha = 0.7f),
             modifier = Modifier.size(24.dp)
