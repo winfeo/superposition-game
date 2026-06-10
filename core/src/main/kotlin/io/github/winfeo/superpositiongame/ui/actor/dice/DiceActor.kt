@@ -3,20 +3,15 @@ package io.github.winfeo.superpositiongame.ui.actor.dice
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
-import io.github.winfeo.superpositiongame.manager.DiceAtlasManager
+import io.github.winfeo.superpositiongame.manager.GameAssetsManager
 import io.github.winfeo.superpositiongame.model.dice.Dice
 
 //Класс для отрисовки игрового кубита
 class DiceActor(
+    private val assetsManager: GameAssetsManager,
     sideSize: Float,
-    var dice: Dice,
-//    texture: TextureRegion,
-//    private var touchable: Touchable = Touchable.disabled,
-//    private var previousDice: Dice
+    var dice: Dice
 ): Image() {
-    //private var isSelectedForSwap = false
-//    private var currentDice: Dice? = null
-    //private var texture: TextureRegion = DiceAtlasManager.getStateTexture(dice.state.textureId)
 
     init {
         setSize(sideSize,sideSize)
@@ -49,7 +44,7 @@ class DiceActor(
     }
 
     private fun updateTexture() {
-        val texture: TextureRegion = DiceAtlasManager.getStateTexture(dice.state.textureId)
+        val texture: TextureRegion = assetsManager.getDiceTexture(dice.state.textureId)
         drawable = TextureRegionDrawable(texture)
     }
 

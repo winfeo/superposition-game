@@ -2,12 +2,12 @@ package io.github.winfeo.superpositiongame.android.ui.screen.lobby
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import io.github.winfeo.superpositiongame.android.data.repository.LobbyRepositoryImpl
+import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
+import io.github.winfeo.superpositiongame.android.domain.lobby.LobbyRepository
 import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 import io.github.winfeo.superpositiongame.android.domain.lobby.usecase.ObservePlayersUseCase
 import io.github.winfeo.superpositiongame.android.domain.lobby.usecase.SendInvitationUseCase
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,34 +17,36 @@ import kotlinx.coroutines.launch
 
 //Вьюшка для экрана лобби
 class LobbyViewModel(
-//    private val observePlayers: ObservePlayersUseCase,
-//    private val sendInvitation: SendInvitationUseCase,
-    private val currentUserId: String
+    private val repository: LobbyRepository
 ): ViewModel() {
-
-    private val database = Firebase.database ///TODO переделать
-    private val repository = LobbyRepositoryImpl(database)
-    private val observePlayers = ObservePlayersUseCase(repository, currentUserId)
-    private val sendInvitation = SendInvitationUseCase(repository)
+    private val sendInvitationUseCase = SendInvitationUseCase(repository)
+    private val observePlayersUseCase = ObservePlayersUseCase(repository)
 
     private val _state = MutableStateFlow(LobbyState())
-    val state: StateFlow<LobbyState> = _state
+//    private val _state = MutableStateFlow(LobbyState.Loading)
+    val state: StateFlow<LobbyState> = _state.asStateFlow()
 
     private val _selectedPlayer = MutableStateFlow<Player?>(null)
     val selectedPlayer: StateFlow<Player?> = _selectedPlayer.asStateFlow()
+    private var loadJob: Job? = null
 
     init {
-        loadPlayersInLobby()
+        viewModelScope.launch {
+            UserSession.currentUserId.collect { userId ->
+                if (userId != null) {
+                    loadPlayersInLobby(userId)
+                }
+            }
+        }
     }
 
-    fun loadPlayersInLobby() {
-        viewModelScope.launch {
-            observePlayers()
+    fun loadPlayersInLobby(currentUserId: String) {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
+            observePlayersUseCase(currentUserId)
                 .onStart { _state.value = _state.value.copy(isLoading = true) }
                 .catch { _state.value = _state.value.copy(isLoading = false, error = it.message) }
-                .collect { players ->
-                    _state.value = LobbyState(players = players, isLoading = false)
-                }
+                .collect { users -> _state.value = LobbyState(players = users, isLoading = false) }
         }
     }
 
@@ -56,10 +58,18 @@ class LobbyViewModel(
         _selectedPlayer.value = null
     }
 
-    fun sentInvite() { ///TODO сделать так, чтобы только один раз можно было отпрравить приглашение игроку (пока тот не отказался или не принял приглашение)
-        val player = _selectedPlayer.value ?: return
+    fun sendInvite() {
+        val receiverUser = _selectedPlayer.value?: return
+        val receiverId = receiverUser.id
+        val senderId = UserSession.currentUserId.value?: return
+        val senderNickname = UserSession.currentUser.value?.nickname
+
         viewModelScope.launch {
-            sendInvitation(currentUserId, player.id)
+            sendInvitationUseCase(
+                senderId = senderId,
+                senderNickname = senderNickname,
+                receiverId = receiverId
+            )
             hideInviteDialog()
         }
     }

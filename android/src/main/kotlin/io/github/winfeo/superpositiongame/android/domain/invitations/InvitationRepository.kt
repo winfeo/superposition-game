@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface InvitationRepository {
     fun observeInvitations(userId: String): Flow<List<Invitation>>
-    suspend fun acceptInvitation(inviteId: String)
-    suspend fun refuseInvitation(inviteId: String)
-    suspend fun addListenerToInvitation(userId: String)
+    suspend fun acceptInvitation(invitation: Invitation, currentUserId: String)
+    suspend fun rejectInvitation(invitation: Invitation, currentUserId: String)
 }

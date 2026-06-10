@@ -1,7 +1,6 @@
 package io.github.winfeo.superpositiongame.ui.actor
 
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import io.github.winfeo.superpositiongame.ui.actor.card.CardActorBuilder
@@ -16,6 +15,8 @@ import kotlin.math.sin
 
 //Ячейка таблицы (представление дайса и слота карты)
 class SlotActor(
+    private val diceActorBuilder: DiceActorBuilder,
+    private val cardActorBuilder: CardActorBuilder,
     val slotIndex: Int,
     ///TODO добавить SlotState?
     val slotOwner: SlotOwner
@@ -40,7 +41,7 @@ class SlotActor(
         )
 
         borderImage.setPosition(0f, 0f)
-        borderImage.color = Color.GOLD ///TODO переделать
+        borderImage.color = Color.valueOf("aeb0a7") ///TODO переделать
         addActor(borderImage)
         borderImage.setZIndex(1)
     }
@@ -52,7 +53,7 @@ class SlotActor(
 
     private fun renderDice(state: SlotState) {
         if (diceActor == null) {
-            diceActor = DiceActorBuilder.buildDiceActor(state.dice)
+            diceActor = diceActorBuilder.buildDiceActor(state.dice)
 
             diceActor!!.setSize(
                 GameConfig.getDiceSide(),
@@ -80,7 +81,7 @@ class SlotActor(
         }
 
         if (cardActor == null) {
-            cardActor = CardActorBuilder.buildCardActor(lastCard)
+            cardActor = cardActorBuilder.buildCardActor(lastCard)
 
             cardActor!!.setSize(
                 GameConfig.cardWidth,
@@ -100,7 +101,8 @@ class SlotActor(
 
         state = newState
         borderImage.color = when (state) {
-            SlotActorStates.NO_ACTION -> Color.GOLD
+//            SlotActorStates.NO_ACTION -> Color.GOLD
+            SlotActorStates.NO_ACTION -> Color.valueOf("aeb0a7")
             SlotActorStates.HOVERED_CAN_PLACE -> Color.CYAN
             SlotActorStates.HOVERED_CANT_PLACE -> Color.RED
             SlotActorStates.REQUIRED_DICE_STATE -> Color.GREEN

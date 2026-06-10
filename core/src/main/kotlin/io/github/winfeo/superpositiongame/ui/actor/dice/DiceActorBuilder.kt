@@ -1,9 +1,12 @@
 package io.github.winfeo.superpositiongame.ui.actor.dice
 
 import io.github.winfeo.superpositiongame.config.GameConfig
+import io.github.winfeo.superpositiongame.manager.GameAssetsManager
 import io.github.winfeo.superpositiongame.model.dice.Dice
 
-object DiceActorBuilder {
+class DiceActorBuilder(
+    private val assetsManager: GameAssetsManager
+) {
     private val diceSide = GameConfig.getDiceSide()
 
 //    fun createRandomDice(dice: Dice): DiceActor {
@@ -19,6 +22,7 @@ object DiceActorBuilder {
 
     fun buildDiceActor(dice: Dice): DiceActor {
         return DiceActor(
+            assetsManager = assetsManager,
             sideSize = diceSide,
             dice = dice
         )

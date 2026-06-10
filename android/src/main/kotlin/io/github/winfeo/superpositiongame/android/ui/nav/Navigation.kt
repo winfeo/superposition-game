@@ -1,11 +1,13 @@
 package io.github.winfeo.superpositiongame.android.ui.nav
 
 import android.content.Intent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
@@ -15,82 +17,216 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import io.github.winfeo.superpositiongame.android.data.source.AppModule
+import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
+import io.github.winfeo.superpositiongame.android.ui.nav.route.AuthRoute
+import io.github.winfeo.superpositiongame.android.ui.nav.route.GameHistory
+import io.github.winfeo.superpositiongame.android.ui.nav.route.InvitesRoute
+import io.github.winfeo.superpositiongame.android.ui.nav.route.LibraryRoute
+import io.github.winfeo.superpositiongame.android.ui.nav.route.LobbyRoute
+import io.github.winfeo.superpositiongame.android.ui.nav.route.ProfileRoute
+import io.github.winfeo.superpositiongame.android.ui.nav.route.SettingsRoute
 import io.github.winfeo.superpositiongame.android.ui.screen.game.GameActivity
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesScreen
-import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitationViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.library.LibraryScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.library.LibraryViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.auth.AuthScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.auth.AuthViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.game.GameLauncher
+import io.github.winfeo.superpositiongame.android.ui.screen.history.GameHistoryScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.history.GameHistoryViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.settings.SettingsScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.settings.SettingsViewModel
 
 @Composable
-fun Navigation(
-//    observePlayersUseCase: ObservePlayersUseCase,
-//    sendInvitationUseCase: SendInvitationUseCase,
-    currentUserId: String
-) {
+fun Navigation() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+
+    /* --------------- ViewModel-и --------------- */
     ///TODO временно потом DI
     val lobbyViewModel: LobbyViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return LobbyViewModel(currentUserId) as T
+                return LobbyViewModel(AppModule.lobbyRepository) as T
             }
         }
     )
 
     ///TODO временно потом DI
-    val invitesViewModel: InvitesViewModel = viewModel(
+    val invitationViewModel: InvitationViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return InvitesViewModel(currentUserId) as T
+                return InvitationViewModel(AppModule.invitationRepository) as T
             }
         }
     )
 
-    ///TODO временно, подумать как переписать
-    val context = LocalContext.current
-    val viewModel: GameLauncher= viewModel(
+    ///TODO временно потом DI
+    val libraryViewModel: LibraryViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return GameLauncher(
-                    currentUserId
-                ) as T
+                return LibraryViewModel(AppModule.cardsRepository) as T
             }
         }
     )
+
+    ///TODO временно потом DI
+    val authViewModel: AuthViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return AuthViewModel(AppModule.authRepository) as T
+            }
+        }
+    )
+
+    ///TODO временно потом DI
+    val profileViewModel: ProfileViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return ProfileViewModel(AppModule.profileRepository, AppModule.guestRepository) as T
+            }
+        }
+    )
+
+    ///TODO временно потом DI
+    val gameHistoryViewModel: GameHistoryViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return GameHistoryViewModel(AppModule.gameHistoryRepository) as T
+            }
+        }
+    )
+
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return SettingsViewModel(AppModule.settingsManager, AppModule.accountRepository) as T
+            }
+        }
+    )
+
+
+    /* --------------- Запуск игры --------------- */
+    val currentUserId by UserSession.currentUserId.collectAsState()
+    val context = LocalContext.current
+    val viewModel: GameLauncher = viewModel(
+        key = currentUserId,
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return GameLauncher(AppModule.gameRepository) as T
+            }
+        }
+    )
+
     val gameId by viewModel.gameFlow.collectAsState()
     LaunchedEffect(gameId) {
-        if (gameId != null) {
+        if (gameId != null && currentUserId != null) {
             context.startActivity(
                 Intent(context, GameActivity::class.java)
                     .putExtra("GAME_ID", gameId)
                     .putExtra("USER_ID", currentUserId)
             )
+            viewModel.resetGameId()
         }
     }
 
-    NavHost(
-        navController = navController,
-        startDestination = LobbyRoute,
+
+    /* --------------- Навигация --------------- */
+    Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        composable<LobbyRoute> {
-            LobbyScreen(
-                viewModel = lobbyViewModel,
-                onInvitesClick = {
-                    navController.navigate(InvitesRoute)
+        NavHost(
+            navController = navController,
+            startDestination = LobbyRoute,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            composable<LobbyRoute> {
+                LobbyScreen(
+                    viewModel = lobbyViewModel,
+                    onInvitesClick = {
+                        navController.navigate(InvitesRoute)
+                    }
+                )
+            }
+
+            composable<InvitesRoute> {
+                InvitesScreen(
+                    viewModel = invitationViewModel,
+                    onReturnToLobby = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable<LibraryRoute> {
+                LibraryScreen(
+                    viewModel = libraryViewModel
+                )
+            }
+
+            composable<ProfileRoute> {
+                ProfileScreen(
+                    viewModel = profileViewModel,
+                    onNavigateToAuth = {
+                        navController.navigate(AuthRoute)
+                    },
+                    onNavigateToGameHistory = {
+                        navController.navigate(GameHistory)
+                    },
+                    onNavigateToSettings = {
+                        navController.navigate(SettingsRoute)
+                    }
+                )
+            }
+
+            composable<AuthRoute> {
+                LaunchedEffect(Unit) {
+                    authViewModel.resetForm()
                 }
-            )
+
+                AuthScreen(
+                    viewModel = authViewModel,
+                    onSuccess = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable<GameHistory> {
+                GameHistoryScreen(
+                    viewModel = gameHistoryViewModel,
+                    onReturnToProfile = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable<SettingsRoute> {
+                SettingsScreen(
+                    viewModel = settingsViewModel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
 
-        composable<InvitesRoute> {
-            InvitesScreen(
-                viewModel = invitesViewModel,
-                onReturnToLobby = {
-                    navController.popBackStack()
-                }
+        val showBottomBar = currentRoute in listOf(
+            LobbyRoute::class.qualifiedName,
+            LibraryRoute::class.qualifiedName,
+            ProfileRoute::class.qualifiedName
+        )
+
+        if (showBottomBar) {
+            BottomNavBar(
+                navController = navController,
+                modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
     }

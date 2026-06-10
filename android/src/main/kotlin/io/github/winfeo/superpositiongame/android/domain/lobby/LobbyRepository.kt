@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface LobbyRepository {
     fun observePlayersInLobby(currentUserId: String): Flow<List<Player>>
-    suspend fun sendInvitation(fromUserId: String, toUserId: String)
+    suspend fun sendInvitation(senderId: String, senderNickname: String?, receiverId: String)
 }

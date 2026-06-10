@@ -1,7 +1,6 @@
 package io.github.winfeo.superpositiongame.model.card
 
 enum class CardType {
-    EMPTY,
     PAULI,
     ROTATE,
     PHASE,
@@ -12,7 +11,6 @@ enum class CardType {
     MEASUREMENT,
     IDENTITY,
     BARRIER,
-    RESHAFFLE,
-    QUANTUM_LUCKY
-
+    RESHUFFLE,
+//    QUANTUM_LUCKY
 }

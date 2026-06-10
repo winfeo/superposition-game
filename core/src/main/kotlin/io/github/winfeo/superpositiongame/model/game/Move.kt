@@ -7,13 +7,7 @@ import io.github.winfeo.superpositiongame.model.dice.DiceState
 sealed class Move {
     abstract val playerId: String
     abstract val type: GameMoveType
-
-    data class StartGame(
-        override val type: GameMoveType = GameMoveType.START_GAME,
-        override val playerId: String, //Отправляет первый игрок команду?
-        val playerRandomDices: Map<String, List<DiceState>>,
-        val playerRequiredDices: Map<String, List<DiceState>>
-    ): Move()
+    //TODO вынести cardId сюда тоже
 
     data class PlayCard(
         override val type: GameMoveType = GameMoveType.PLAY_CARD,
@@ -35,29 +29,28 @@ sealed class Move {
     data class SwapDices(
         override val type: GameMoveType = GameMoveType.SWAP_DICES,
         override val playerId: String,
+        val cardId: String,
         val firstSlotIndex: Int,
-        val secondSlotIndex: Int
+        val secondSlotIndex: Int,
+        val firstSlotOwner: String,
+        val secondSlotOwner: String
     ): Move()
 
-    data class BeginTurn(
-        override val type: GameMoveType = GameMoveType.BEGIN_TURN,
-        override val playerId: String
-    ): Move()
-
-    data class EndTurn(
-        override val type: GameMoveType = GameMoveType.END_TURN,
-        override val playerId: String
-    ): Move()
-
-    data class DealCards(
-        override val type: GameMoveType = GameMoveType.DEAL_CARDS,
+    data class DoubleTapEffect(
+        override val type: GameMoveType = GameMoveType.DOUBLE_TAP,
         override val playerId: String,
-        val playersNewCards: Map<String, List<String>>
+        val cardId: String
     ): Move()
 
-    //Игрок выйграл
-    /*data class FinishGame(
-        val type: String,
+    data class ReshuffleCard(
+        override val type: GameMoveType = GameMoveType.RESHUFFLE_CARD,
+        override val playerId: String,
+        val cardId: String,
+        val cardsToChange: List<String>
+    ): Move()
+
+    data class Surrender(
+        override val type: GameMoveType = GameMoveType.SURRENDER,
         override val playerId: String
-    ): Move()*/
+    ): Move()
 }

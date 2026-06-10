@@ -24,7 +24,7 @@ class GameTimer(
         timeOut: () -> Unit
     ) {
         finish()
-        val title = if (state.value == GamePhase.PLAYER_TURN_BEGIN) "Your move" else "Opponents move"
+        val title = if (state.value == GamePhase.MOVE_START) "Your move" else "Opponents move"
         job = scope.launch {
             var leftTime = duration
             while (leftTime > 0) {
