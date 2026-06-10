@@ -2,19 +2,23 @@ package io.github.winfeo.superpositiongame.android.ui.screen.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthRequestDTO
-import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthResponseDTO
-import io.github.winfeo.superpositiongame.android.data.dto.rest.NewUserDTO
-import io.github.winfeo.superpositiongame.android.data.source.Network
-import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
-import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
+import io.github.winfeo.superpositiongame.android.data.source.socket.Network
+import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
+import io.github.winfeo.superpositiongame.android.domain.auth.AuthRepository
+import io.github.winfeo.superpositiongame.android.domain.auth.model.AuthToken
+import io.github.winfeo.superpositiongame.android.domain.auth.model.AuthorizedUser
+import io.github.winfeo.superpositiongame.android.domain.auth.usecase.LoginUseCase
+import io.github.winfeo.superpositiongame.android.domain.auth.usecase.RegisterUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class AuthViewModel : ViewModel() {
-    private val repository = AppModule.authRepository
+class AuthViewModel(
+    private val repository: AuthRepository
+) : ViewModel() {
+    private val loginUseCase = LoginUseCase(repository)
+    private val registerUseCase = RegisterUseCase(repository)
 
     private val _state = MutableStateFlow(AuthState())
     val state: StateFlow<AuthState> = _state.asStateFlow()
@@ -36,9 +40,9 @@ class AuthViewModel : ViewModel() {
 
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            val result = repository.login(AuthRequestDTO(currentState.email, currentState.password))
+            val result = loginUseCase(currentState.email, currentState.password)
             result.fold(
-                onSuccess = { response -> performLogin(response) },
+                onSuccess = { (user, token) -> performLogin(user, token) },
                 onFailure = { error -> _state.value = _state.value.copy(isLoading = false, error = error.message) }
             )
         }
@@ -53,12 +57,12 @@ class AuthViewModel : ViewModel() {
 
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            val result = repository.register(NewUserDTO(currentState.email, currentState.password))
+            val result = registerUseCase(currentState.email, currentState.password)
             result.fold(
-                onSuccess = { result ->
-                    val loginResult = repository.login(AuthRequestDTO(currentState.email, currentState.password))
+                onSuccess = { user ->
+                    val loginResult = loginUseCase(currentState.email, currentState.password)
                     loginResult.fold(
-                        onSuccess = { response -> performLogin(response) },
+                        onSuccess = { (_, token) -> performLogin(user, token) },
                         onFailure = { error -> _state.value = _state.value.copy(isLoading = false, error = error.message) }
                     )
                 },
@@ -67,15 +71,14 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    private fun performLogin(response: AuthResponseDTO) {
-        val user = response.user
-        val token = response.token
-        UserSession.login(user, token)
-
-        val realUserId = user.id.toString()
-        UserSession.setUserId(realUserId)
+    private fun performLogin(
+        user: AuthorizedUser,
+        token: AuthToken
+    ) {
+        UserSession.login(user, token.accessToken)
+        UserSession.setUserId(user.id.toString())
         Network.disconnect()
-        Network.connect(userId = realUserId)
+        Network.connect(userId = user.id.toString())
         _state.value = _state.value.copy(isLoading = false, isSuccess = true)
     }
 

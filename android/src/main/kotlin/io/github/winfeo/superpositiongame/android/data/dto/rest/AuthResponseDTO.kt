@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AuthResponseDTO(
     val token: String,
-    val user: AuthorisedUserDTO
+    val user: AuthorizedUserDTO
 )

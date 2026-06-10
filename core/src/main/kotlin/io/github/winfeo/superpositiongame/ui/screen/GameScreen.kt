@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.model.game.Move
 import io.github.winfeo.superpositiongame.config.GameConfig
-import io.github.winfeo.superpositiongame.game.PlayerActionController
+import io.github.winfeo.superpositiongame.PlayerActionController
 import io.github.winfeo.superpositiongame.graphics.BorderTexture
 import io.github.winfeo.superpositiongame.graphics.Dialogs
 import io.github.winfeo.superpositiongame.manager.CardsDoubleTapManager

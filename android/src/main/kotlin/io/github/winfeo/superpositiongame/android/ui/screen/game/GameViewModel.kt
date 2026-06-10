@@ -3,8 +3,10 @@ package io.github.winfeo.superpositiongame.android.ui.screen.game
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.winfeo.superpositiongame.android.data.repository.GameRepositoryImpl
-import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogState
+import io.github.winfeo.superpositiongame.android.domain.game.GameRepository
+import io.github.winfeo.superpositiongame.android.domain.game.usecase.ObserveGameStateUseCase
+import io.github.winfeo.superpositiongame.android.domain.game.usecase.SendMoveUseCase
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameDialogState
 import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.dice.DiceState
 import io.github.winfeo.superpositiongame.model.game.GameState
@@ -18,9 +20,12 @@ import kotlinx.coroutines.launch
 //Хранит текущее состояние игры, принимает и отправляет ходы
 class GameViewModel(
     private val playerId: String,
-    private val gameId: String
+    private val gameId: String,
+    private val repository: GameRepository
 ): ViewModel() {
-    private val repository = GameRepositoryImpl()
+    private val observeGameStateUseCase = ObserveGameStateUseCase(repository)
+    private val sendMoveUseCase = SendMoveUseCase(repository)
+
     private val _gameState = MutableStateFlow<GameState?>(null)
     val gameState: StateFlow<GameState?> = _gameState
 
@@ -42,8 +47,11 @@ class GameViewModel(
     }
 
     private fun observeGame() {
-        viewModelScope.launch { //TODO переделать на use case
-            repository.observeGameState(gameId, playerId).collect { newState ->
+        viewModelScope.launch {
+            observeGameStateUseCase(
+                gameId = gameId,
+                playerId = playerId
+            ).collect { newState ->
                 _gameState.value = newState
 
                 lastServerTime = newState.serverTime
@@ -54,10 +62,10 @@ class GameViewModel(
     }
 
     fun sendMove(move: Move) {
-        viewModelScope.launch { //TODO переделать на use case
+        viewModelScope.launch {
             Log.d("GAME_SEND_MOVE", "Отправка хода из viewModel, ход: ${move.type}")
             Log.d("GAME_SEND_MOVE", "gameId = '$gameId', move = ${move.type}")
-            repository.sendMove(
+            sendMoveUseCase(
                 gameId = gameId,
                 move = move
             )
@@ -66,7 +74,7 @@ class GameViewModel(
 
     fun startTimer() {
         timerJob?.cancel()
-//        isTimerFrozen = false //TODO убать LaunchedEffect таймера из GameActivity? Всё-равно сбрасывается при окончании игры
+//        isTimerFrozen = false
 
 //        timerJob = viewModelScope.launch {
 //            while (_timerSeconds.value > 0) {

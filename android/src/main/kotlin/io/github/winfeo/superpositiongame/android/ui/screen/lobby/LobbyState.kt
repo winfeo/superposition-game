@@ -4,7 +4,7 @@ import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 
 ///TODO заменить на sealed interface?
 data class LobbyState(
-    val players: List<Player> = emptyList(), ///TODO content?
+    val players: List<Player> = emptyList(),
     val isLoading: Boolean = true,
     val error: String? = null
 )

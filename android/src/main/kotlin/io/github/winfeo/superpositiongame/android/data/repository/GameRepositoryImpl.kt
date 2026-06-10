@@ -1,17 +1,17 @@
 package io.github.winfeo.superpositiongame.android.data.repository
 
 import android.util.Log
-import io.github.winfeo.superpositiongame.android.data.dto.move.DoubleTapEffectDto
-import io.github.winfeo.superpositiongame.android.data.dto.move.MoveDto
-import io.github.winfeo.superpositiongame.android.data.dto.move.PlayCardDto
-import io.github.winfeo.superpositiongame.android.data.dto.move.ReshuffleCardDto
-import io.github.winfeo.superpositiongame.android.data.dto.move.RotateDiceDto
-import io.github.winfeo.superpositiongame.android.data.dto.move.SurrenderDto
-import io.github.winfeo.superpositiongame.android.data.dto.move.SwapDicesDto
-import io.github.winfeo.superpositiongame.android.data.dto.state.GameStateDto
-import io.github.winfeo.superpositiongame.android.data.source.Network
-import io.github.winfeo.superpositiongame.android.data.toDomain
-import io.github.winfeo.superpositiongame.android.data.toDto
+import io.github.winfeo.superpositiongame.android.data.dto.move.DoubleTapEffectDTO
+import io.github.winfeo.superpositiongame.android.data.dto.move.MoveDTO
+import io.github.winfeo.superpositiongame.android.data.dto.move.PlayCardDTO
+import io.github.winfeo.superpositiongame.android.data.dto.move.ReshuffleCardDTO
+import io.github.winfeo.superpositiongame.android.data.dto.move.RotateDiceDTO
+import io.github.winfeo.superpositiongame.android.data.dto.move.SurrenderDTO
+import io.github.winfeo.superpositiongame.android.data.dto.move.SwapDicesDTO
+import io.github.winfeo.superpositiongame.android.data.dto.state.GameStateDTO
+import io.github.winfeo.superpositiongame.android.data.source.socket.Network
+import io.github.winfeo.superpositiongame.android.data.util.toDomain
+import io.github.winfeo.superpositiongame.android.data.util.toDto
 import io.github.winfeo.superpositiongame.android.domain.game.GameRepository
 import io.github.winfeo.superpositiongame.android.ui.screen.game.GameStartEvent
 import io.github.winfeo.superpositiongame.model.game.GameState
@@ -26,18 +26,18 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
-class GameRepositoryImpl(): GameRepository {
+class GameRepositoryImpl: GameRepository {
     private val json = Json {
         ignoreUnknownKeys = true
         classDiscriminator = "type"
         serializersModule = SerializersModule {
-            polymorphic(MoveDto::class) {
-                subclass(PlayCardDto::class)
-                subclass(RotateDiceDto::class)
-                subclass(SwapDicesDto::class)
-                subclass(DoubleTapEffectDto::class)
-                subclass(ReshuffleCardDto::class)
-                subclass(SurrenderDto::class)
+            polymorphic(MoveDTO::class) {
+                subclass(PlayCardDTO::class)
+                subclass(RotateDiceDTO::class)
+                subclass(SwapDicesDTO::class)
+                subclass(DoubleTapEffectDTO::class)
+                subclass(ReshuffleCardDTO::class)
+                subclass(SurrenderDTO::class)
             }
         }
     }
@@ -52,7 +52,7 @@ class GameRepositoryImpl(): GameRepository {
         val topic = "/app/game/$gameId/move"
 
         val dto = move.toDto()
-        val payload = json.encodeToString(MoveDto.serializer(), dto)
+        val payload = json.encodeToString(MoveDTO.serializer(), dto)
         Log.d("GAME_SEND", payload)
         Network.sendMessage(
             destination = topic,
@@ -63,13 +63,13 @@ class GameRepositoryImpl(): GameRepository {
     override fun observeGameState(gameId: String, playerId: String): Flow<GameState> {
         return callbackFlow {
             val topic = "/user/queue/game/$gameId"
-            launch { //TODO убрать?
+            launch {
                 Log.d("GAME_SET", "Работа метода")
                 Log.d("GAME_SOCKET", "SUBSCRIBE: $topic, GAME: $gameId")
                 Network.subscribeToTopic(topic) { message ->
                     try {
                         Log.d("GAME_SOCKET", "MESSAGE: $topic, GAME: $gameId")
-                        val stateDto = json.decodeFromString<GameStateDto>(message)
+                        val stateDto = json.decodeFromString<GameStateDTO>(message)
                         Log.d("GAME_STATE", """
                             Получено состояние:
                             ${stateDto.phase}
@@ -90,7 +90,7 @@ class GameRepositoryImpl(): GameRepository {
 
                 }
 
-                delay(300) //TODO переделать! Получать подтверждение подписки с сервера.
+                delay(300)
                 sendReady(gameId)
             }
 
@@ -122,7 +122,6 @@ class GameRepositoryImpl(): GameRepository {
                 }
             }
 
-            ///TODO отписывать после успешного получения сразу?
             awaitClose {
                 Network.unsubscribeToTopic(gameStart)
             }

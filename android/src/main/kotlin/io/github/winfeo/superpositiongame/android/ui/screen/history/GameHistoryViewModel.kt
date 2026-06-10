@@ -2,15 +2,17 @@ package io.github.winfeo.superpositiongame.android.ui.screen.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.winfeo.superpositiongame.android.data.repository.GameHistoryRepository
-import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
+import io.github.winfeo.superpositiongame.android.domain.history.GameHistoryRepository
+import io.github.winfeo.superpositiongame.android.domain.history.GetGameHistoryUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class GameHistoryViewModel : ViewModel() {
-    private val repository: GameHistoryRepository = AppModule.gameHistoryRepository
+class GameHistoryViewModel(
+    private val repository: GameHistoryRepository
+) : ViewModel() {
+    private val getGameHistoryUseCase = GetGameHistoryUseCase(repository)
 
     private val _state = MutableStateFlow(GameHistoryState())
     val state: StateFlow<GameHistoryState> = _state.asStateFlow()
@@ -18,7 +20,7 @@ class GameHistoryViewModel : ViewModel() {
     fun loadHistory(userId: Long) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            val result = repository.getGameHistory(userId)
+            val result = getGameHistoryUseCase(userId)
             result.fold(
                 onSuccess = { history ->
                     _state.value = _state.value.copy(

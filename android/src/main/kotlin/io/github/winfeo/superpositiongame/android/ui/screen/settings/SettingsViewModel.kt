@@ -2,17 +2,25 @@ package io.github.winfeo.superpositiongame.android.ui.screen.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.winfeo.superpositiongame.android.data.source.Network
-import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
-import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
+import io.github.winfeo.superpositiongame.android.data.source.local.SettingsManager
+import io.github.winfeo.superpositiongame.android.data.source.socket.Network
+import io.github.winfeo.superpositiongame.android.data.source.AppModule
+import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
+import io.github.winfeo.superpositiongame.android.domain.settings.AccountRepository
+import io.github.winfeo.superpositiongame.android.domain.settings.usecase.DeleteAccountUseCase
+import io.github.winfeo.superpositiongame.android.domain.settings.usecase.UpdateEmailUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    private val settingsManager: SettingsManager
+    private val settingsManager: SettingsManager,
+    private val repository: AccountRepository
 ) : ViewModel() {
+    private val updateEmailUseCase = UpdateEmailUseCase(repository)
+    private val deleteAccountUseCase = DeleteAccountUseCase(repository)
+
 
     private val _state = MutableStateFlow(SettingsState())
     val state: StateFlow<SettingsState> = _state.asStateFlow()
@@ -43,15 +51,18 @@ class SettingsViewModel(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        val currentUser = UserSession.currentUser.value?: return
+        val userId = UserSession.currentUser.value?.id?: return
         viewModelScope.launch {
-            val result = AppModule.userRepository.updateEmail(currentUser.id, newEmail)
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            val result = updateEmailUseCase(userId, newEmail)
             result.fold(
                 onSuccess = { updatedUser ->
                     UserSession.updateUser(updatedUser)
+                    _state.value = _state.value.copy(isLoading = false)
                     onSuccess()
                 },
                 onFailure = { error ->
+                    _state.value = _state.value.copy(isLoading = false, error = error.message)
                     onError(error.message?: "Ошибка смены почты")
                 }
             )
@@ -62,9 +73,10 @@ class SettingsViewModel(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        val currentUser = UserSession.currentUser.value ?: return
+        val userId = UserSession.currentUser.value?.id?: return
         viewModelScope.launch {
-            val result = AppModule.userRepository.deleteAccount(currentUser.id)
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            val result = deleteAccountUseCase(userId)
             result.fold(
                 onSuccess = {
                     UserSession.logout()
@@ -73,9 +85,11 @@ class SettingsViewModel(
                     UserSession.setUserId(guestId)
                     Network.disconnect()
                     Network.connect(userId = guestId)
+                    _state.value = _state.value.copy(isLoading = false)
                     onSuccess()
                 },
                 onFailure = { error ->
+                    _state.value = _state.value.copy(isLoading = false, error = error.message)
                     onError(error.message?: "Ошибка удаления аккаунта")
                 }
             )

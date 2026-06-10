@@ -40,7 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
-import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
+import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
 import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 import io.github.winfeo.superpositiongame.android.ui.dialog.InviteDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur

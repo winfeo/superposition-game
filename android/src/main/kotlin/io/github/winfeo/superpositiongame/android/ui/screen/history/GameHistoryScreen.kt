@@ -3,7 +3,6 @@ package io.github.winfeo.superpositiongame.android.ui.screen.history
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,10 +30,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.winfeo.superpositiongame.R
-import io.github.winfeo.superpositiongame.android.data.dto.rest.GameHistoryDTO
-import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
+import io.github.winfeo.superpositiongame.android.data.repository.GameHistoryRepositoryImpl
+import io.github.winfeo.superpositiongame.android.data.source.rest.GameHistoryApi
+import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
+import io.github.winfeo.superpositiongame.android.domain.history.GameHistoryItem
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 import io.github.winfeo.superpositiongame.android.util.TimeFormatter
+import io.ktor.client.HttpClient
 
 @Composable
 fun GameHistoryScreen(
@@ -191,7 +193,7 @@ fun HistoryHeader(onBack: () -> Unit) {
 }
 
 @Composable
-fun HistoryMatchCard(game: GameHistoryDTO) {
+fun HistoryMatchCard(game: GameHistoryItem) {
     val isVictory = game.isWinner
     val ratingColor = if (game.ratingChange > 0) Color(0xFF6CFF9D) else Color(0xFFFF6B6B)
     val formattedTime = TimeFormatter.formatDateTime(game.playedAt)
@@ -289,7 +291,7 @@ fun HistoryMatchCard(game: GameHistoryDTO) {
 @Composable
 fun GameHistoryScreenPrev() {
     GameHistoryScreen(
-        viewModel = GameHistoryViewModel(),
+        viewModel = GameHistoryViewModel(GameHistoryRepositoryImpl(GameHistoryApi(HttpClient()))),
         onReturnToProfile = {}
     )
 }
@@ -302,7 +304,7 @@ fun GameHistoryScreenPrev() {
 @Composable
 fun HistoryMatchCardPrev() {
     HistoryMatchCard(
-        game = GameHistoryDTO(
+        game = GameHistoryItem(
             isWinner = false,
             opponentNickname = "Гость",
             totalMoves = 23,

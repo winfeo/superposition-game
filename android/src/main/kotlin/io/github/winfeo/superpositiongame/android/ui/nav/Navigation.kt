@@ -17,8 +17,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
-import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
+import io.github.winfeo.superpositiongame.android.data.source.AppModule
+import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
 import io.github.winfeo.superpositiongame.android.ui.nav.route.AuthRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.GameHistory
 import io.github.winfeo.superpositiongame.android.ui.nav.route.InvitesRoute
@@ -35,6 +35,7 @@ import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.auth.AuthScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.auth.AuthViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.game.GameLauncher
 import io.github.winfeo.superpositiongame.android.ui.screen.history.GameHistoryScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.history.GameHistoryViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileScreen
@@ -54,7 +55,7 @@ fun Navigation() {
     val lobbyViewModel: LobbyViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return LobbyViewModel() as T
+                return LobbyViewModel(AppModule.lobbyRepository) as T
             }
         }
     )
@@ -63,7 +64,7 @@ fun Navigation() {
     val invitationViewModel: InvitationViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return InvitationViewModel() as T
+                return InvitationViewModel(AppModule.invitationRepository) as T
             }
         }
     )
@@ -72,7 +73,7 @@ fun Navigation() {
     val libraryViewModel: LibraryViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return LibraryViewModel() as T
+                return LibraryViewModel(AppModule.cardsRepository) as T
             }
         }
     )
@@ -81,7 +82,7 @@ fun Navigation() {
     val authViewModel: AuthViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return AuthViewModel() as T
+                return AuthViewModel(AppModule.authRepository) as T
             }
         }
     )
@@ -90,7 +91,7 @@ fun Navigation() {
     val profileViewModel: ProfileViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ProfileViewModel() as T
+                return ProfileViewModel(AppModule.profileRepository, AppModule.guestRepository) as T
             }
         }
     )
@@ -99,7 +100,7 @@ fun Navigation() {
     val gameHistoryViewModel: GameHistoryViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return GameHistoryViewModel() as T
+                return GameHistoryViewModel(AppModule.gameHistoryRepository) as T
             }
         }
     )
@@ -107,7 +108,7 @@ fun Navigation() {
     val settingsViewModel: SettingsViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return SettingsViewModel(AppModule.settingsManager) as T
+                return SettingsViewModel(AppModule.settingsManager, AppModule.accountRepository) as T
             }
         }
     )
@@ -116,11 +117,11 @@ fun Navigation() {
     /* --------------- Запуск игры --------------- */
     val currentUserId by UserSession.currentUserId.collectAsState()
     val context = LocalContext.current
-    val viewModel: GameLauncher= viewModel(
+    val viewModel: GameLauncher = viewModel(
         key = currentUserId,
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return GameLauncher() as T
+                return GameLauncher(AppModule.gameRepository) as T
             }
         }
     )

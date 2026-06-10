@@ -1,10 +1,10 @@
 package io.github.winfeo.superpositiongame.android.data.repository
 
 import android.util.Log
-import io.github.winfeo.superpositiongame.android.data.dto.InvitationDTO
-import io.github.winfeo.superpositiongame.android.data.dto.LobbyResponse
-import io.github.winfeo.superpositiongame.android.data.source.Network
-import io.github.winfeo.superpositiongame.android.data.toDomain
+import io.github.winfeo.superpositiongame.android.data.dto.socket.InvitationDTO
+import io.github.winfeo.superpositiongame.android.data.dto.socket.LobbyResponseDTO
+import io.github.winfeo.superpositiongame.android.data.source.socket.Network
+import io.github.winfeo.superpositiongame.android.data.util.toDomain
 import io.github.winfeo.superpositiongame.android.domain.lobby.LobbyRepository
 import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 import kotlinx.coroutines.channels.ProducerScope
@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-class LobbyRepositoryImpl(): LobbyRepository {
+class LobbyRepositoryImpl: LobbyRepository {
     private val json = Json { ignoreUnknownKeys = true }
     private val topic = "/topic/lobby"
     private val initialData = "/app/lobby"
@@ -35,7 +35,7 @@ class LobbyRepositoryImpl(): LobbyRepository {
                         }
 
                         launch {
-                            delay(500) ///TODO переделать
+                            delay(500)
                             Network.sendMessage(initialData, "")
                         }
                     }
@@ -55,7 +55,7 @@ class LobbyRepositoryImpl(): LobbyRepository {
         userId: String
     ) {
         try {
-            val dto = json.decodeFromString<LobbyResponse>(message)
+            val dto = json.decodeFromString<LobbyResponseDTO>(message)
             Log.d("STOMP", "Данные из ДТО: ${dto.players.joinToString { it.id }}"
             )
             val lobby = dto.toDomain()

@@ -1,6 +1,6 @@
 package io.github.winfeo.superpositiongame.android.data.source.rest
 
-import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorisedUserDTO
+import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorizedUserDTO
 import io.github.winfeo.superpositiongame.android.data.dto.rest.UpdateUserDTO
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -17,11 +17,11 @@ class UserApi(
 //    private val HOST: String = "http://91.237.249.20:8080"
     private val HOST: String = "http://10.0.2.2:8080"
 
-    suspend fun getUserById(userId: Long): AuthorisedUserDTO {
+    suspend fun getUserById(userId: Long): AuthorizedUserDTO {
         return client.get("$HOST/api/users/$userId").body()
     }
 
-    suspend fun updateUser(updateUserDTO: UpdateUserDTO): AuthorisedUserDTO {
+    suspend fun updateUser(updateUserDTO: UpdateUserDTO): AuthorizedUserDTO {
         return client.put("$HOST/api/users") {
             contentType(ContentType.Application.Json)
             setBody(updateUserDTO)
@@ -32,7 +32,7 @@ class UserApi(
         client.delete("$HOST/api/users/$userId")
     }
 
-    suspend fun getCurrentUser(): AuthorisedUserDTO {
+    suspend fun getCurrentUser(): AuthorizedUserDTO {
         return client.get("$HOST/api/users/me").body()
     }
 }

@@ -13,7 +13,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +25,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
-import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
+import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
+import io.github.winfeo.superpositiongame.android.ui.dialog.DeleteAccountDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.EmailChangeDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 
 @Composable
@@ -114,7 +115,7 @@ fun SettingsScreen(
     if (showEmailDialog) {
         val textSuccessful = stringResource(R.string.settings_toast_email_successful)
         EmailChangeDialog(
-            currentEmail = UserSession.currentUser.value?.email?: "",
+            currentEmail = UserSession.currentUser.value?.email ?: "",
             onConfirm = { email ->
                 viewModel.changeEmail(
                     newEmail = email,

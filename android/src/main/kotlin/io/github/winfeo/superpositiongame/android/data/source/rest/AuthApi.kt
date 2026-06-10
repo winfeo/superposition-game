@@ -2,7 +2,7 @@ package io.github.winfeo.superpositiongame.android.data.source.rest
 
 import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthRequestDTO
 import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthResponseDTO
-import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorisedUserDTO
+import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorizedUserDTO
 import io.github.winfeo.superpositiongame.android.data.dto.rest.NewUserDTO
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -19,7 +19,7 @@ class AuthApi(
 //    private val HOST: String = "http://91.237.249.20:8080"
     private val HOST: String = "http://10.0.2.2:8080"
 
-    suspend fun register(dto: NewUserDTO): AuthorisedUserDTO {
+    suspend fun register(dto: NewUserDTO): AuthorizedUserDTO {
         val response = client.post("$HOST/api/auth/register") {
             contentType(ContentType.Application.Json)
             setBody(dto)

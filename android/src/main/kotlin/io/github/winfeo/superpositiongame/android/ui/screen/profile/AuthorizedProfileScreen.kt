@@ -55,8 +55,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
+import io.github.winfeo.superpositiongame.android.data.repository.GuestRepositoryImpl
+import io.github.winfeo.superpositiongame.android.data.repository.ProfileRepositoryImpl
+import io.github.winfeo.superpositiongame.android.data.source.rest.GameHistoryApi
+import io.github.winfeo.superpositiongame.android.data.source.rest.GuestApi
+import io.github.winfeo.superpositiongame.android.data.source.rest.UserApi
 import io.github.winfeo.superpositiongame.android.ui.dialog.EditNicknameDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
+import io.ktor.client.HttpClient
 
 data class MatchHistoryItem(
     val enemyName: String,
@@ -72,7 +78,6 @@ fun AuthorizedProfileScreen(
     onNavigateToSettings: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
-    val recentGameHistory by viewModel.recentGameHistory.collectAsState()
     val user = state.user
 
     val isEditDialogVisible by viewModel.isEditNicknameDialogVisible.collectAsState()
@@ -97,6 +102,8 @@ fun AuthorizedProfileScreen(
         return
     }
 
+    val recentGameHistory = state.gameHistory.take(5)
+
     val matchHistoryItems = recentGameHistory.map { game ->
         val result =
             if (game.isWinner) stringResource(R.string.authorized_profile_tag_victory)
@@ -110,7 +117,7 @@ fun AuthorizedProfileScreen(
     }
 
     val currentRating = user.ratingPoints
-    val nextRankRating = 3000 //TODO доделать лиги
+    val nextRankRating = 3000
     val progress = currentRating.toFloat() / nextRankRating.toFloat()
 
 
@@ -143,7 +150,7 @@ fun AuthorizedProfileScreen(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
-                /* ---------------- Настройки ---------------- */
+                //Настройки
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
@@ -187,7 +194,7 @@ fun AuthorizedProfileScreen(
                     }
                 }
 
-                /* ---------------- Аватарка ---------------- */
+                //Ава
                 Box(
                     contentAlignment = Alignment.Center
                 ) {
@@ -267,7 +274,7 @@ fun AuthorizedProfileScreen(
                     }
                 }
 
-                /* ---------------- Ник ---------------- */
+                //Ник
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable { viewModel.showEditNicknameDialog() }
@@ -315,7 +322,7 @@ fun AuthorizedProfileScreen(
 
                 Spacer(modifier = Modifier.height(34.dp))
 
-                /* ---------------- Статистика ---------------- */
+                //Статистика
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -718,7 +725,10 @@ fun MatchCard(
 @Composable
 fun AuthorizedProfileScreenPreview() {
     AuthorizedProfileScreen(
-        viewModel = ProfileViewModel(),
+        viewModel = ProfileViewModel(
+            repository = ProfileRepositoryImpl(UserApi(HttpClient()), GameHistoryApi(HttpClient())),
+            guestRepository = GuestRepositoryImpl(GuestApi(HttpClient()))
+        ),
         onNavigateToGameHistory = {},
         onNavigateToSettings = {}
     )

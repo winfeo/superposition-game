@@ -15,9 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
-import io.github.winfeo.superpositiongame.android.data.source.Network
-import io.github.winfeo.superpositiongame.android.data.source.rest.AppModule
-import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
+import io.github.winfeo.superpositiongame.android.data.source.socket.Network
+import io.github.winfeo.superpositiongame.android.data.source.AppModule
+import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
+import io.github.winfeo.superpositiongame.android.data.util.toDomain
 import io.github.winfeo.superpositiongame.android.ui.nav.Navigation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -35,7 +36,8 @@ class AndroidLauncher : ComponentActivity() {
             lifecycleScope.launch {
                 val result = AppModule.userRepository.getCurrentUser()
                 result.fold(
-                    onSuccess = { user ->
+                    onSuccess = { userDto ->
+                        val user = userDto.toDomain()
                         UserSession.restoreSession(user, savedToken)
                         UserSession.setUserId(user.id.toString())
                         Network.connect(userId = user.id.toString())

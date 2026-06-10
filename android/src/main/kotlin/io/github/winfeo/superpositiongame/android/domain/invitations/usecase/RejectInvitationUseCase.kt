@@ -1,6 +1,5 @@
 package io.github.winfeo.superpositiongame.android.domain.invitations.usecase
 
-import io.github.winfeo.superpositiongame.android.data.toDto
 import io.github.winfeo.superpositiongame.android.domain.invitations.InvitationRepository
 import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invitation
 
@@ -11,7 +10,9 @@ class RejectInvitationUseCase(
         invitation: Invitation,
         currentUserId: String
     ) {
-        val dto = invitation.toDto(currentUserId)
-        repository.rejectInvitation(dto)
+        repository.rejectInvitation(
+            invitation = invitation,
+            currentUserId = currentUserId
+        )
     }
 }

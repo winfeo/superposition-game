@@ -2,8 +2,8 @@ package io.github.winfeo.superpositiongame.android.ui.screen.invites
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.github.winfeo.superpositiongame.android.data.repository.InvitationRepositoryImpl
-import io.github.winfeo.superpositiongame.android.data.source.rest.UserSession
+import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
+import io.github.winfeo.superpositiongame.android.domain.invitations.InvitationRepository
 import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invitation
 import io.github.winfeo.superpositiongame.android.domain.invitations.usecase.AcceptInvitationUseCase
 import io.github.winfeo.superpositiongame.android.domain.invitations.usecase.ObserveInvitationsUseCase
@@ -14,8 +14,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
-class InvitationViewModel(): ViewModel() {
-    private val repository = InvitationRepositoryImpl()
+class InvitationViewModel(
+    private val repository: InvitationRepository
+): ViewModel() {
     private val observeInvitationsUseCase = ObserveInvitationsUseCase(repository)
     private val acceptInvitationUseCase = AcceptInvitationUseCase(repository)
     private val rejectInvitationUseCase = RejectInvitationUseCase(repository)

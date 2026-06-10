@@ -1,9 +1,9 @@
 package io.github.winfeo.superpositiongame.android.ui.screen.history
 
-import io.github.winfeo.superpositiongame.android.data.dto.rest.GameHistoryDTO
+import io.github.winfeo.superpositiongame.android.domain.history.GameHistoryItem
 
 data class GameHistoryState(
     val isLoading: Boolean = false,
-    val history: List<GameHistoryDTO> = emptyList(), //TODO переделать на Domain
+    val history: List<GameHistoryItem> = emptyList(),
     val error: String? = null
 )

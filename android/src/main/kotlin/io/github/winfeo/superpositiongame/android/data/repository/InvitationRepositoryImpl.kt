@@ -1,12 +1,13 @@
 package io.github.winfeo.superpositiongame.android.data.repository
 
 import android.util.Log
-import io.github.winfeo.superpositiongame.android.data.dto.InvitationDTO
-import io.github.winfeo.superpositiongame.android.data.dto.InvitationEventDTO
-import io.github.winfeo.superpositiongame.android.data.source.Network
-import io.github.winfeo.superpositiongame.android.data.toDomain
+import io.github.winfeo.superpositiongame.android.data.dto.socket.InvitationDTO
+import io.github.winfeo.superpositiongame.android.data.dto.socket.InvitationEventDTO
+import io.github.winfeo.superpositiongame.android.data.source.socket.Network
+import io.github.winfeo.superpositiongame.android.data.util.toDomain
 import io.github.winfeo.superpositiongame.android.domain.invitations.InvitationRepository
-import io.github.winfeo.superpositiongame.android.data.dto.InvitationEventType
+import io.github.winfeo.superpositiongame.android.data.dto.socket.InvitationEventType
+import io.github.winfeo.superpositiongame.android.data.util.toDto
 import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invitation
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-class InvitationRepositoryImpl(): InvitationRepository {
+class InvitationRepositoryImpl: InvitationRepository {
     private val json = Json { ignoreUnknownKeys = true }
     private val topic = "/user/queue/invitations"
     private val acceptTopic = "/app/invite.accept"
@@ -70,7 +71,7 @@ class InvitationRepositoryImpl(): InvitationRepository {
                         }
 
                         launch {
-                            delay(500) ///TODO переделать
+                            delay(500)
                             Network.sendMessage(initialData, "")
                         }
                     }
@@ -85,16 +86,24 @@ class InvitationRepositoryImpl(): InvitationRepository {
 
     }
 
-    override suspend fun acceptInvitation(invitation: InvitationDTO) {
-        val payload = json.encodeToString(InvitationDTO.serializer(), invitation)
+    override suspend fun acceptInvitation(
+        invitation: Invitation,
+        currentUserId: String
+    ) {
+        val dto = invitation.toDto(currentUserId)
+        val payload = json.encodeToString(InvitationDTO.serializer(), dto)
         Network.sendMessage(
             destination = acceptTopic,
             message = payload
         )
     }
 
-    override suspend fun rejectInvitation(invitation: InvitationDTO) {
-        val payload = json.encodeToString(InvitationDTO.serializer(), invitation)
+    override suspend fun rejectInvitation(
+        invitation: Invitation,
+        currentUserId: String
+    ) {
+        val dto = invitation.toDto(currentUserId)
+        val payload = json.encodeToString(InvitationDTO.serializer(), dto)
         Network.sendMessage(
             destination = rejectTopic,
             message = payload

@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import io.github.winfeo.superpositiongame.R
+import io.github.winfeo.superpositiongame.android.data.repository.CardsRepositoryImpl
 import io.github.winfeo.superpositiongame.android.domain.library.Card
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 import kotlin.math.absoluteValue
@@ -192,6 +193,6 @@ private fun lerp(
 @Composable
 fun LibraryScreenPrev() {
     LibraryScreen(
-        viewModel = LibraryViewModel()
+        viewModel = LibraryViewModel(CardsRepositoryImpl())
     )
 }

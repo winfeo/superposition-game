@@ -1,12 +1,12 @@
 package io.github.winfeo.superpositiongame.android.ui.screen.profile
 
-import io.github.winfeo.superpositiongame.android.data.dto.rest.AuthorisedUserDTO
-import io.github.winfeo.superpositiongame.android.data.dto.rest.GameHistoryDTO
+import io.github.winfeo.superpositiongame.android.domain.auth.model.AuthorizedUser
+import io.github.winfeo.superpositiongame.android.domain.history.GameHistoryItem
 
 data class ProfileState(
     val isAuthorized: Boolean = false,
-    val user: AuthorisedUserDTO? = null,
+    val user: AuthorizedUser? = null,
     val isLoadingHistory: Boolean = false,
-    val gameHistory: List<GameHistoryDTO> = emptyList(),
+    val gameHistory: List<GameHistoryItem> = emptyList(),
     val historyError: String? = null
 )

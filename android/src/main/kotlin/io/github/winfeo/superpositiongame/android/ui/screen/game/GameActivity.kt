@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,15 +19,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.FragmentContainerView
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication
 import io.github.winfeo.superpositiongame.Main
-import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogState
-import io.github.winfeo.superpositiongame.android.ui.dialog.GameDialogs
-import io.github.winfeo.superpositiongame.android.ui.dialog.compose.CardPreviewDialog
-import io.github.winfeo.superpositiongame.android.ui.dialog.compose.GameFinishedDialog
-import io.github.winfeo.superpositiongame.android.ui.dialog.compose.GameMenuDialog
-import io.github.winfeo.superpositiongame.android.ui.dialog.compose.ReshuffleCardDialog
-import io.github.winfeo.superpositiongame.android.ui.dialog.compose.RotateCardDialog
+import io.github.winfeo.superpositiongame.android.data.source.AppModule
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameDialogState
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameDialogs
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.CardPreviewDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameFinishedDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameMenuDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.ReshuffleCardDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.RotateCardDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.SuperpositionGameTheme
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 import io.github.winfeo.superpositiongame.model.game.GamePhase
@@ -41,10 +45,18 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
         val playerId = intent.getStringExtra("USER_ID")
             ?: throw Resources.NotFoundException("Отладка. Не передан id игрока")
 
-        val viewModel = GameViewModel( //TODO переделать
-            gameId = gameId,
-            playerId = playerId
-        )
+        val viewModelFactory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return GameViewModel(
+                    repository = AppModule.gameRepository,
+                    playerId = playerId,
+                    gameId = gameId
+                ) as T
+            }
+        }
+
+        val viewModel: GameViewModel by viewModels { viewModelFactory }
+
         val dialogs = GameDialogs(viewModel)
         val game = Main(
             playerId = playerId,
@@ -52,13 +64,6 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
             onMove = { viewModel.sendMove(it) },
             getGameState = { viewModel.gameState.value!! }
         )
-
-//        if (savedInstanceState == null) {
-//            val fragment = GameFragment().apply { this.game = game }
-//            supportFragmentManager.beginTransaction()
-//                .replace(android.R.id.content, fragment)
-//                .commit()
-//        }
 
         setContent {
             SuperpositionGameTheme {
@@ -81,7 +86,6 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                     }
                 }
 
-                //TODO сделать отдельный stage в GameScreen для диалогов (блокировать экран игры при показе диалога)
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -97,7 +101,7 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                                 .weight(1f)
                         ) {
                             if (gameState != null) {
-                                PlayerInfoPanel( //TODO сделать адаптивным под размеры разные
+                                PlayerInfoPanel(
                                     gameState = gameState!!,
                                     playerId = playerId,
                                     timerSeconds = timerSeconds,

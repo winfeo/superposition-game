@@ -41,7 +41,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
+import io.github.winfeo.superpositiongame.android.data.repository.AuthRepositoryImpl
+import io.github.winfeo.superpositiongame.android.data.source.rest.AuthApi
+import io.github.winfeo.superpositiongame.android.domain.auth.AuthRepository
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
+import io.ktor.client.HttpClient
 
 @Composable
 fun AuthScreen(
@@ -253,7 +257,9 @@ fun AuthScreen(
 @Composable
 fun AuthScreenPrev() {
     AuthScreen(
-        viewModel = AuthViewModel(),
+        viewModel = AuthViewModel(
+            repository = AuthRepositoryImpl(AuthApi(HttpClient()))
+        ),
         onSuccess = {}
     )
 }

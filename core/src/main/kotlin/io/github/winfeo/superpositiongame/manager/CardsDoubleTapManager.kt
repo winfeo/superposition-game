@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import io.github.winfeo.superpositiongame.config.GameConfig
-import io.github.winfeo.superpositiongame.game.PlayerActionController
+import io.github.winfeo.superpositiongame.PlayerActionController
 import io.github.winfeo.superpositiongame.ui.actor.card.CardActor
 
 class CardsDoubleTapManager(

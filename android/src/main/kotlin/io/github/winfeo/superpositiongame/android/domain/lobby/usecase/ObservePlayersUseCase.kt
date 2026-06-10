@@ -6,9 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 class ObservePlayersUseCase(
     private val repository: LobbyRepository,
-    private val currentUserId: String
 ) {
-    operator fun invoke(): Flow<List<Player>> {
+    operator fun invoke(currentUserId: String): Flow<List<Player>> {
         return repository.observePlayersInLobby(currentUserId)
     }
 }
