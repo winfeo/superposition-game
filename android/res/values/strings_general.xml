@@ -65,6 +65,6 @@
     <string name="settings_version">Версия</string>
 
     <string name="settings_toast_email_successful">Email успешно изменён</string>
-    <string name="settings_toast_delete_successful">Изменить</string>
+    <string name="settings_toast_delete_successful">Аккаунт удалён</string>
 
 </resources>

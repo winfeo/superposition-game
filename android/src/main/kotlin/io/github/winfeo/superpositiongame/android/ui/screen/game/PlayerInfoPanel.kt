@@ -83,13 +83,24 @@ fun PlayerInfoPanel(
             val opponent = gameState.players[opponentId]
             val opponentName = opponent?.nickname?: opponentId
 
+            val gameTask = buildTaskString(player)
+
             GameHud(
                 playerName = playerName,
                 opponentName = opponentName,
                 isPlayerTurn = gameState.currentPlayerId == playerId,
-                timerSeconds = timerSeconds
+                timerSeconds = timerSeconds,
+                gameTask = gameTask
             )
         }
+    }
+}
+
+private fun buildTaskString(playerState: PlayerState?): String {
+    if (playerState == null) return ""
+
+    return playerState.slots.joinToString("    ") { slot ->
+        slot.dice.requiredState?.stateName?: "?"
     }
 }
 
@@ -99,7 +110,8 @@ fun GameHud(
     playerName: String,
     opponentName: String,
     isPlayerTurn: Boolean,
-    timerSeconds: Int
+    timerSeconds: Int,
+    gameTask: String
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -135,7 +147,9 @@ fun GameHud(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TaskInfo("+ + + +")
+        TaskInfo(
+            text = gameTask
+        )
     }
 }
 

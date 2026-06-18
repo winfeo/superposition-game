@@ -6,27 +6,27 @@ enum class DiceState(
     val textureId: String
 ) {
     ZERO(
-        stateName = "\"0\" state",
+        stateName = "0",
         textureId = "zero",
     ),
     ONE(
-        stateName = "\"1\" state",
+        stateName = "1",
         textureId = "one",
     ),
     PLUS(
-        stateName = "\"+\" state",
+        stateName = "+",
         textureId = "plus",
     ),
     MINUS(
-        stateName = "\"-\" state",
+        stateName = "-",
         textureId = "minus",
     ),
     I(
-        stateName = "\"I\" state",
+        stateName = "I",
         textureId = "i_plus",
     ),
     I_MINUS(
-        stateName = "\"-I\" state",
+        stateName = "-I",
         textureId = "i_minus",
     )
 }
