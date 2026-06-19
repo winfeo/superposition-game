@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
+import io.github.winfeo.superpositiongame.android.data.source.local.NotificationManager
 import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
 import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 import io.github.winfeo.superpositiongame.android.ui.dialog.InviteDialog
@@ -61,6 +62,7 @@ fun LobbyScreen(
     val selectedPlayer by viewModel.selectedPlayer.collectAsState()
     val user by UserSession.currentUser.collectAsState()
     val userId by UserSession.currentUserId.collectAsState()
+    val notificationCount by NotificationManager.badgeCount.collectAsState()
 
     Scaffold { paddingValues ->
         Box(
@@ -76,6 +78,7 @@ fun LobbyScreen(
                 val playerName = user?.nickname?: userId?: ""
                 UserBar(
                     playerName = playerName.take(9),
+                    notificationCount = notificationCount,
                     onInvitesClick = onInvitesClick
                 )
 
@@ -159,6 +162,7 @@ fun LobbyBackground() {
 @Composable
 fun UserBar(
     playerName: String,
+    notificationCount: Int,
     onInvitesClick: () -> Unit
 ) {
     Box(
@@ -202,7 +206,10 @@ fun UserBar(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            NotificationButton(onInvitesClick)
+            NotificationButton(
+                notificationCount = notificationCount,
+                onClick = onInvitesClick
+            )
         }
     }
 }
@@ -256,66 +263,68 @@ fun AvatarWithName(
 
 @Composable
 fun NotificationButton(
+    notificationCount: Int,
     onClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier
-            .size(48.dp)
-            .background(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.18f),
-                        Color.White.copy(alpha = 0.06f)
-                    )
-                ),
-                shape = CircleShape
-            )
-            .border(
-                width = 1.dp,
-                color = Color.White.copy(alpha = 0.12f),
-                shape = CircleShape
-            )
-            .clip(CircleShape)
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
+        modifier = Modifier.size(48.dp)
     ) {
-
         Box(
             modifier = Modifier
-                .matchParentSize()
+                .fillMaxSize()
+                .clip(CircleShape)
+                .clickable { onClick() }
                 .background(
-                    brush = Brush.verticalGradient(
+                    brush = Brush.radialGradient(
                         colors = listOf(
-                            Color.White.copy(alpha = 0.10f),
-                            Color.Transparent
+                            Color.White.copy(alpha = 0.18f),
+                            Color.White.copy(alpha = 0.06f)
                         )
                     ),
                     shape = CircleShape
                 )
-        )
+                .border(
+                    1.dp,
+                    Color.White.copy(alpha = 0.12f),
+                    CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.10f),
+                                Color.Transparent
+                            )
+                        ),
+                        shape = CircleShape
+                    )
+            )
 
-        Icon(
-            painter = painterResource(R.drawable.ic_bell),
-            contentDescription = null,
-            tint = Color.White.copy(alpha = 0.92f),
-            modifier = Modifier.size(24.dp)
-        )
+            Icon(
+                painter = painterResource(R.drawable.ic_bell),
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.92f),
+                modifier = Modifier.size(24.dp)
+            )
+        }
 
-//        Box( //TODO рисовать, когда есть уведомления
-//            modifier = Modifier
-//                .align(Alignment.TopEnd)
-//                .size(8.dp)
-//                .background(
-//                    color = Color(0xFF3D4AEB),
-//                    shape = CircleShape
-//                )
-//                .border(
-//                    width = 1.dp,
-//                    color = Color.White.copy(alpha = 0.8f),
-//                    shape = CircleShape
-//                )
-//        )
-
+        if (notificationCount > 0) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(10.dp)
+                    .background(Color(0xFF3D4AEB), CircleShape)
+                    .border(
+                        1.dp,
+                        Color.White.copy(alpha = 0.8f),
+                        CircleShape
+                    )
+            )
+        }
     }
 }
 
@@ -485,6 +494,7 @@ fun LobbyScreenContent() {
         ) {
             UserBar(
                 playerName = "guest-1111111111",
+                notificationCount = 5,
                 onInvitesClick = {}
             )
 

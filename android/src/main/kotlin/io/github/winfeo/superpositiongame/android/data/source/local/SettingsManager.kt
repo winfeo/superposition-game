@@ -28,6 +28,5 @@ class SettingsManager(context: Context) {
     fun setInviteSoundEnabled(enabled: Boolean) {
         prefs.edit { putBoolean(KEY_INVITE_SOUND, enabled) }
         _isInviteSoundEnabled.value = enabled
-        //TODO звуки приглашений
     }
 }

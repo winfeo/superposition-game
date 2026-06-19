@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import io.github.winfeo.superpositiongame.android.data.source.socket.Network
 import io.github.winfeo.superpositiongame.android.data.source.AppModule
+import io.github.winfeo.superpositiongame.android.data.source.local.NotificationManager
 import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
 import io.github.winfeo.superpositiongame.android.data.util.toDomain
 import io.github.winfeo.superpositiongame.android.ui.nav.Navigation
@@ -29,6 +30,11 @@ class AndroidLauncher : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         AppModule.init(applicationContext)
+        NotificationManager.init(
+            context = applicationContext,
+            repository = AppModule.invitationRepository,
+            settingsManager = AppModule.settingsManager
+        )
 
         val savedToken = AppModule.tokenManager.getToken()
         if (savedToken != null) {
