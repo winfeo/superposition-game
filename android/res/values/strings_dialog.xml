@@ -51,4 +51,8 @@
     <string name="dialog_settings_delete_info">Вы уверены? Ваши данные будут удалены безвозвратно</string>
     <string name="dialog_settings_delete_confirm">Удалить</string>
 
+    <!-- Диалог (снекбар) подтвержения отправки приглашения -->
+    <string name="dialog_invitation_confirm_success">Приглашение отправлено игроку</string>
+    <string name="dialog_invitation_confirm_error">Ошибка при отправке приглашения</string>
+
 </resources>

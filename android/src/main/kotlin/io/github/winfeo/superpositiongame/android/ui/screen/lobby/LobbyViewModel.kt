@@ -1,7 +1,9 @@
 package io.github.winfeo.superpositiongame.android.ui.screen.lobby
 
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.winfeo.superpositiongame.R
 import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
 import io.github.winfeo.superpositiongame.android.domain.lobby.LobbyRepository
 import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
@@ -25,6 +27,9 @@ class LobbyViewModel(
     private val _state = MutableStateFlow(LobbyState())
 //    private val _state = MutableStateFlow(LobbyState.Loading)
     val state: StateFlow<LobbyState> = _state.asStateFlow()
+
+    private val _snackbarMessage = MutableStateFlow<String?>(null)
+    val snackbarMessage: StateFlow<String?> = _snackbarMessage.asStateFlow()
 
     private val _selectedPlayer = MutableStateFlow<Player?>(null)
     val selectedPlayer: StateFlow<Player?> = _selectedPlayer.asStateFlow()
@@ -58,20 +63,34 @@ class LobbyViewModel(
         _selectedPlayer.value = null
     }
 
-    fun sendInvite() {
+    fun sendInvite(
+        successMessage: String,
+        errorMessage: String
+    ) {
         val receiverUser = _selectedPlayer.value?: return
         val receiverId = receiverUser.id
         val senderId = UserSession.currentUserId.value?: return
         val senderNickname = UserSession.currentUser.value?.nickname
 
         viewModelScope.launch {
-            sendInvitationUseCase(
-                senderId = senderId,
-                senderNickname = senderNickname,
-                receiverId = receiverId
-            )
-            hideInviteDialog()
+            try {
+                sendInvitationUseCase(
+                    senderId = senderId,
+                    senderNickname = senderNickname,
+                    receiverId = receiverId
+                )
+
+
+                _snackbarMessage.value = "$successMessage ${receiverUser.nickname?: receiverId.take(9)}"
+                hideInviteDialog()
+            } catch (e: Exception) {
+                _snackbarMessage.value = errorMessage
+            }
         }
+    }
+
+    fun clearSnackbarMessage() {
+        _snackbarMessage.value = null
     }
 
 }

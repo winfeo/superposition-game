@@ -25,8 +25,13 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Snackbar
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -46,12 +51,6 @@ import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 import io.github.winfeo.superpositiongame.android.ui.dialog.InviteDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 
-///TODO добавить bottomBar для навигации по страницам
-///TODO добавить тост или снекбар после отправки уведомления
-///TODO если противник ответил положительно на приглашение, то показывать вверху
-///убавляющуюся полоску с истечением времени (10 секунд) и возможностью отказаться от матча, потом запуск матча
-//Лобби, лидерборд, библиотека карт, профиль (с настройками и статистикой?)
-
 //экран лобби (отображаются игроки в сети, которые тоже находятся в лобби)
 @Composable
 fun LobbyScreen(
@@ -64,7 +63,39 @@ fun LobbyScreen(
     val userId by UserSession.currentUserId.collectAsState()
     val notificationCount by NotificationManager.badgeCount.collectAsState()
 
-    Scaffold { paddingValues ->
+    val snackbarMessage by viewModel.snackbarMessage.collectAsState()
+    val successMessage = stringResource(R.string.dialog_invitation_confirm_success)
+    val errorMessage = stringResource(R.string.dialog_invitation_confirm_error)
+
+    val scaffoldState = rememberScaffoldState()
+
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let { message ->
+            scaffoldState.snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearSnackbarMessage()
+        }
+    }
+
+    Scaffold(
+        scaffoldState = scaffoldState,
+        snackbarHost = {
+            SnackbarHost(
+                hostState = it,
+                modifier = Modifier.padding(bottom = 120.dp)
+            ) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    backgroundColor = Color(0xFF1A1A2E),
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = 8.dp
+                )
+            }
+        }
+    ) { paddingValues ->
         Box(
             Modifier.background(Color(0xFF0C0813))
         ) {
@@ -124,7 +155,7 @@ fun LobbyScreen(
     selectedPlayer?.let { player ->
         InviteDialog(
             playerName = player.nickname?: player.id,
-            onConfirm = { viewModel.sendInvite() },
+            onConfirm = { viewModel.sendInvite(successMessage = successMessage, errorMessage = errorMessage) },
             onDismiss = { viewModel.hideInviteDialog() }
         )
     }
