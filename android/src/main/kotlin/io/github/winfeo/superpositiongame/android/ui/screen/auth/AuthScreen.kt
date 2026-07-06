@@ -18,6 +18,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
@@ -29,15 +30,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
@@ -53,6 +59,7 @@ fun AuthScreen(
     onSuccess: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    var passwordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.isSuccess) {
         if (state.isSuccess) {
@@ -136,7 +143,8 @@ fun AuthScreen(
                 value = state.password,
                 onValueChange = viewModel::onPasswordChange,
                 label = {
-                    Text(stringResource(R.string.auth_password_field),
+                    Text(
+                        stringResource(R.string.auth_password_field),
                         color = Color.White.copy(alpha = 0.45f)
                     )
                 },
@@ -147,7 +155,24 @@ fun AuthScreen(
                         tint = Color.White.copy(alpha = 0.45f)
                     )
                 },
-                visualTransformation = PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(
+                        onClick = { passwordVisible = !passwordVisible }
+                    ) {
+                        Icon(
+                            painter = if (passwordVisible) {
+                                painterResource(R.drawable.ic_eye)
+                            } else {
+                                painterResource(R.drawable.ic_eye_off)
+                            },
+                            contentDescription = null,
+                            tint = Color.White.copy(alpha = 0.45f)
+                        )
+                    }
+                },
+                visualTransformation =
+                    if (passwordVisible) { VisualTransformation.None }
+                    else { PasswordVisualTransformation() },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
