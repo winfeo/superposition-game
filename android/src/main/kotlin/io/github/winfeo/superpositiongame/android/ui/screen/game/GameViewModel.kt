@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.winfeo.superpositiongame.android.domain.game.GameRepository
+import io.github.winfeo.superpositiongame.android.domain.game.PingRepository
 import io.github.winfeo.superpositiongame.android.domain.game.usecase.ObserveGameStateUseCase
 import io.github.winfeo.superpositiongame.android.domain.game.usecase.SendMoveUseCase
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameDialogState
@@ -16,15 +17,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 //Хранит текущее состояние игры, принимает и отправляет ходы
 class GameViewModel(
     private val playerId: String,
     private val gameId: String,
-    private val repository: GameRepository
+    private val gameRepository: GameRepository,
+    private val pingRepository: PingRepository
 ): ViewModel() {
-    private val observeGameStateUseCase = ObserveGameStateUseCase(repository)
-    private val sendMoveUseCase = SendMoveUseCase(repository)
+    private val observeGameStateUseCase = ObserveGameStateUseCase(gameRepository)
+    private val sendMoveUseCase = SendMoveUseCase(gameRepository)
 
     private val _gameState = MutableStateFlow<GameState?>(null)
     val gameState: StateFlow<GameState?> = _gameState
@@ -35,15 +38,33 @@ class GameViewModel(
     private val _timerSeconds = MutableStateFlow(0)
     val timerSeconds: StateFlow<Int> = _timerSeconds
     private var timerJob: Job? = null
+    private var timerStarted = false
     private var isTimerFinished = false
-    private var lastServerTime: Long = 0L
-    private var lastClientTime: Long = 0L
+    private var measuredOneWayDelayMs = 100L
+    private var localTimerMs = 0L
 
 
     init {
         Log.d("GAME_MODEL", "Создание ViewModel")
-        observeGame()
-        startTimer()
+//        observeGame()
+//        startTimer()
+        startGame()
+    }
+
+    private fun startGame() {
+        viewModelScope.launch {
+            try {
+                val rtt = pingRepository.measureRTT()
+                measuredOneWayDelayMs = rtt / 2
+                Log.d("GAME_SYNC", "RTT: ${rtt}ms, OneWayDelay: ${measuredOneWayDelayMs}ms")
+            } catch (e: Exception) {
+                Log.e("GAME_SYNC", "Ошибка: ${e.message}")
+            }
+
+            observeGame()
+            observeTimer()
+            startTimerLoop()
+        }
     }
 
     private fun observeGame() {
@@ -53,10 +74,50 @@ class GameViewModel(
                 playerId = playerId
             ).collect { newState ->
                 _gameState.value = newState
-
-                lastServerTime = newState.serverTime
-                lastClientTime = System.currentTimeMillis()
                 isTimerFinished = false
+            }
+        }
+    }
+
+    private fun observeTimer() {
+        viewModelScope.launch {
+            gameRepository.observeTimerUpdates(gameId).collect { packet ->
+                if (isTimerFinished) return@collect
+
+                val correctedTimeMs = (packet.timeLeftMs - measuredOneWayDelayMs).coerceAtLeast(0L)
+
+                if (!timerStarted) {
+                    localTimerMs = correctedTimeMs
+                    timerStarted = true
+                } else {
+                    localTimerMs =
+                        if (abs(localTimerMs - correctedTimeMs) > 1500L) { correctedTimeMs }
+                        else { (localTimerMs * 0.85f + correctedTimeMs * 0.15f).toLong() }
+                }
+            }
+        }
+    }
+
+    private fun startTimerLoop() {
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            while (true) {
+                delay(100L)
+                if (!timerStarted || isTimerFinished) continue
+
+                val state = _gameState.value?: continue
+                if (state.turnEndsAt <= 0L) {
+                    _timerSeconds.value = 0
+                    continue
+                }
+
+                localTimerMs = (localTimerMs - 100).coerceAtLeast(0L)
+                _timerSeconds.value = (localTimerMs / 1000).toInt()
+
+                if (localTimerMs <= 0 && !isTimerFinished) {
+                    isTimerFinished = true
+                    ///TODO "замораживать время?"
+                }
             }
         }
     }
@@ -69,51 +130,6 @@ class GameViewModel(
                 gameId = gameId,
                 move = move
             )
-        }
-    }
-
-    fun startTimer() {
-        timerJob?.cancel()
-//        isTimerFrozen = false
-
-//        timerJob = viewModelScope.launch {
-//            while (_timerSeconds.value > 0) {
-//                delay(1000L)
-//                if (!isTimerFrozen) {
-//                    _timerSeconds.value -= 1
-//                }
-//            }
-//            if (!isTimerFrozen) {
-//                onTimerFinished()
-//            }
-//        }
-        timerJob = viewModelScope.launch {
-            while (true) {
-                delay(1000L)
-
-                if (isTimerFinished) continue
-
-                val state = _gameState.value?: continue
-                if (state.turnEndsAt <= 0L) {
-                    _timerSeconds.value = 0
-                    continue
-                }
-
-                val localTimeNow = System.currentTimeMillis()
-                val timePassedClient = localTimeNow - lastClientTime //локально времени прошло
-                val timePassedServer = lastServerTime + timePassedClient //время сервера (предполож)
-                val remainingTime = state.turnEndsAt - timePassedServer //остаток времени
-
-                val seconds = (remainingTime / 1000L).coerceAtLeast(0L).toInt()
-                _timerSeconds.value = seconds
-
-                if (seconds <= 0 && !isTimerFinished) {
-                    isTimerFinished = true
-                    ///TODO "замораживать время?"
-                }
-
-            }
-
         }
     }
 

@@ -8,11 +8,13 @@ import io.github.winfeo.superpositiongame.android.data.dto.move.ReshuffleCardDTO
 import io.github.winfeo.superpositiongame.android.data.dto.move.RotateDiceDTO
 import io.github.winfeo.superpositiongame.android.data.dto.move.SurrenderDTO
 import io.github.winfeo.superpositiongame.android.data.dto.move.SwapDicesDTO
+import io.github.winfeo.superpositiongame.android.data.dto.socket.TimerUpdatePacketDTO
 import io.github.winfeo.superpositiongame.android.data.dto.state.GameStateDTO
 import io.github.winfeo.superpositiongame.android.data.source.socket.Network
 import io.github.winfeo.superpositiongame.android.data.util.toDomain
 import io.github.winfeo.superpositiongame.android.data.util.toDto
 import io.github.winfeo.superpositiongame.android.domain.game.GameRepository
+import io.github.winfeo.superpositiongame.android.domain.game.model.TimerUpdatePacket
 import io.github.winfeo.superpositiongame.android.ui.screen.game.GameStartEvent
 import io.github.winfeo.superpositiongame.model.game.GameState
 import io.github.winfeo.superpositiongame.model.game.Move
@@ -128,4 +130,25 @@ class GameRepositoryImpl: GameRepository {
         }
     }
 
+    override fun observeTimerUpdates(gameId: String): Flow<TimerUpdatePacket> {
+        return callbackFlow {
+            val topic = "/user/queue/game/$gameId/timer"
+
+            Network.subscribeToTopic(topic) { message ->
+                try {
+                    val dto = json.decodeFromString<TimerUpdatePacketDTO>(message)
+                    val packet = dto.toDomain()
+                    trySend(packet)
+                    Log.e("GAME_TIMER", "Временной пакет получен. " +
+                        "Сервер: ${packet.serverTimestamp}, Осталось: ${packet.timeLeftMs}")
+                } catch (e: Exception) {
+                    Log.d("GAME_TIMER", "Ошибка: ${e.message}")
+                }
+            }
+
+            awaitClose {
+                Network.unsubscribeToTopic(topic)
+            }
+        }
+    }
 }

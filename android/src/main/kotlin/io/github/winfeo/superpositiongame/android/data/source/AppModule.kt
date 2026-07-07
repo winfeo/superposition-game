@@ -9,6 +9,7 @@ import io.github.winfeo.superpositiongame.android.data.repository.GameRepository
 import io.github.winfeo.superpositiongame.android.data.repository.GuestRepositoryImpl
 import io.github.winfeo.superpositiongame.android.data.repository.InvitationRepositoryImpl
 import io.github.winfeo.superpositiongame.android.data.repository.LobbyRepositoryImpl
+import io.github.winfeo.superpositiongame.android.data.repository.PingRepositoryImpl
 import io.github.winfeo.superpositiongame.android.data.repository.ProfileRepositoryImpl
 import io.github.winfeo.superpositiongame.android.data.repository.UserRepository
 import io.github.winfeo.superpositiongame.android.data.source.rest.AuthApi
@@ -66,4 +67,5 @@ object AppModule {
     val profileRepository by lazy { ProfileRepositoryImpl(userApi, gameHistoryApi) }
     val accountRepository by lazy { AccountRepositoryImpl(userApi) }
     val gameRepository by lazy { GameRepositoryImpl() }
+    val pingRepository by lazy { PingRepositoryImpl() }
 }

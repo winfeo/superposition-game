@@ -48,7 +48,8 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
         val viewModelFactory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return GameViewModel(
-                    repository = AppModule.gameRepository,
+                    gameRepository = AppModule.gameRepository,
+                    pingRepository = AppModule.pingRepository,
                     playerId = playerId,
                     gameId = gameId
                 ) as T
@@ -82,7 +83,7 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
 
                     gameState?.let { state ->
                         game.applyNewState(state)
-                        viewModel.startTimer()
+//                        viewModel.startTimer()
                     }
                 }
 
