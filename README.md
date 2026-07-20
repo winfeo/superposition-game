@@ -1,4 +1,4 @@
-# "Суперпозиция" мобильная игра
+# «Суперпозиция» мобильная игра
 
 <div align="center">
   <!-- <img src="assets/logo.png" alt="Superposition Game" width="160"> -->
