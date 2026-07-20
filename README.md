@@ -25,7 +25,7 @@
 
 ## Содержание
 
-- [Технический обзор](#readme-technical-overview)
+- [Обзор](#readme-technical-overview)
 - [Основные возможности клиента](#readme-features)
 - [Технологический стек](#readme-technology-stack)
 - [Модульная структура](#readme-modules)
@@ -41,7 +41,7 @@
 
 <a name="readme-technical-overview"></a>
 
-## Технический обзор
+## Обзор
 
 Суперпозиция - сетевой игровой клиент, в котором Android-интерфейс на
 Jetpack Compose объединён с игровым полем на libGDX (в проекте используется 
@@ -121,7 +121,7 @@ Android-часть организована по слоям `ui → domain → d
 | kotlinx.serialization | `1.10.0` |
 | Kotlin Coroutines | `1.8.1` |
 | StateFlow / SharedFlow | состояние сессии, соединения и UI |
-| STOMP Protocol Android | `1.6.6` |
+| [StompProtocolAndroid](https://github.com/NaikSoftware/StompProtocolAndroid) | `1.6.6`, реализация STOMP над WebSocket для Android |
 | OkHttp | `4.11.0`, WebSocket |
 
 ### Архитектурные подходы
@@ -293,6 +293,12 @@ Ktor `HttpClient(Android)` конфигурируется в `AppModule`:
   в `UserSession`.
 
 ### WebSocket (STOMP)
+
+Для реализации протокола STOMP используется библиотека
+[NaikSoftware/StompProtocolAndroid](https://github.com/NaikSoftware/StompProtocolAndroid).
+Она предоставляет Android-клиент для подключения к STOMP-серверу через
+WebSocket, подписки на destinations, отправки сообщений и наблюдения за
+жизненным циклом соединения.
 
 Соединение создаётся через `StompConnection`:
 
