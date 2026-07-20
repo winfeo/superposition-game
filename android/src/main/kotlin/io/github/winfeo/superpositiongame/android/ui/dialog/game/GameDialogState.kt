@@ -32,4 +32,6 @@ sealed class GameDialogState {
         val onSurrender: () -> Unit,
         val onDismiss: () -> Unit
     ): GameDialogState()
+
+    data object RulesDialog: GameDialogState()
 }

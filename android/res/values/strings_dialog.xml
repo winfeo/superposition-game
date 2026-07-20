@@ -55,4 +55,9 @@
     <string name="dialog_invitation_confirm_success">Приглашение отправлено игроку</string>
     <string name="dialog_invitation_confirm_error">Ошибка при отправке приглашения</string>
 
+    <!-- Диалог игровых правил -->
+    <string name="dialog_game_rules_title">ПРАВИЛА</string>
+    <string name="dialog_game_rules_close">Закрыть правила</string>
+    <string name="dialog_game_rules_error">Не удалось загрузить правила</string>
+
 </resources>

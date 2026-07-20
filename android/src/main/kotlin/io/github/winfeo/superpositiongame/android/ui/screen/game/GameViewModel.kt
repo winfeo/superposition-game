@@ -193,6 +193,10 @@ class GameViewModel(
         )
     }
 
+    fun showRulesDialog() {
+        _dialogState.value = GameDialogState.RulesDialog
+    }
+
     fun dismissDialog() {
         _dialogState.value = null
     }

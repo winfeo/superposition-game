@@ -31,6 +31,7 @@ import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameFinishedDia
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameMenuDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.ReshuffleCardDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.RotateCardDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.RulesDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.SuperpositionGameTheme
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 import io.github.winfeo.superpositiongame.model.game.GamePhase
@@ -108,7 +109,7 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                                     timerSeconds = timerSeconds,
                                     onPause = { viewModel.showGameMenuDialog(
                                         onResume = { viewModel.dismissDialog() },
-                                        onRules = {},
+                                        onRules = { viewModel.showRulesDialog() },
                                         onSettings = {},
                                         onSurrender = { viewModel.sendMove(Move.Surrender(playerId = playerId)) },
                                         onDismiss = { viewModel.dismissDialog() }
@@ -195,6 +196,12 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                                     onSettings = dialog.onSettings,
                                     onSurrender = dialog.onSurrender,
                                     onDismiss = dialog.onDismiss
+                                )
+                            }
+
+                            is GameDialogState.RulesDialog -> {
+                                RulesDialog(
+                                    onDismiss = { viewModel.dismissDialog() }
                                 )
                             }
                         }

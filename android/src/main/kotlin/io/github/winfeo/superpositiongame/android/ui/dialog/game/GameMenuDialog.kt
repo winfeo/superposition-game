@@ -126,12 +126,12 @@ fun GameMenuDialog(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 //Настройки
-                MenuButton(
-                    title = stringResource(R.string.dialog_menu_settings),
-                    subtitle = stringResource(R.string.dialog_menu_settings_detailed),
-                    accent = Color(0xFF8CE6FF),
-                    onClick = onSettings
-                )
+//                MenuButton(
+//                    title = stringResource(R.string.dialog_menu_settings),
+//                    subtitle = stringResource(R.string.dialog_menu_settings_detailed),
+//                    accent = Color(0xFF8CE6FF),
+//                    onClick = onSettings
+//                )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
