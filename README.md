@@ -501,7 +501,7 @@ backend, базу данных или дополнительное програ�
 
 Полные правила мобильной версии игры "Суперпозиция".
 
-[Открыть правила игры](PASTE_PUBLISHED_GOOGLE_DOCS_URL)
+[Открыть правила игры](https://docs.google.com/document/d/e/2PACX-1vTwxsPvUDY9snIV4-XC_fYptWwsZN1GIQXOdIIOyReMrFxL1jr5dwaHTmaidYKSjw/pub)
 
 <a name="readme-author"></a>
 
