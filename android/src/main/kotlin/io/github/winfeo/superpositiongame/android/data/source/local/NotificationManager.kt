@@ -11,6 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
@@ -36,26 +37,22 @@ object NotificationManager {
         soundPool = SoundPool.Builder().setMaxStreams(1).build()
         soundId = soundPool?.load(context, R.raw.notification_sound, 1)?: 0
 
+        job?.cancel()
         job = CoroutineScope(Dispatchers.IO).launch {
-            UserSession.currentUserId
-                .filterNotNull()
-                .flatMapLatest {
-                    repository.invitationEvents
-                }
-                .collect { event ->
-                    when (event) {
-                        is InvitationEvent.New -> {
-                            _badgeCount.value += 1
-                            playSound()
-                        }
-                        is InvitationEvent.Removed -> {
-                            _badgeCount.value = max(0, _badgeCount.value - 1)
-                        }
-                        is InvitationEvent.Initialized -> {
-                            _badgeCount.value = event.invitations.size
-                        }
-                    }
-                }
+            launch {
+                UserSession.currentUserId
+                    .filterNotNull()
+                    .flatMapLatest { userId -> repository.observeInvitations(userId) }
+                    .collect { invites -> _badgeCount.value = invites.size }
+            }
+
+            launch {
+                UserSession.currentUserId
+                    .filterNotNull()
+                    .flatMapLatest { repository.invitationEvents }
+                    .filterIsInstance<InvitationEvent.New>()
+                    .collect { playSound() }
+            }
         }
     }
 
