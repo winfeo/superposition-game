@@ -22,7 +22,6 @@ class SettingsManager(context: Context) {
     fun setMusicEnabled(enabled: Boolean) {
         prefs.edit { putBoolean(KEY_MUSIC, enabled) }
         _isMusicEnabled.value = enabled
-        //TODO запустить/остановить музыку
     }
 
     fun setInviteSoundEnabled(enabled: Boolean) {
