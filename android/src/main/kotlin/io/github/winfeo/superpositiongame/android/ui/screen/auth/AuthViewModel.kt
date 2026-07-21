@@ -75,9 +75,9 @@ class AuthViewModel(
         user: AuthorizedUser,
         token: AuthToken
     ) {
-        UserSession.login(user, token.accessToken)
-        UserSession.setUserId(user.id.toString())
         Network.disconnect()
+        UserSession.login(user = user, token = token.accessToken)
+        UserSession.setUserId(user.id.toString())
         Network.connect(userId = user.id.toString())
         _state.value = _state.value.copy(isLoading = false, isSuccess = true)
     }

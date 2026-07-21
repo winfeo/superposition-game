@@ -8,6 +8,7 @@ import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invit
 import io.github.winfeo.superpositiongame.android.domain.invitations.usecase.AcceptInvitationUseCase
 import io.github.winfeo.superpositiongame.android.domain.invitations.usecase.ObserveInvitationsUseCase
 import io.github.winfeo.superpositiongame.android.domain.invitations.usecase.RejectInvitationUseCase
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -23,6 +24,8 @@ class InvitationViewModel(
     private val _state = MutableStateFlow(InvitationState())
     val state: StateFlow<InvitationState> = _state
 
+    private var loadJob: Job? = null
+
     init {
         viewModelScope.launch {
             UserSession.currentUserId.collect { userId ->
@@ -34,7 +37,9 @@ class InvitationViewModel(
     }
 
     fun loadInvitations(userId: String) {
-        viewModelScope.launch {
+        loadJob?.cancel()
+
+        loadJob = viewModelScope.launch {
             observeInvitationsUseCase(userId)
                 .onStart { _state.value = _state.value.copy(isLoading = true) }
                 .catch { _state.value = _state.value.copy(isLoading = false, error = it.message) }
