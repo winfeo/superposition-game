@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 object UserSession {
+    private const val GUEST_ID_PREFIX = "guest-"
+
     private val _isAuthorized = MutableStateFlow(false)
     val isAuthorized: StateFlow<Boolean> = _isAuthorized.asStateFlow()
 
@@ -19,21 +21,31 @@ object UserSession {
     private val _token = MutableStateFlow<String?>(null)
     val token: StateFlow<String?> = _token.asStateFlow()
 
-    fun login(user: AuthorizedUser, token: String) {
+    fun login(
+        user: AuthorizedUser,
+        token: String
+    ) {
         _currentUser.value = user
         _isAuthorized.value = true
         _token.value = token
+
         AppModule.tokenManager.saveToken(token)
+        AppModule.guestSessionManager.clearGuestId()
     }
 
     fun restoreToken(token: String) {
         _token.value = token
     }
 
-    fun restoreSession(user: AuthorizedUser, token: String) {
+    fun restoreSession(
+        user: AuthorizedUser,
+        token: String
+    ) {
         _currentUser.value = user
         _isAuthorized.value = true
         _token.value = token
+
+        AppModule.guestSessionManager.clearGuestId()
     }
 
     fun logout() {
@@ -45,6 +57,10 @@ object UserSession {
 
     fun setUserId(userId: String) {
         _currentUserId.value = userId
+
+        if (userId.startsWith(GUEST_ID_PREFIX)) {
+            AppModule.guestSessionManager.saveGuestId(userId)
+        }
     }
 
     fun updateUser(user: AuthorizedUser) {

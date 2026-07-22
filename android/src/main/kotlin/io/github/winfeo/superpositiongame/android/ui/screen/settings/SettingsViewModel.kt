@@ -79,11 +79,11 @@ class SettingsViewModel(
             val result = deleteAccountUseCase(userId)
             result.fold(
                 onSuccess = {
+                    Network.disconnect()
                     UserSession.logout()
                     val guestIdResult = AppModule.guestRepository.createGuest()
                     val guestId = guestIdResult.getOrNull()?: "guest-fallback-${System.currentTimeMillis()}"
                     UserSession.setUserId(guestId)
-                    Network.disconnect()
                     Network.connect(userId = guestId)
                     _state.value = _state.value.copy(isLoading = false)
                     onSuccess()

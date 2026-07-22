@@ -5,17 +5,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.winfeo.superpositiongame.android.domain.game.GameRepository
 import io.github.winfeo.superpositiongame.android.domain.game.PingRepository
+import io.github.winfeo.superpositiongame.android.domain.game.model.GameLifecycleEvent
+import io.github.winfeo.superpositiongame.android.domain.game.model.GameSessionStatus
 import io.github.winfeo.superpositiongame.android.domain.game.usecase.ObserveGameStateUseCase
 import io.github.winfeo.superpositiongame.android.domain.game.usecase.SendMoveUseCase
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameDialogState
 import io.github.winfeo.superpositiongame.model.card.Card
 import io.github.winfeo.superpositiongame.model.dice.DiceState
 import io.github.winfeo.superpositiongame.model.game.GameState
+import io.github.winfeo.superpositiongame.model.game.GamePhase
 import io.github.winfeo.superpositiongame.model.game.Move
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -26,6 +30,10 @@ class GameViewModel(
     private val gameRepository: GameRepository,
     private val pingRepository: PingRepository
 ): ViewModel() {
+    private companion object {
+        const val HEARTBEAT_INTERVAL_MS = 2_000L
+    }
+
     private val observeGameStateUseCase = ObserveGameStateUseCase(gameRepository)
     private val sendMoveUseCase = SendMoveUseCase(gameRepository)
 
@@ -38,8 +46,12 @@ class GameViewModel(
     private val _timerSeconds = MutableStateFlow(0)
     val timerSeconds: StateFlow<Int> = _timerSeconds
     private var timerJob: Job? = null
+    private var heartbeatJob: Job? = null
+    private var presenceReconnectJob: Job? = null
     private var timerStarted = false
     private var isTimerFinished = false
+    private var isSessionPaused = false
+    private var isGameVisible = false
     private var measuredOneWayDelayMs = 100L
     private var localTimerMs = 0L
 
@@ -52,6 +64,12 @@ class GameViewModel(
     }
 
     private fun startGame() {
+        observeGame()
+        observeTimer()
+        observeLifecycle()
+        observeConnectionState()
+        startTimerLoop()
+
         viewModelScope.launch {
             try {
                 val rtt = pingRepository.measureRTT()
@@ -60,10 +78,6 @@ class GameViewModel(
             } catch (e: Exception) {
                 Log.e("GAME_SYNC", "Ошибка: ${e.message}")
             }
-
-            observeGame()
-            observeTimer()
-            startTimerLoop()
         }
     }
 
@@ -98,27 +112,110 @@ class GameViewModel(
         }
     }
 
+    private fun observeLifecycle() {
+        viewModelScope.launch {
+            gameRepository.observeGameLifecycle(gameId).collect { event ->
+                handleLifecycleEvent(event)
+            }
+        }
+    }
+
+    private fun observeConnectionState() {
+        viewModelScope.launch {
+            gameRepository.observeConnectionState()
+                .filter { it }
+                .collect {
+                    if (isGameVisible) schedulePresenceReconnect()
+                }
+        }
+    }
+
+    private fun handleLifecycleEvent(event: GameLifecycleEvent) {
+        when (event.status) {
+            GameSessionStatus.PAUSED_FOR_RECONNECT -> {
+                isSessionPaused = true
+
+                if (playerId in event.disconnectedPlayerIds) {
+                    if (isGameVisible) gameRepository.reconnectToGame(gameId)
+                    return
+                }
+
+                val opponentId = event.disconnectedPlayerIds
+                    .firstOrNull { it != playerId }?: return
+                val opponentNickname = _gameState.value?.players?.get(opponentId)?.nickname
+
+                _dialogState.value = GameDialogState.OpponentDisconnectedDialog(
+                    opponentNickname = opponentNickname,
+                    reconnectDeadline = event.reconnectDeadlines[opponentId],
+                    serverTime = event.serverTime
+                )
+            }
+
+            GameSessionStatus.ACTIVE -> {
+                isSessionPaused = false
+                if (_dialogState.value is GameDialogState.OpponentDisconnectedDialog) _dialogState.value = null
+            }
+
+            GameSessionStatus.FINISHED,
+            GameSessionStatus.CANCELLED -> {
+                isSessionPaused = false
+                isTimerFinished = true
+            }
+
+            GameSessionStatus.WAITING_FOR_PLAYERS,
+            GameSessionStatus.UNKNOWN -> Unit
+        }
+    }
+
     private fun startTimerLoop() {
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
             while (true) {
                 delay(100L)
-                if (!timerStarted || isTimerFinished) continue
+                if (!timerStarted || isTimerFinished || isSessionPaused) continue
 
                 val state = _gameState.value?: continue
-                if (state.turnEndsAt <= 0L) {
-                    _timerSeconds.value = 0
-                    continue
-                }
+                if (state.turnEndsAt <= 0L) continue
 
                 localTimerMs = (localTimerMs - 100).coerceAtLeast(0L)
                 _timerSeconds.value = (localTimerMs / 1000).toInt()
 
-                if (localTimerMs <= 0 && !isTimerFinished) {
-                    isTimerFinished = true
-                    ///TODO "замораживать время?"
-                }
+                if (localTimerMs <= 0 && !isTimerFinished) isTimerFinished = true
             }
+        }
+    }
+
+    fun onGameVisible() {
+        if (isGameVisible) return
+        isGameVisible = true
+        schedulePresenceReconnect()
+
+        heartbeatJob?.cancel()
+        heartbeatJob = viewModelScope.launch {
+            while (true) {
+                gameRepository.sendHeartbeat(gameId)
+                delay(HEARTBEAT_INTERVAL_MS)
+            }
+        }
+    }
+
+    fun onGameHidden() {
+        if (!isGameVisible) return
+
+        isGameVisible = false
+        heartbeatJob?.cancel()
+        heartbeatJob = null
+        presenceReconnectJob?.cancel()
+        presenceReconnectJob = null
+
+        if (_gameState.value?.phase != GamePhase.GAME_FINISHED) gameRepository.markGameInactive(gameId)
+    }
+
+    private fun schedulePresenceReconnect() {
+        presenceReconnectJob?.cancel()
+        presenceReconnectJob = viewModelScope.launch {
+            delay(300L)
+            if (isGameVisible) gameRepository.reconnectToGame(gameId)
         }
     }
 
@@ -203,7 +300,12 @@ class GameViewModel(
 
     override fun onCleared() {
         super.onCleared()
+
         timerJob?.cancel()
         timerJob = null
+        heartbeatJob?.cancel()
+        heartbeatJob = null
+        presenceReconnectJob?.cancel()
+        presenceReconnectJob = null
     }
 }

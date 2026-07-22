@@ -4,9 +4,9 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +32,7 @@ import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameDialogs
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.CardPreviewDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameFinishedDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameMenuDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.OpponentDisconnectedDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.ReshuffleCardDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.RotateCardDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.RulesDialog
@@ -43,12 +44,21 @@ import io.github.winfeo.superpositiongame.model.game.Move
 import kotlinx.coroutines.launch
 
 class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
+    private lateinit var viewModel: GameViewModel
+
     private val gameMusicPlayer by lazy {
         GameMusicPlayer(applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() = Unit
+            }
+        )
 
         processMusic()
 
@@ -68,7 +78,7 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
             }
         }
 
-        val viewModel: GameViewModel by viewModels { viewModelFactory }
+        viewModel = ViewModelProvider(this, viewModelFactory)[GameViewModel::class.java]
 
         val dialogs = GameDialogs(viewModel)
         val game = Main(
@@ -96,6 +106,16 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                     gameState?.let { state ->
                         game.applyNewState(state)
 //                        viewModel.startTimer()
+                    }
+                }
+
+                LaunchedEffect(gameState?.phase, gameState?.winnerId) {
+                    val state = gameState ?: return@LaunchedEffect
+                    if (state.phase == GamePhase.GAME_FINISHED) {
+                        viewModel.showGameFinishedDialog(
+                            isWinner = state.winnerId == playerId,
+                            onReturnToLobby = { exit() }
+                        )
                     }
                 }
 
@@ -156,15 +176,6 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                         }
                     }
 
-                    gameState?.let { state ->
-                        if (state.phase == GamePhase.GAME_FINISHED) {
-                            viewModel.showGameFinishedDialog(
-                                isWinner = state.winnerId == playerId,
-                                onReturnToLobby = { exit() }
-                            )
-                        }
-                    }
-
                     dialogState?.let { dialog ->
                         when (dialog) {
                             is GameDialogState.RotateDialog -> {
@@ -215,6 +226,14 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                                     onDismiss = { viewModel.dismissDialog() }
                                 )
                             }
+
+                            is GameDialogState.OpponentDisconnectedDialog -> {
+                                OpponentDisconnectedDialog(
+                                    opponentNickname = dialog.opponentNickname,
+                                    reconnectDeadline = dialog.reconnectDeadline,
+                                    serverTime = dialog.serverTime
+                                )
+                            }
                         }
                     }
                 }
@@ -237,7 +256,17 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
         finish()
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (::viewModel.isInitialized) {
+            viewModel.onGameVisible()
+        }
+    }
+
     override fun onStop() {
+        if (::viewModel.isInitialized) {
+            viewModel.onGameHidden()
+        }
         gameMusicPlayer.pause()
         super.onStop()
     }

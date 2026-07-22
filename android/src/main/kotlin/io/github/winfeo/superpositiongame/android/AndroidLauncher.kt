@@ -79,12 +79,18 @@ class AndroidLauncher : ComponentActivity() {
 
     private fun startGuestMode() {
         lifecycleScope.launch {
+            val savedGuestId = AppModule.guestSessionManager.getGuestId()
+            if (savedGuestId != null) {
+                connectAsGuest(savedGuestId)
+                Log.i("AndroidLauncher", "Гостевая сессия восстановлена: $savedGuestId")
+                return@launch
+            }
+
             while (true) {
                 val guestIdResult = AppModule.guestRepository.createGuest()
                 if (guestIdResult.isSuccess) {
                     val guestId = guestIdResult.getOrNull()!!
-                    UserSession.setUserId(guestId)
-                    Network.connect(userId = guestId)
+                    connectAsGuest(guestId)
                     Log.i("AndroidLauncher", "Гостевой ID получен: $guestId")
                     break
                 } else {
@@ -93,6 +99,11 @@ class AndroidLauncher : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun connectAsGuest(guestId: String) {
+        UserSession.setUserId(guestId)
+        Network.connect(userId = guestId)
     }
 
     override fun onDestroy() {

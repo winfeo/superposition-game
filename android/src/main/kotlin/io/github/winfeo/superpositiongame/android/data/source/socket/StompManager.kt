@@ -6,16 +6,21 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 
 object StompManager {
-    private val pendingSubscriptions = mutableListOf<() -> Unit>()
+    private val desiredSubscriptions = ConcurrentHashMap<String, (String) -> Unit>()
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
             StompConnection.isConnected.collect { connected ->
                 if (connected) {
-                    pendingSubscriptions.forEach { it() }
-                    pendingSubscriptions.clear()
+                    StompSubscription.clear()
+                    desiredSubscriptions.forEach { (topic, callback) ->
+                        subscribeToConnectedClient(topic, callback)
+                    }
+                } else {
+                    StompSubscription.clear()
                 }
             }
         }
@@ -28,22 +33,18 @@ object StompManager {
         topic: String,
         onMessage: (String) -> Unit
     ) {
-        val action = {
-            StompSubscription.subscribe(
-                topic = topic,
-                client = StompConnection.client,
-                onMessage = onMessage
-            )
-        }
+        val previousCallback = desiredSubscriptions.put(topic, onMessage)
 
         if (StompConnection.isConnected.value) {
-            action()
-        } else {
-            pendingSubscriptions.add(action)
+            if (previousCallback != null) {
+                StompSubscription.unsubscribe(topic)
+            }
+            subscribeToConnectedClient(topic, onMessage)
         }
     }
 
     fun unsubscribe(topic: String) {
+        desiredSubscriptions.remove(topic)
         StompSubscription.unsubscribe(topic)
     }
 
@@ -66,8 +67,19 @@ object StompManager {
     }
 
     fun disconnect() {
-        pendingSubscriptions.clear()
+        desiredSubscriptions.clear()
         StompConnection.disconnect()
         StompSubscription.clear()
+    }
+
+    private fun subscribeToConnectedClient(
+        topic: String,
+        onMessage: (String) -> Unit
+    ) {
+        StompSubscription.subscribe(
+            topic = topic,
+            client = StompConnection.client,
+            onMessage = onMessage
+        )
     }
 }
