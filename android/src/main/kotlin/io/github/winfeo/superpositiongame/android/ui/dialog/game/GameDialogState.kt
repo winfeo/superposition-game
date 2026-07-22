@@ -34,4 +34,10 @@ sealed class GameDialogState {
     ): GameDialogState()
 
     data object RulesDialog: GameDialogState()
+
+    data class OpponentDisconnectedDialog(
+        val opponentNickname: String?,
+        val reconnectDeadline: Long?,
+        val serverTime: Long
+    ): GameDialogState()
 }

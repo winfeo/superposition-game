@@ -60,4 +60,17 @@
     <string name="dialog_game_rules_close">Закрыть правила</string>
     <string name="dialog_game_rules_error">Не удалось загрузить правила</string>
 
+    <!-- Диалог переподключения к матчу -->
+    <string name="dialog_reconnect_title">НЕЗАВЕРШЁННЫЙ МАТЧ</string>
+    <string name="dialog_reconnect_info">Матч с игроком %1$s ещё активен. Отказ от продолжения будет засчитан как поражение</string>
+    <string name="dialog_reconnect_opponent_fallback">Соперник</string>
+    <string name="dialog_reconnect_time_left">время на возвращение</string>
+    <string name="dialog_reconnect_confirm">Вернуться</string>
+    <string name="dialog_reconnect_connecting">Подключение…</string>
+    <string name="dialog_reconnect_decline">Отказаться</string>
+
+    <!-- Диалог об отключении противника из матча -->
+    <string name="dialog_opponent_disconnected_title">СОПЕРНИК ОТКЛЮЧИЛСЯ</string>
+    <string name="dialog_opponent_disconnected_info">Игрок %1$s потерял соединение. Матч продолжится автоматически после его возвращения</string>
+
 </resources>
