@@ -1,5 +1,6 @@
 package io.github.winfeo.superpositiongame.android.ui.screen.game
 
+import android.os.SystemClock
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,6 +8,8 @@ import io.github.winfeo.superpositiongame.android.domain.game.GameRepository
 import io.github.winfeo.superpositiongame.android.domain.game.PingRepository
 import io.github.winfeo.superpositiongame.android.domain.game.model.GameLifecycleEvent
 import io.github.winfeo.superpositiongame.android.domain.game.model.GameSessionStatus
+import io.github.winfeo.superpositiongame.android.domain.game.model.TimerTimestamp
+import io.github.winfeo.superpositiongame.android.domain.game.model.TimerUpdatePacket
 import io.github.winfeo.superpositiongame.android.domain.game.usecase.ObserveGameStateUseCase
 import io.github.winfeo.superpositiongame.android.domain.game.usecase.SendMoveUseCase
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameDialogState
@@ -21,7 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import kotlin.math.abs
+import kotlin.math.ceil
 
 //Хранит текущее состояние игры, принимает и отправляет ходы
 class GameViewModel(
@@ -48,12 +51,11 @@ class GameViewModel(
     private var timerJob: Job? = null
     private var heartbeatJob: Job? = null
     private var presenceReconnectJob: Job? = null
-    private var timerStarted = false
-    private var isTimerFinished = false
+    private var timerTimestamp: TimerTimestamp? = null
+    private var isGameFinished = false
     private var isSessionPaused = false
     private var isGameVisible = false
     private var measuredOneWayDelayMs = 100L
-    private var localTimerMs = 0L
 
 
     init {
@@ -88,7 +90,21 @@ class GameViewModel(
                 playerId = playerId
             ).collect { newState ->
                 _gameState.value = newState
-                isTimerFinished = false
+
+                if (newState.phase == GamePhase.GAME_FINISHED) {
+                    isGameFinished = true
+                    timerTimestamp = null
+                    _timerSeconds.value = 0
+                    return@collect
+                }
+
+                val currentTimestamp = timerTimestamp
+                if (currentTimestamp != null
+                    && newState.turnNumber > currentTimestamp.turnNumber
+                ) {
+                    timerTimestamp = null
+                    _timerSeconds.value = 0
+                }
             }
         }
     }
@@ -96,20 +112,34 @@ class GameViewModel(
     private fun observeTimer() {
         viewModelScope.launch {
             gameRepository.observeTimerUpdates(gameId).collect { packet ->
-                if (isTimerFinished) return@collect
-
-                val correctedTimeMs = (packet.timeLeftMs - measuredOneWayDelayMs).coerceAtLeast(0L)
-
-                if (!timerStarted) {
-                    localTimerMs = correctedTimeMs
-                    timerStarted = true
-                } else {
-                    localTimerMs =
-                        if (abs(localTimerMs - correctedTimeMs) > 1500L) { correctedTimeMs }
-                        else { (localTimerMs * 0.85f + correctedTimeMs * 0.15f).toLong() }
-                }
+                applyTimerPacket(packet)
             }
         }
+    }
+
+    private fun applyTimerPacket(
+        packet: TimerUpdatePacket
+    ) {
+        if (isGameFinished || isSessionPaused) return
+
+        val gameTurnNumber = _gameState.value?.turnNumber
+        if (gameTurnNumber != null && packet.turnNumber < gameTurnNumber) return
+
+        val currentTimestamp = timerTimestamp
+        if (currentTimestamp != null) {
+            if (packet.turnNumber < currentTimestamp.turnNumber) return
+            if (packet.turnNumber == currentTimestamp.turnNumber && packet.revision <= currentTimestamp.revision) return
+        }
+
+        val correctedTimeLeftMs = (packet.timeLeftMs - measuredOneWayDelayMs).coerceAtLeast(0L)
+        timerTimestamp = TimerTimestamp(
+            turnNumber = packet.turnNumber,
+            revision = packet.revision,
+            timeLeftAtReceiptMs = correctedTimeLeftMs,
+            receivedAtRealtimeMs = SystemClock.elapsedRealtime()
+        )
+
+        _timerSeconds.value = ceil(correctedTimeLeftMs / 1_000.0).toInt()
     }
 
     private fun observeLifecycle() {
@@ -134,6 +164,7 @@ class GameViewModel(
         when (event.status) {
             GameSessionStatus.PAUSED_FOR_RECONNECT -> {
                 isSessionPaused = true
+                timerTimestamp = null
 
                 if (playerId in event.disconnectedPlayerIds) {
                     if (isGameVisible) gameRepository.reconnectToGame(gameId)
@@ -159,7 +190,9 @@ class GameViewModel(
             GameSessionStatus.FINISHED,
             GameSessionStatus.CANCELLED -> {
                 isSessionPaused = false
-                isTimerFinished = true
+                isGameFinished = true
+                timerTimestamp = null
+                _timerSeconds.value = 0
             }
 
             GameSessionStatus.WAITING_FOR_PLAYERS,
@@ -172,15 +205,13 @@ class GameViewModel(
         timerJob = viewModelScope.launch {
             while (true) {
                 delay(100L)
-                if (!timerStarted || isTimerFinished || isSessionPaused) continue
+                if (isGameFinished || isSessionPaused) continue
 
-                val state = _gameState.value?: continue
-                if (state.turnEndsAt <= 0L) continue
+                val timer = timerTimestamp?: continue
+                val elapsedSinceReceiptMs = SystemClock.elapsedRealtime() - timer.receivedAtRealtimeMs
+                val timeLeftMs = (timer.timeLeftAtReceiptMs - elapsedSinceReceiptMs).coerceAtLeast(0L)
 
-                localTimerMs = (localTimerMs - 100).coerceAtLeast(0L)
-                _timerSeconds.value = (localTimerMs / 1000).toInt()
-
-                if (localTimerMs <= 0 && !isTimerFinished) isTimerFinished = true
+                _timerSeconds.value = ceil(timeLeftMs / 1_000.0).toInt()
             }
         }
     }
@@ -266,7 +297,9 @@ class GameViewModel(
         isWinner: Boolean,
         onReturnToLobby: () -> Unit
     ) {
-        isTimerFinished = true
+        isGameFinished = true
+        timerTimestamp = null
+        _timerSeconds.value = 0
 
         _dialogState.value = GameDialogState.GameFinishedDialog(
             isWinner = isWinner,

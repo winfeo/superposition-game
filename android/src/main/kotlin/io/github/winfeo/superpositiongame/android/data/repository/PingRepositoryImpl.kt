@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.android.data.repository
 
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import io.github.winfeo.superpositiongame.android.data.source.socket.Network
 import io.github.winfeo.superpositiongame.android.domain.game.PingRepository
@@ -19,7 +20,7 @@ class PingRepositoryImpl: PingRepository {
             val topic = "/user/queue/pong"
 
             Network.subscribeToTopic(topic) {
-                val receiveTime = System.currentTimeMillis()
+                val receiveTime = SystemClock.elapsedRealtime()
                 val rtt = receiveTime - sendTime
                 Log.d("PING", "RTT измерен: ${rtt}ms")
 
@@ -29,7 +30,7 @@ class PingRepositoryImpl: PingRepository {
 
             ///TODO пределать потом может быть?
             Handler(Looper.getMainLooper()).postDelayed({
-                sendTime = System.currentTimeMillis()
+                sendTime = SystemClock.elapsedRealtime()
                 Network.sendMessage(
                     destination = "/app/ping",
                     message = ""

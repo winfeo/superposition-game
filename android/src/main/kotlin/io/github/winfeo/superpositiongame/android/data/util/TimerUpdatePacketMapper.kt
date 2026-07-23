@@ -5,7 +5,8 @@ import io.github.winfeo.superpositiongame.android.domain.game.model.TimerUpdateP
 
 fun TimerUpdatePacketDTO.toDomain(): TimerUpdatePacket {
     return TimerUpdatePacket(
+        turnNumber = turnNumber,
         timeLeftMs = timeLeftMs,
-        serverTimestamp = serverTimestamp
+        revision = revision
     )
 }

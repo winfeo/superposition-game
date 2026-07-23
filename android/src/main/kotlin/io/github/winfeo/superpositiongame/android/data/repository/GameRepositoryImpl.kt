@@ -222,8 +222,13 @@ class GameRepositoryImpl: GameRepository {
                     val dto = json.decodeFromString<TimerUpdatePacketDTO>(message)
                     val packet = dto.toDomain()
                     trySend(packet)
-                    Log.e("GAME_TIMER", "Временной пакет получен. " +
-                        "Сервер: ${packet.serverTimestamp}, Осталось: ${packet.timeLeftMs}")
+                    Log.d(
+                        "GAME_TIMER",
+                        "Пакет таймера получен. " +
+                            "Ход: ${packet.turnNumber}, " +
+                            "Версия: ${packet.revision}, " +
+                            "Осталось времени: ${packet.timeLeftMs}"
+                    )
                 } catch (e: Exception) {
                     Log.d("GAME_TIMER", "Ошибка: ${e.message}")
                 }
