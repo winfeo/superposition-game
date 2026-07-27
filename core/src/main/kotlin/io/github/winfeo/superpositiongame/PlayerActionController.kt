@@ -23,10 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 //Проверят можно ли разместить карту в слоте и отправляет Move на сервер
 class PlayerActionController(
     private val playerId: String,
-    private val getOpponentId: () -> String,
-    private val stage: Stage,
     private val dialogs: Dialogs,
-    private val scope: CoroutineScope,
     private val onMove: (Move) -> Unit,
     private val getGameState: () -> GameState,
     private val swapManager: SwapSelectionManager
@@ -73,11 +70,12 @@ class PlayerActionController(
         val state = getGameState()
 
         if (state.currentPlayerId != playerId) return
+        val expectedTurnNumber = state.turnNumber
 
         when(cardActor.card.type) { //TODO сделать только drop карты
-            CardType.ROTATE -> handleRotateCard(cardActor = cardActor, slotActor = slotActor)
+            CardType.ROTATE -> handleRotateCard(cardActor = cardActor, slotActor = slotActor, expectedTurnNumber = expectedTurnNumber)
             else -> {
-                val move = createMove(cardActor = cardActor, slotActor = slotActor)
+                val move = createMove(cardActor = cardActor, slotActor = slotActor, expectedTurnNumber = expectedTurnNumber)
                 onMove(move)
             }
         }
@@ -85,7 +83,8 @@ class PlayerActionController(
 
     private fun handleRotateCard(
         cardActor: CardActor,
-        slotActor: SlotActor
+        slotActor: SlotActor,
+        expectedTurnNumber: Int
     ) {
         val availableStates = getRotateDiceStates(
             cardAxis = cardActor.card.axis!!,
@@ -101,9 +100,12 @@ class PlayerActionController(
             dialogs.showRotateCardDialog(
                 availableStates = availableStates,
                 onStateSelected = { selectedState ->
+                    if (!isTurnStillActive(expectedTurnNumber)) return@showRotateCardDialog
+
                     val targetPlayerId = figureOutPlayerSide(slotActor)
                     val move = Move.RotateDice(
                         playerId = playerId,
+                        expectedTurnNumber = expectedTurnNumber,
                         cardId = cardActor.card.id,
                         targetSlotIndex = slotActor.slotIndex,
                         newState = selectedState,
@@ -117,6 +119,7 @@ class PlayerActionController(
             val targetPlayerId = figureOutPlayerSide(slotActor)
             val move = Move.RotateDice(
                 playerId = playerId,
+                expectedTurnNumber = expectedTurnNumber,
                 cardId = cardActor.card.id,
                 targetSlotIndex = slotActor.slotIndex,
                 newState = slotActor.getDiceActor().dice.state,
@@ -129,12 +132,14 @@ class PlayerActionController(
 
     private fun createMove(
         cardActor: CardActor,
-        slotActor: SlotActor
+        slotActor: SlotActor,
+        expectedTurnNumber: Int
     ): Move {
         val targetPlayerId = figureOutPlayerSide(slotActor)
         return Move.PlayCard(
             playerId = playerId,
             type = GameMoveType.PLAY_CARD,
+            expectedTurnNumber = expectedTurnNumber,
             cardId = cardActor.card.id,
             targetSlotIndex = slotActor.slotIndex,
             targetPlayerId = targetPlayerId
@@ -161,12 +166,19 @@ class PlayerActionController(
         val state = getGameState()
 
         if (state.currentPlayerId != playerId) return
+        val expectedTurnNumber = state.turnNumber
 
         when(cardActor.card.type) { //TODO сделать только tap карты
             CardType.SWAP -> {
                 swapManager.startSelection { first, second ->
+                    if (!isTurnStillActive(expectedTurnNumber)) {
+                        swapManager.reset()
+                        return@startSelection
+                    }
+
                     val move = Move.SwapDices(
                         playerId = playerId,
+                        expectedTurnNumber = expectedTurnNumber,
                         cardId = cardActor.card.id,
                         firstSlotIndex = first.slotIndex,
                         secondSlotIndex = second.slotIndex,
@@ -194,8 +206,11 @@ class PlayerActionController(
                     maxSelectable = minOf(4, handCards.size),
                     minSelectable = 1,
                     onCardsSelected = { selectedCards ->
+                        if (!isTurnStillActive(expectedTurnNumber)) return@showReshuffleDialog
+
                         val move = Move.ReshuffleCard(
                             playerId = playerId,
+                            expectedTurnNumber = expectedTurnNumber,
                             cardId = cardActor.card.id,
                             cardsToChange = selectedCards.map { it.id }
                         )
@@ -204,7 +219,7 @@ class PlayerActionController(
                 )
             }
             else -> {
-                val move = createDoubleTapMove(card = cardActor.card)
+                val move = createDoubleTapMove(card = cardActor.card, expectedTurnNumber = expectedTurnNumber)
                 onMove(move)
             }
         }
@@ -212,12 +227,20 @@ class PlayerActionController(
     }
 
     private fun createDoubleTapMove(
-        card: Card
+        card: Card,
+        expectedTurnNumber: Int
     ): Move {
         return Move.DoubleTapEffect(
             playerId = playerId,
+            expectedTurnNumber = expectedTurnNumber,
             cardId = card.id
         )
+    }
+
+    private fun isTurnStillActive(expectedTurnNumber: Int): Boolean {
+        val state = getGameState()
+
+        return state.currentPlayerId == playerId && state.turnNumber == expectedTurnNumber && state.turnEndsAt > 0L
     }
 
 }

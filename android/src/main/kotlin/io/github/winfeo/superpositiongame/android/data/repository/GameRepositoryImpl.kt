@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.android.data.repository
 
 import android.util.Log
 import io.github.winfeo.superpositiongame.android.data.dto.move.DoubleTapEffectDTO
+import io.github.winfeo.superpositiongame.android.data.dto.move.MoveCommandDTO
 import io.github.winfeo.superpositiongame.android.data.dto.move.MoveDTO
 import io.github.winfeo.superpositiongame.android.data.dto.move.PlayCardDTO
 import io.github.winfeo.superpositiongame.android.data.dto.move.ReshuffleCardDTO
@@ -67,7 +68,14 @@ class GameRepositoryImpl: GameRepository {
         val topic = "/app/game/$gameId/move"
 
         val dto = move.toDto()
-        val payload = json.encodeToString(MoveDTO.serializer(), dto)
+        val command = MoveCommandDTO(
+            expectedTurnNumber = move.expectedTurnNumber,
+            move = dto
+        )
+        val payload = json.encodeToString(
+            MoveCommandDTO.serializer(),
+            command
+        )
         Log.d("GAME_SEND", payload)
         Network.sendMessage(
             destination = topic,

@@ -40,7 +40,6 @@ import io.github.winfeo.superpositiongame.android.ui.theme.SuperpositionGameThem
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 import io.github.winfeo.superpositiongame.android.util.GameMusicPlayer
 import io.github.winfeo.superpositiongame.model.game.GamePhase
-import io.github.winfeo.superpositiongame.model.game.Move
 import kotlinx.coroutines.launch
 
 class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
@@ -142,7 +141,7 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                                         onResume = { viewModel.dismissDialog() },
                                         onRules = { viewModel.showRulesDialog() },
                                         onSettings = {},
-                                        onSurrender = { viewModel.sendMove(Move.Surrender(playerId = playerId)) },
+                                        onSurrender = { viewModel.surrender() },
                                         onDismiss = { viewModel.dismissDialog() }
                                     ) }
                                 )

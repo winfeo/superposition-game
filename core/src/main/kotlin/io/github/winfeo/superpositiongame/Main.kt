@@ -20,7 +20,6 @@ class Main(
     private var pendingState: GameState? = null
 
     private var gameScreen: GameScreen? = null
-    private var opponentId = "" ///TODO удалить?
 
     lateinit var assets: GameAssetsManager
         private set
@@ -34,7 +33,6 @@ class Main(
         val screen = GameScreen(
             assetsManager = assets,
             playerId = playerId,
-            getOpponentId = { opponentId },
             dialogs = dialogs,
             onMove = onMove,
             getGameState = getGameState,

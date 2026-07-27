@@ -89,12 +89,19 @@ class GameViewModel(
                 gameId = gameId,
                 playerId = playerId
             ).collect { newState ->
+                val previousState = _gameState.value
+
+                if (previousState != null && (newState.turnNumber != previousState.turnNumber || newState.currentPlayerId != previousState.currentPlayerId)) {
+                    dismissPendingTurnDialog()
+                }
+
                 _gameState.value = newState
 
                 if (newState.phase == GamePhase.GAME_FINISHED) {
                     isGameFinished = true
                     timerTimestamp = null
                     _timerSeconds.value = 0
+                    dismissPendingTurnDialog()
                     return@collect
                 }
 
@@ -165,6 +172,7 @@ class GameViewModel(
             GameSessionStatus.PAUSED_FOR_RECONNECT -> {
                 isSessionPaused = true
                 timerTimestamp = null
+                dismissPendingTurnDialog()
 
                 if (playerId in event.disconnectedPlayerIds) {
                     if (isGameVisible) gameRepository.reconnectToGame(gameId)
@@ -193,6 +201,7 @@ class GameViewModel(
                 isGameFinished = true
                 timerTimestamp = null
                 _timerSeconds.value = 0
+                dismissPendingTurnDialog()
             }
 
             GameSessionStatus.WAITING_FOR_PLAYERS,
@@ -238,6 +247,7 @@ class GameViewModel(
         heartbeatJob = null
         presenceReconnectJob?.cancel()
         presenceReconnectJob = null
+        dismissPendingTurnDialog()
 
         if (_gameState.value?.phase != GamePhase.GAME_FINISHED) gameRepository.markGameInactive(gameId)
     }
@@ -251,6 +261,13 @@ class GameViewModel(
     }
 
     fun sendMove(move: Move) {
+        val currentState = _gameState.value ?: return
+
+        if (move !is Move.Surrender && (isGameFinished || isSessionPaused || currentState.currentPlayerId != playerId || currentState.turnNumber != move.expectedTurnNumber)) {
+            Log.d("GAME_SEND_MOVE", "Ход отклонён на клиенте: устаревший контекст хода")
+            return
+        }
+
         viewModelScope.launch {
             Log.d("GAME_SEND_MOVE", "Отправка хода из viewModel, ход: ${move.type}")
             Log.d("GAME_SEND_MOVE", "gameId = '$gameId', move = ${move.type}")
@@ -259,6 +276,16 @@ class GameViewModel(
                 move = move
             )
         }
+    }
+
+    fun surrender() {
+        val currentState = _gameState.value ?: return
+        sendMove(
+            Move.Surrender(
+                playerId = playerId,
+                expectedTurnNumber = currentState.turnNumber
+            )
+        )
     }
 
     fun showRotateCardDialog(
@@ -329,6 +356,13 @@ class GameViewModel(
 
     fun dismissDialog() {
         _dialogState.value = null
+    }
+
+    private fun dismissPendingTurnDialog() {
+        when (_dialogState.value) {
+            is GameDialogState.RotateDialog, is GameDialogState.ReshuffleDialog -> _dialogState.value = null
+            else -> Unit
+        }
     }
 
     override fun onCleared() {

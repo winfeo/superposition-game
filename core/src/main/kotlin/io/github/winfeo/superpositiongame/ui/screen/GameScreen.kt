@@ -29,7 +29,6 @@ import ktx.app.KtxScreen
 class GameScreen(
     private val assetsManager: GameAssetsManager,
     private val playerId: String,
-    private val getOpponentId: () -> String,
     private val dialogs: Dialogs,
     private val onMove: (Move) -> Unit,
     private val getGameState: () -> GameState,
@@ -39,6 +38,8 @@ class GameScreen(
     private val diceActorBuilder = DiceActorBuilder(assetsManager = assetsManager)
     private val stage = Stage(ScreenViewport())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var lastRenderedTurnNumber: Int? = null
+    private var lastRenderedCurrentPlayerId: String? = null
 
     private val swapManager: SwapSelectionManager by lazy {
         SwapSelectionManager(
@@ -62,10 +63,7 @@ class GameScreen(
 
     private val playerActionController = PlayerActionController(
         playerId = playerId,
-        getOpponentId = getOpponentId,
-        stage = stage,
         dialogs = dialogs,
-        scope = scope,
         onMove = onMove,
         getGameState = getGameState,
         swapManager = swapManager
@@ -95,8 +93,16 @@ class GameScreen(
     }
 
     fun renderState(newState: GameState) {
+        val turnContextChanged = lastRenderedTurnNumber != null && (newState.turnNumber != lastRenderedTurnNumber || newState.currentPlayerId != lastRenderedCurrentPlayerId)
+
+        if (turnContextChanged || newState.currentPlayerId != playerId || newState.turnEndsAt <= 0L) {
+            swapManager.reset()
+        }
+
         gameTable.render(newState)
         cardsFan.render(newState)
+        lastRenderedTurnNumber = newState.turnNumber
+        lastRenderedCurrentPlayerId = newState.currentPlayerId
     }
 
     override fun show() {
@@ -127,6 +133,11 @@ class GameScreen(
         super.resize(width, height)
 
         stage.viewport.update(width, height, true)
+    }
+
+    override fun pause() {
+        swapManager.reset()
+        super.pause()
     }
 
     override fun dispose() {
