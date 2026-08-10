@@ -9,10 +9,18 @@ import io.github.winfeo.superpositiongame.android.domain.invitations.InvitationR
 import io.github.winfeo.superpositiongame.android.data.dto.socket.InvitationEventType
 import io.github.winfeo.superpositiongame.android.data.util.toDto
 import io.github.winfeo.superpositiongame.android.domain.invitations.model.Invitation
-import kotlinx.coroutines.channels.awaitClose
+import io.github.winfeo.superpositiongame.android.domain.invitations.model.InvitationEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
@@ -23,68 +31,47 @@ class InvitationRepositoryImpl: InvitationRepository {
     private val rejectTopic = "/app/invite.reject"
     private val initialData = "/app/invitations"
 
-    override fun observeInvitations(userId: String): Flow<List<Invitation>> {
-        return callbackFlow {
-            val connectionJob = launch {
-                Network.connectionState.collect { isConnected ->
-                    if (isConnected) {
-                        Log.d("STOMP", "Подключение успешно")
+    private val _invitations = MutableStateFlow<List<Invitation>>(emptyList())
 
-                        val currentInvitations = mutableListOf<Invitation>()
-                        Network.subscribeToTopic(topic) { message ->
-                            Log.d("INVITE", "Message: $message")
-                            try {
-                                val event = json.decodeFromString<InvitationEventDTO>(message)
-                                val invitationEventType = InvitationEventType.valueOf(event.type)
-                                Log.d("INVITE", "Event type: ${event.type}")
-                                when(invitationEventType){
-                                    InvitationEventType.INIT -> {
-                                        currentInvitations.clear()
-                                        event.invitations?.forEach {
-                                            currentInvitations.add(it.toDomain())
-                                        }
-                                    }
+    private val _invitationEvents = MutableSharedFlow<InvitationEvent>(extraBufferCapacity = 10)
+    val invitationEvents: SharedFlow<InvitationEvent> = _invitationEvents.asSharedFlow()
 
-                                    InvitationEventType.INVITE_SEND -> {
-                                        event.invitation?.let {
-                                            currentInvitations.add(it.toDomain())
-                                        }
-                                    }
+    private var globalListeningJob: Job? = null
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-                                    InvitationEventType.INVITE_REMOVED -> {
-                                        event.invitation?.let { dto ->
-                                            currentInvitations.removeIf {
-                                                it.senderId == dto.senderId
-                                            }
-                                        }
-                                    }
+    init {
+        startGlobalListening()
+    }
 
-                                    InvitationEventType.INVITE_ACCEPTED -> {
-                                        currentInvitations.clear()
-                                    }
-                                }
+    private fun startGlobalListening() {
+        globalListeningJob?.cancel()
 
-                                trySend(currentInvitations.toList())
-                            } catch (e: Exception) {
-                                Log.d("INVITES", "Ошибка: ${e.message}")
-                            }
-                        }
+        globalListeningJob = repositoryScope.launch {
+            Network.connectionState.collectLatest { isConnected ->
+                if (!isConnected) {
+                    _invitations.value = emptyList()
+                    _invitationEvents.tryEmit(InvitationEvent.Initialized(emptyList()))
 
-                        launch {
-                            delay(500)
-                            Network.sendMessage(initialData, "")
-                        }
-                    }
+                    return@collectLatest
                 }
-            }
 
-            awaitClose {
-                connectionJob.cancel()
-                Network.unsubscribeToTopic(topic)
+                Log.d("STOMP", "Подписка на приглашения")
+                val currentInvitations = mutableListOf<Invitation>()
+
+                Network.subscribeToTopic(topic) { message ->
+                    handleInvitationMessage(
+                        message = message,
+                        currentInvitations = currentInvitations
+                    )
+                }
+
+                delay(500)
+                Network.sendMessage(initialData, "")
             }
         }
-
     }
+
+    override fun observeInvitations(userId: String): Flow<List<Invitation>> = _invitations
 
     override suspend fun acceptInvitation(
         invitation: Invitation,
@@ -108,6 +95,75 @@ class InvitationRepositoryImpl: InvitationRepository {
             destination = rejectTopic,
             message = payload
         )
+    }
+
+    private fun handleInvitationMessage(
+        message: String,
+        currentInvitations: MutableList<Invitation>
+    ) {
+        Log.d("INVITES", "Сообщение: $message")
+
+        try {
+            val event = json.decodeFromString<InvitationEventDTO>(message)
+            val eventType = InvitationEventType.valueOf(event.type)
+
+            when (eventType) {
+                InvitationEventType.INIT -> {
+                    currentInvitations.clear()
+
+                    val initialInvitations = when {
+                        event.invitations != null -> event.invitations.map { it.toDomain() }
+                        event.invitation != null -> listOf(event.invitation.toDomain())
+                        else -> emptyList()
+                    }
+
+                    currentInvitations.addAll(initialInvitations)
+                    _invitationEvents.tryEmit(InvitationEvent.Initialized(currentInvitations.toList()))
+                }
+
+                InvitationEventType.INVITE_SEND -> {
+                    event.invitation?.let { dto ->
+                        val invitation = dto.toDomain()
+
+                        currentInvitations.removeAll {
+                            it.senderId == invitation.senderId && it.receiverId == invitation.receiverId
+                        }
+
+                        currentInvitations.add(invitation)
+                        _invitationEvents.tryEmit(InvitationEvent.New(invitation))
+                    }
+                }
+
+                InvitationEventType.INVITE_REMOVED -> {
+                    event.invitation?.let { dto ->
+                        val invitation = dto.toDomain()
+
+                        currentInvitations.removeAll {
+                            it.senderId == invitation.senderId && it.receiverId == invitation.receiverId
+                        }
+
+                        _invitationEvents.tryEmit(InvitationEvent.Removed(invitation))
+                    }
+                }
+
+                InvitationEventType.INVITE_ACCEPTED -> {
+                    val invitations = currentInvitations.toList()
+                    currentInvitations.clear()
+
+                    invitations.forEach {
+                        _invitationEvents.tryEmit(InvitationEvent.Removed(it))
+                    }
+                }
+            }
+
+            _invitations.value = currentInvitations.toList()
+        } catch (e: Exception) {
+            Log.e(
+                "INVITES",
+                "Ошибка обработки приглашения",
+                e
+            )
+        }
     }
 
 }

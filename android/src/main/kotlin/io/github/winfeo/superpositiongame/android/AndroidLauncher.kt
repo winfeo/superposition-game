@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import io.github.winfeo.superpositiongame.android.data.source.socket.Network
 import io.github.winfeo.superpositiongame.android.data.source.AppModule
+import io.github.winfeo.superpositiongame.android.data.source.local.NotificationManager
 import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
 import io.github.winfeo.superpositiongame.android.data.util.toDomain
 import io.github.winfeo.superpositiongame.android.ui.nav.Navigation
@@ -29,6 +30,11 @@ class AndroidLauncher : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         AppModule.init(applicationContext)
+        NotificationManager.init(
+            context = applicationContext,
+            repository = AppModule.invitationRepository,
+            settingsManager = AppModule.settingsManager
+        )
 
         val savedToken = AppModule.tokenManager.getToken()
         if (savedToken != null) {
@@ -73,12 +79,18 @@ class AndroidLauncher : ComponentActivity() {
 
     private fun startGuestMode() {
         lifecycleScope.launch {
+            val savedGuestId = AppModule.guestSessionManager.getGuestId()
+            if (savedGuestId != null) {
+                connectAsGuest(savedGuestId)
+                Log.i("AndroidLauncher", "Гостевая сессия восстановлена: $savedGuestId")
+                return@launch
+            }
+
             while (true) {
                 val guestIdResult = AppModule.guestRepository.createGuest()
                 if (guestIdResult.isSuccess) {
                     val guestId = guestIdResult.getOrNull()!!
-                    UserSession.setUserId(guestId)
-                    Network.connect(userId = guestId)
+                    connectAsGuest(guestId)
                     Log.i("AndroidLauncher", "Гостевой ID получен: $guestId")
                     break
                 } else {
@@ -87,6 +99,11 @@ class AndroidLauncher : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun connectAsGuest(guestId: String) {
+        UserSession.setUserId(guestId)
+        Network.connect(userId = guestId)
     }
 
     override fun onDestroy() {

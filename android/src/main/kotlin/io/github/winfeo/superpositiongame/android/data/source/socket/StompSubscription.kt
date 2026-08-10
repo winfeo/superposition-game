@@ -5,9 +5,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import ua.naiksoftware.stomp.StompClient
+import java.util.concurrent.ConcurrentHashMap
 
 object StompSubscription {
-    private val subscriptions = mutableMapOf<String, Disposable>()
+    private val subscriptions = ConcurrentHashMap<String, Disposable>()
 
     fun subscribe(
         topic: String,
@@ -27,12 +28,17 @@ object StompSubscription {
                 Log.d("STOMP", "Ошибка подписки на топик $topic: ${error.message}")
             })
 
-        subscriptions[topic] = topicDisposable
+        val existingSubscription = subscriptions.putIfAbsent(
+            topic,
+            topicDisposable
+        )
+        if (existingSubscription != null) {
+            topicDisposable.dispose()
+        }
     }
 
     fun unsubscribe(topic: String) {
-        subscriptions[topic]?.dispose()
-        subscriptions.remove(topic)
+        subscriptions.remove(topic)?.dispose()
     }
 
     fun clear() {

@@ -10,6 +10,7 @@ class SwapSelectionManager(
 ) {
     private var firstSelected: SlotActor? = null
     private var isSelectionMode = false
+    private val selectionListeners = mutableMapOf<SlotActor, InputListener>()
 
     fun startSelection(
         onSelected: (SlotActor, SlotActor) -> Unit
@@ -19,7 +20,7 @@ class SwapSelectionManager(
         isSelectionMode = true
 
         allSlotsProvider().forEach { slot ->
-            slot.addListener(object: InputListener() {
+            val listener = object: InputListener() {
                 override fun touchDown(
                     event: InputEvent?,
                     x: Float,
@@ -30,7 +31,10 @@ class SwapSelectionManager(
                     handleSlotClick(slot, onSelected)
                     return true
                 }
-            })
+            }
+
+            slot.addListener(listener)
+            selectionListeners[slot] = listener
         }
     }
 
@@ -59,9 +63,13 @@ class SwapSelectionManager(
         firstSelected = null
         isSelectionMode = false
 
+        selectionListeners.forEach { (slot, listener) ->
+            slot.removeListener(listener)
+        }
+        selectionListeners.clear()
+
         allSlotsProvider().forEach {
             it.setNewState(SlotActorStates.NO_ACTION)
-            it.clearListeners()
         }
     }
 }

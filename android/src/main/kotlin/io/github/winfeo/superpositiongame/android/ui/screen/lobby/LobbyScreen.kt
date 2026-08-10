@@ -25,8 +25,13 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Snackbar
+import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,16 +45,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
+import io.github.winfeo.superpositiongame.android.data.source.local.NotificationManager
 import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
 import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 import io.github.winfeo.superpositiongame.android.ui.dialog.InviteDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
-
-///TODO добавить bottomBar для навигации по страницам
-///TODO добавить тост или снекбар после отправки уведомления
-///TODO если противник ответил положительно на приглашение, то показывать вверху
-///убавляющуюся полоску с истечением времени (10 секунд) и возможностью отказаться от матча, потом запуск матча
-//Лобби, лидерборд, библиотека карт, профиль (с настройками и статистикой?)
 
 //экран лобби (отображаются игроки в сети, которые тоже находятся в лобби)
 @Composable
@@ -61,8 +61,41 @@ fun LobbyScreen(
     val selectedPlayer by viewModel.selectedPlayer.collectAsState()
     val user by UserSession.currentUser.collectAsState()
     val userId by UserSession.currentUserId.collectAsState()
+    val notificationCount by NotificationManager.badgeCount.collectAsState()
 
-    Scaffold { paddingValues ->
+    val snackbarMessage by viewModel.snackbarMessage.collectAsState()
+    val successMessage = stringResource(R.string.dialog_invitation_confirm_success)
+    val errorMessage = stringResource(R.string.dialog_invitation_confirm_error)
+
+    val scaffoldState = rememberScaffoldState()
+
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let { message ->
+            scaffoldState.snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.clearSnackbarMessage()
+        }
+    }
+
+    Scaffold(
+        scaffoldState = scaffoldState,
+        snackbarHost = {
+            SnackbarHost(
+                hostState = it,
+                modifier = Modifier.padding(bottom = 120.dp)
+            ) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    backgroundColor = Color(0xFF1A1A2E),
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = 8.dp
+                )
+            }
+        }
+    ) { paddingValues ->
         Box(
             Modifier.background(Color(0xFF0C0813))
         ) {
@@ -76,6 +109,7 @@ fun LobbyScreen(
                 val playerName = user?.nickname?: userId?: ""
                 UserBar(
                     playerName = playerName.take(9),
+                    notificationCount = notificationCount,
                     onInvitesClick = onInvitesClick
                 )
 
@@ -121,7 +155,7 @@ fun LobbyScreen(
     selectedPlayer?.let { player ->
         InviteDialog(
             playerName = player.nickname?: player.id,
-            onConfirm = { viewModel.sendInvite() },
+            onConfirm = { viewModel.sendInvite(successMessage = successMessage, errorMessage = errorMessage) },
             onDismiss = { viewModel.hideInviteDialog() }
         )
     }
@@ -159,6 +193,7 @@ fun LobbyBackground() {
 @Composable
 fun UserBar(
     playerName: String,
+    notificationCount: Int,
     onInvitesClick: () -> Unit
 ) {
     Box(
@@ -202,7 +237,10 @@ fun UserBar(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            NotificationButton(onInvitesClick)
+            NotificationButton(
+                notificationCount = notificationCount,
+                onClick = onInvitesClick
+            )
         }
     }
 }
@@ -256,66 +294,68 @@ fun AvatarWithName(
 
 @Composable
 fun NotificationButton(
+    notificationCount: Int,
     onClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier
-            .size(48.dp)
-            .background(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.18f),
-                        Color.White.copy(alpha = 0.06f)
-                    )
-                ),
-                shape = CircleShape
-            )
-            .border(
-                width = 1.dp,
-                color = Color.White.copy(alpha = 0.12f),
-                shape = CircleShape
-            )
-            .clip(CircleShape)
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
+        modifier = Modifier.size(48.dp)
     ) {
-
         Box(
             modifier = Modifier
-                .matchParentSize()
+                .fillMaxSize()
+                .clip(CircleShape)
+                .clickable { onClick() }
                 .background(
-                    brush = Brush.verticalGradient(
+                    brush = Brush.radialGradient(
                         colors = listOf(
-                            Color.White.copy(alpha = 0.10f),
-                            Color.Transparent
+                            Color.White.copy(alpha = 0.18f),
+                            Color.White.copy(alpha = 0.06f)
                         )
                     ),
                     shape = CircleShape
                 )
-        )
+                .border(
+                    1.dp,
+                    Color.White.copy(alpha = 0.12f),
+                    CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.10f),
+                                Color.Transparent
+                            )
+                        ),
+                        shape = CircleShape
+                    )
+            )
 
-        Icon(
-            painter = painterResource(R.drawable.ic_bell),
-            contentDescription = null,
-            tint = Color.White.copy(alpha = 0.92f),
-            modifier = Modifier.size(24.dp)
-        )
+            Icon(
+                painter = painterResource(R.drawable.ic_bell),
+                contentDescription = null,
+                tint = Color.White.copy(alpha = 0.92f),
+                modifier = Modifier.size(24.dp)
+            )
+        }
 
-//        Box( //TODO рисовать, когда есть уведомления
-//            modifier = Modifier
-//                .align(Alignment.TopEnd)
-//                .size(8.dp)
-//                .background(
-//                    color = Color(0xFF3D4AEB),
-//                    shape = CircleShape
-//                )
-//                .border(
-//                    width = 1.dp,
-//                    color = Color.White.copy(alpha = 0.8f),
-//                    shape = CircleShape
-//                )
-//        )
-
+        if (notificationCount > 0) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(10.dp)
+                    .background(Color(0xFF3D4AEB), CircleShape)
+                    .border(
+                        1.dp,
+                        Color.White.copy(alpha = 0.8f),
+                        CircleShape
+                    )
+            )
+        }
     }
 }
 
@@ -485,6 +525,7 @@ fun LobbyScreenContent() {
         ) {
             UserBar(
                 playerName = "guest-1111111111",
+                notificationCount = 5,
                 onInvitesClick = {}
             )
 

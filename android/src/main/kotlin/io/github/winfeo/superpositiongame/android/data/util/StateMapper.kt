@@ -64,7 +64,7 @@ fun DiceDTO.toDomain(): Dice {
     return Dice(
         id = this.id,
         state = DiceState.valueOf(this.state),
-        requiredState = DiceState.valueOf(this.state)
+        requiredState = this.requiredState?.let { DiceState.valueOf(it) }
     )
 }
 

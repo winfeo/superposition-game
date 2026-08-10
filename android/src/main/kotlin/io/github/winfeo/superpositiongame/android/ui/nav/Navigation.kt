@@ -1,6 +1,8 @@
 package io.github.winfeo.superpositiongame.android.ui.nav
 
 import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -26,6 +28,7 @@ import io.github.winfeo.superpositiongame.android.ui.nav.route.LibraryRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LobbyRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.ProfileRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.SettingsRoute
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.ReconnectGameDialog
 import io.github.winfeo.superpositiongame.android.ui.screen.game.GameActivity
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitationViewModel
@@ -121,15 +124,26 @@ fun Navigation() {
         key = currentUserId,
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return GameLauncher(AppModule.gameRepository) as T
+                return GameLauncher(
+                    playerId = requireNotNull(currentUserId),
+                    repository = AppModule.gameRepository
+                ) as T
             }
         }
     )
 
     val gameId by viewModel.gameFlow.collectAsState()
+    val activeGame by viewModel.activeGame.collectAsState()
+    val isReconnectInProgress by viewModel.isReconnectInProgress.collectAsState()
+    val gameActivityLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        viewModel.onGameActivityClosed()
+    }
+
     LaunchedEffect(gameId) {
         if (gameId != null && currentUserId != null) {
-            context.startActivity(
+            gameActivityLauncher.launch(
                 Intent(context, GameActivity::class.java)
                     .putExtra("GAME_ID", gameId)
                     .putExtra("USER_ID", currentUserId)
@@ -227,6 +241,18 @@ fun Navigation() {
             BottomNavBar(
                 navController = navController,
                 modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
+
+        activeGame?.let { game ->
+            ReconnectGameDialog(
+                opponentNickname = game.opponentNickname,
+                reconnectDeadline = game.reconnectDeadline,
+                serverTime = game.serverTime,
+                isReconnecting = isReconnectInProgress,
+                onReconnect = viewModel::reconnectToGame,
+                onDecline = viewModel::declineReconnect,
+                onExpired = viewModel::onReconnectExpired
             )
         }
     }

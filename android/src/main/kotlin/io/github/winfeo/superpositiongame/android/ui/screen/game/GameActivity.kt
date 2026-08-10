@@ -4,9 +4,9 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,8 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.fragment.app.FragmentContainerView
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication
 import io.github.winfeo.superpositiongame.Main
 import io.github.winfeo.superpositiongame.android.data.source.AppModule
@@ -29,16 +32,34 @@ import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameDialogs
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.CardPreviewDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameFinishedDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.GameMenuDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.OpponentDisconnectedDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.ReshuffleCardDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.RotateCardDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.game.RulesDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.SuperpositionGameTheme
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
+import io.github.winfeo.superpositiongame.android.util.GameMusicPlayer
 import io.github.winfeo.superpositiongame.model.game.GamePhase
-import io.github.winfeo.superpositiongame.model.game.Move
+import kotlinx.coroutines.launch
 
 class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
+    private lateinit var viewModel: GameViewModel
+
+    private val gameMusicPlayer by lazy {
+        GameMusicPlayer(applicationContext)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() = Unit
+            }
+        )
+
+        processMusic()
 
         val gameId = intent.getStringExtra("GAME_ID")
             ?: throw Resources.NotFoundException("Отладка. Игра не передана")
@@ -48,14 +69,15 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
         val viewModelFactory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return GameViewModel(
-                    repository = AppModule.gameRepository,
+                    gameRepository = AppModule.gameRepository,
+                    pingRepository = AppModule.pingRepository,
                     playerId = playerId,
                     gameId = gameId
                 ) as T
             }
         }
 
-        val viewModel: GameViewModel by viewModels { viewModelFactory }
+        viewModel = ViewModelProvider(this, viewModelFactory)[GameViewModel::class.java]
 
         val dialogs = GameDialogs(viewModel)
         val game = Main(
@@ -82,7 +104,17 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
 
                     gameState?.let { state ->
                         game.applyNewState(state)
-                        viewModel.startTimer()
+//                        viewModel.startTimer()
+                    }
+                }
+
+                LaunchedEffect(gameState?.phase, gameState?.winnerId) {
+                    val state = gameState ?: return@LaunchedEffect
+                    if (state.phase == GamePhase.GAME_FINISHED) {
+                        viewModel.showGameFinishedDialog(
+                            isWinner = state.winnerId == playerId,
+                            onReturnToLobby = { exit() }
+                        )
                     }
                 }
 
@@ -107,9 +139,9 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                                     timerSeconds = timerSeconds,
                                     onPause = { viewModel.showGameMenuDialog(
                                         onResume = { viewModel.dismissDialog() },
-                                        onRules = {},
+                                        onRules = { viewModel.showRulesDialog() },
                                         onSettings = {},
-                                        onSurrender = { viewModel.sendMove(Move.Surrender(playerId = playerId)) },
+                                        onSurrender = { viewModel.surrender() },
                                         onDismiss = { viewModel.dismissDialog() }
                                     ) }
                                 )
@@ -139,15 +171,6 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
 
                                     fragmentContainer
                                 }
-                            )
-                        }
-                    }
-
-                    gameState?.let { state ->
-                        if (state.phase == GamePhase.GAME_FINISHED) {
-                            viewModel.showGameFinishedDialog(
-                                isWinner = state.winnerId == playerId,
-                                onReturnToLobby = { exit() }
                             )
                         }
                     }
@@ -196,6 +219,20 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
                                     onDismiss = dialog.onDismiss
                                 )
                             }
+
+                            is GameDialogState.RulesDialog -> {
+                                RulesDialog(
+                                    onDismiss = { viewModel.dismissDialog() }
+                                )
+                            }
+
+                            is GameDialogState.OpponentDisconnectedDialog -> {
+                                OpponentDisconnectedDialog(
+                                    opponentNickname = dialog.opponentNickname,
+                                    reconnectDeadline = dialog.reconnectDeadline,
+                                    serverTime = dialog.serverTime
+                                )
+                            }
                         }
                     }
                 }
@@ -203,7 +240,38 @@ class GameActivity: AppCompatActivity(), AndroidFragmentApplication.Callbacks {
         }
     }
 
+    private fun processMusic() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                AppModule.settingsManager.isMusicEnabled.collect { isEnabled ->
+                    if (isEnabled) gameMusicPlayer.play()
+                    else gameMusicPlayer.pause()
+                }
+            }
+        }
+    }
+
     override fun exit() {
         finish()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (::viewModel.isInitialized) {
+            viewModel.onGameVisible()
+        }
+    }
+
+    override fun onStop() {
+        if (::viewModel.isInitialized) {
+            viewModel.onGameHidden()
+        }
+        gameMusicPlayer.pause()
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        gameMusicPlayer.release()
+        super.onDestroy()
     }
 }

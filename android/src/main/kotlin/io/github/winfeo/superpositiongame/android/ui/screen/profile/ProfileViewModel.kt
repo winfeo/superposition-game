@@ -58,13 +58,13 @@ class ProfileViewModel(
     }
 
     fun logout() {
+        Network.disconnect()
         UserSession.logout()
 
         viewModelScope.launch {
             val guestIdResult = createGuestUseCase()
             val guestId = guestIdResult.getOrNull()?: "guest-fallback-${System.currentTimeMillis()}"
             UserSession.setUserId(guestId)
-            Network.disconnect()
             Network.connect(userId = guestId)
         }
     }
