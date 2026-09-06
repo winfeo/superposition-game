@@ -1,6 +1,7 @@
 package io.github.winfeo.superpositiongame.android.data.source.socket
 
 import android.util.Log
+import io.github.winfeo.superpositiongame.android.data.source.NetworkConfig
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -18,11 +19,10 @@ import ua.naiksoftware.stomp.StompClient
 import ua.naiksoftware.stomp.dto.LifecycleEvent
 
 object StompConnection {
+    private const val STOMP_URL = NetworkConfig.STOMP_URL
+
     private const val RECONNECT_DELAY_MS = 2_000L
 
-    //    private const val HOST = "ws://10.0.2.2:8080/ws/websocket"
-    private const val HOST = "ws://10.0.2.2:8080/ws-android"
-    //    private const val HOST = "ws://91.237.249.20:8080/ws-android"
     lateinit var client: StompClient
         private set
 
@@ -56,10 +56,9 @@ object StompConnection {
             runCatching { client.disconnect() }
         }
 
-        val url = "$HOST?userId=$userId" ///TODO переделать
+        val url = "$STOMP_URL?userId=$userId"
         Log.d("STOMP", "Подключение к: $url")
         client = Stomp.over(Stomp.ConnectionProvider.OKHTTP, url)
-//        client = Stomp.over(Stomp.ConnectionProvider.OKHTTP, HOST)
 
         lifecycleDisposable = client.lifecycle()
             .subscribeOn(Schedulers.io())

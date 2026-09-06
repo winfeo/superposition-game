@@ -165,3 +165,6 @@ Thumbs.db
 
 #Configs
 /android/src/google-services.json
+
+# Android release artifacts
+/android/release/
