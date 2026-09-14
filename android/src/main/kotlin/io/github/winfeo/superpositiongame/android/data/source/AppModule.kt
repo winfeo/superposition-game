@@ -2,6 +2,7 @@ package io.github.winfeo.superpositiongame.android.data.source
 
 import android.content.Context
 import io.github.winfeo.superpositiongame.android.data.repository.AccountRepositoryImpl
+import io.github.winfeo.superpositiongame.android.data.repository.AiGameRepositoryImpl
 import io.github.winfeo.superpositiongame.android.data.repository.AuthRepositoryImpl
 import io.github.winfeo.superpositiongame.android.data.repository.CardsRepositoryImpl
 import io.github.winfeo.superpositiongame.android.data.repository.GameHistoryRepositoryImpl
@@ -14,6 +15,7 @@ import io.github.winfeo.superpositiongame.android.data.repository.ProfileReposit
 import io.github.winfeo.superpositiongame.android.data.repository.UserRepository
 import io.github.winfeo.superpositiongame.android.data.source.local.GuestSessionManager
 import io.github.winfeo.superpositiongame.android.data.source.rest.AuthApi
+import io.github.winfeo.superpositiongame.android.data.source.rest.AiGameApi
 import io.github.winfeo.superpositiongame.android.data.source.rest.GameHistoryApi
 import io.github.winfeo.superpositiongame.android.data.source.rest.GuestApi
 import io.github.winfeo.superpositiongame.android.data.source.local.TokenManager
@@ -56,6 +58,8 @@ object AppModule {
     val guestSessionManager by lazy { GuestSessionManager(appContext) }
     val authApi by lazy { AuthApi(client) }
     val authRepository by lazy { AuthRepositoryImpl(authApi) }
+    val aiGameApi by lazy { AiGameApi(client) }
+    val aiGameRepository by lazy { AiGameRepositoryImpl(aiGameApi) }
     val gameHistoryApi by lazy { GameHistoryApi(client) }
     val gameHistoryRepository by lazy { GameHistoryRepositoryImpl(gameHistoryApi) }
     val guestApi by lazy { GuestApi(client) }
