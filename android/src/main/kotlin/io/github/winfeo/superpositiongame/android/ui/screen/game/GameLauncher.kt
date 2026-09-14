@@ -108,6 +108,10 @@ class GameLauncher(
         _gameFlow.value = null
     }
 
+    fun onAiGameCreated(gameId: String) {
+        openGame(gameId)
+    }
+
     private fun openGame(gameId: String) {
         if (openedGameId == gameId) return
         openedGameId = gameId
