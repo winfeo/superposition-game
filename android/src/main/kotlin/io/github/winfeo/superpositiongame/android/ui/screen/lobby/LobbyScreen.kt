@@ -1,9 +1,8 @@
 package io.github.winfeo.superpositiongame.android.ui.screen.lobby
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +20,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -29,6 +30,8 @@ import androidx.compose.material.Snackbar
 import androidx.compose.material.SnackbarDuration
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,21 +40,33 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.winfeo.superpositiongame.R
 import io.github.winfeo.superpositiongame.android.data.source.local.NotificationManager
-import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
+import io.github.winfeo.superpositiongame.android.data.source.socket.Network
 import io.github.winfeo.superpositiongame.android.domain.lobby.model.Player
 import io.github.winfeo.superpositiongame.android.ui.dialog.InviteDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 
-//экран лобби (отображаются игроки в сети, которые тоже находятся в лобби)
+private val LobbyBackgroundColor = Color(0xFF0C0813)
+private val LobbyCardColor = Color(0xFF181725)
+private val LobbyAccent = Color(0xFF6C8CFF)
+private val LobbyGreen = Color(0xFF4ED6A2)
+private val LobbyMuted = Color(0xFFA9A8BA)
+private val LobbyAvatarColors = listOf(
+    Color(0xFF8D85E6),
+    Color(0xFFE6A77B),
+    Color(0xFF74A9D3)
+)
+
 @Composable
 fun LobbyScreen(
     viewModel: LobbyViewModel,
@@ -59,500 +74,375 @@ fun LobbyScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val selectedPlayer by viewModel.selectedPlayer.collectAsState()
-    val user by UserSession.currentUser.collectAsState()
-    val userId by UserSession.currentUserId.collectAsState()
     val notificationCount by NotificationManager.badgeCount.collectAsState()
-
+    val isConnected by Network.connectionState.collectAsState()
     val snackbarMessage by viewModel.snackbarMessage.collectAsState()
+    val scaffoldState = rememberScaffoldState()
     val successMessage = stringResource(R.string.dialog_invitation_confirm_success)
     val errorMessage = stringResource(R.string.dialog_invitation_confirm_error)
 
-    val scaffoldState = rememberScaffoldState()
-
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let { message ->
-            scaffoldState.snackbarHostState.showSnackbar(
-                message = message,
-                duration = SnackbarDuration.Short
-            )
+            scaffoldState.snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short)
             viewModel.clearSnackbarMessage()
         }
     }
 
     Scaffold(
         scaffoldState = scaffoldState,
-        snackbarHost = {
-            SnackbarHost(
-                hostState = it,
-                modifier = Modifier.padding(bottom = 120.dp)
-            ) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    backgroundColor = Color(0xFF1A1A2E),
-                    contentColor = Color.White,
-                    shape = RoundedCornerShape(12.dp),
-                    elevation = 8.dp
-                )
-            }
-        }
+        backgroundColor = LobbyBackgroundColor,
+        snackbarHost = { SnackbarHost(scaffoldState.snackbarHostState) { Snackbar(it) } }
     ) { paddingValues ->
-        Box(
-            Modifier.background(Color(0xFF0C0813))
-        ) {
-            LobbyBackground()
-
-            Column (
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                val playerName = user?.nickname?: userId?: ""
-                UserBar(
-                    playerName = playerName.take(9),
-                    notificationCount = notificationCount,
-                    onInvitesClick = onInvitesClick
-                )
-
-                HeaderDivider()
-
-                Box {
-                    when {
-                        state.isLoading -> {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    strokeWidth = 2.dp,
-                                    color = Color(0xFF6C8CFF)
-                                )
-                            }
-                        }
-                        state.players.isEmpty() -> {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.lobby_empty_list),
-                                    color = Color.White.copy(alpha = 0.8f),
-                                    style = MaterialTheme.typography.body1
-                                )
-                            }
-                        }
-                        else -> UsersList(
-                            players = state.players,
-                            onUserClick = { user ->
-                                viewModel.showInviteDialog(user)
-                            }
-                        )
-                    }
-                }
-            }
-        }
+        LobbyContent(
+            state = state,
+            isConnected = isConnected,
+            notificationCount = notificationCount,
+            onInvitesClick = onInvitesClick,
+            onPlayerClick = viewModel::showInviteDialog,
+            modifier = Modifier.padding(paddingValues)
+        )
     }
 
     selectedPlayer?.let { player ->
         InviteDialog(
-            playerName = player.nickname?: player.id,
-            onConfirm = { viewModel.sendInvite(successMessage = successMessage, errorMessage = errorMessage) },
-            onDismiss = { viewModel.hideInviteDialog() }
+            playerName = player.nickname ?: player.id.take(9),
+            onConfirm = { viewModel.sendInvite(successMessage, errorMessage) },
+            onDismiss = viewModel::hideInviteDialog
         )
     }
 }
 
 @Composable
-fun LobbyBackground() {
-    Box(modifier = Modifier.fillMaxSize()) {
+private fun LobbyContent(
+    state: LobbyState,
+    isConnected: Boolean,
+    notificationCount: Int,
+    onInvitesClick: () -> Unit,
+    onPlayerClick: (Player) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxSize()
+            .background(LobbyBackgroundColor)
+    ) {
         BackgroundBlur()
 
-        Box(
+        Column(
             modifier = Modifier
-                .matchParentSize()
-                .background(
-                    Color.White.copy(alpha = 0.02f)
-                )
-        )
+                .fillMaxSize()
+                .padding(start = 22.dp, end = 22.dp, top = 30.dp)
+        ) {
+            LobbyTopBar(isConnected, notificationCount, onInvitesClick)
+            Spacer(modifier = Modifier.height(28.dp))
 
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.35f)
-                        ),
-                        radius = 1400f
-                    )
+            Text(
+                text = "Онлайн-лобби",
+                color = Color.White,
+                fontSize = 29.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = (-0.5f).sp
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = "Выберите соперника и пригласите его в игру",
+                color = LobbyMuted,
+                fontSize = 14.sp,
+                lineHeight = 21.sp
+            )
+
+            Spacer(modifier = Modifier.height(34.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Игроки в сети",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
-        )
+                PlayerCountBadge(
+                    count = if (isConnected && !state.isLoading && state.error == null) {
+                        state.players.size
+                    } else null
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                when {
+                    !isConnected -> LobbyMessage(
+                        title = "Нет подключения",
+                        description = "Подключаемся к серверу. Список игроков появится, когда соединение восстановится"
+                    )
+                    state.isLoading -> Column(
+                        modifier = Modifier.fillMaxSize().padding(bottom = 124.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(28.dp),
+                            color = LobbyAccent,
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.height(18.dp))
+                        Text("Получаем список игроков…", color = LobbyMuted, fontSize = 14.sp)
+                    }
+                    state.error != null -> LobbyMessage(
+                        title = "Не удалось загрузить игроков",
+                        description = state.error ?: "Попробуйте проверить подключение."
+                    )
+                    state.players.isEmpty() -> LobbyMessage(
+                        title = stringResource(R.string.lobby_empty_list),
+                        description = "Когда кто-то появится в лобби, вы сможете пригласить его в игру"
+                    )
+                    else -> UsersList(state.players, onPlayerClick)
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun UserBar(
-    playerName: String,
+private fun LobbyTopBar(
+    isConnected: Boolean,
     notificationCount: Int,
     onInvitesClick: () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF2B36A6).copy(alpha = 0.45f),
-                        Color(0xFF15162A).copy(alpha = 0.35f)
-                    )
-                )
-            )
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(
-                            Color(0xFF6C8CFF).copy(alpha = 0.15f),
-                            Color.Transparent
-                        ),
-                        radius = 900f
-                    )
-                )
-        )
-
+        val statusColor = if (isConnected) LobbyGreen else LobbyMuted
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = 18.dp,
-                    vertical = 16.dp
-                ),
+                .clip(RoundedCornerShape(50))
+                .background(statusColor.copy(alpha = 0.12f))
+                .border(1.dp, statusColor.copy(alpha = 0.2f), RoundedCornerShape(50))
+                .padding(horizontal = 13.dp, vertical = 9.dp),
             verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            AvatarWithName(playerName)
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            NotificationButton(
-                notificationCount = notificationCount,
-                onClick = onInvitesClick
-            )
-        }
-    }
-}
-
-@Composable
-fun AvatarWithName(
-    playerName: String
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .background(
-                color = Color.White.copy(alpha = 0.08f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .border(
-                color = Color.White.copy(alpha = 0.10f),
-                shape = RoundedCornerShape(16.dp),
-                width = 1.dp
-                )
-            .padding(
-                horizontal = 16.dp,
-                vertical = 8.dp
-            )
-    ) {
-        Box(
-            modifier = Modifier
-                .size(32.dp)
-                .background(
-                    color = Color.White.copy(alpha = 0.10f),
-                    shape = CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(R.drawable.ic_panda),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp),
-                colorFilter = ColorFilter.tint(Color.White)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(10.dp))
-
-        Text(
-            text = playerName,
-            color = Color.White.copy(alpha = 0.92f)
-        )
-    }
-}
-
-@Composable
-fun NotificationButton(
-    notificationCount: Int,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier.size(48.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(CircleShape)
-                .clickable { onClick() }
-                .background(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            Color.White.copy(alpha = 0.18f),
-                            Color.White.copy(alpha = 0.06f)
-                        )
-                    ),
-                    shape = CircleShape
-                )
-                .border(
-                    1.dp,
-                    Color.White.copy(alpha = 0.12f),
-                    CircleShape
-                ),
-            contentAlignment = Alignment.Center
         ) {
             Box(
                 modifier = Modifier
-                    .matchParentSize()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0.10f),
-                                Color.Transparent
-                            )
-                        ),
-                        shape = CircleShape
-                    )
+                    .size(7.dp)
+                    .clip(CircleShape)
+                    .background(statusColor)
             )
-
-            Icon(
-                painter = painterResource(R.drawable.ic_bell),
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.92f),
-                modifier = Modifier.size(24.dp)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = if (isConnected) "Вы в сети" else "Подключаемся",
+                color = statusColor,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
 
-        if (notificationCount > 0) {
+        NotificationButton(notificationCount, onInvitesClick)
+    }
+}
+
+@Composable
+private fun NotificationButton(count: Int, onClick: () -> Unit) {
+    Box {
+        Button(
+            onClick = onClick,
+            modifier = Modifier.size(42.dp),
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = LobbyCardColor),
+            elevation = ButtonDefaults.elevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_bell),
+                contentDescription = "Приглашения",
+                tint = Color.White,
+                modifier = Modifier.size(21.dp)
+            )
+        }
+        if (count > 0) {
             Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .size(10.dp)
-                    .background(Color(0xFF3D4AEB), CircleShape)
-                    .border(
-                        1.dp,
-                        Color.White.copy(alpha = 0.8f),
-                        CircleShape
-                    )
+                    .clip(CircleShape)
+                    .background(LobbyGreen)
+                    .border(2.dp, LobbyBackgroundColor, CircleShape)
             )
         }
     }
 }
 
 @Composable
-fun HeaderDivider() {
-    Box(
+private fun PlayerCountBadge(count: Int?) {
+    Text(
+        text = count?.let(::playerCountText) ?: "—",
+        color = LobbyAccent,
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Medium,
         modifier = Modifier
-            .fillMaxWidth()
-            .height(3.dp)
-            .background(
-                Brush.horizontalGradient(
-                    listOf(
-                        Color.Transparent,
-                        Color.White.copy(alpha = 0.12f),
-                        Color.Transparent
-                    )
-                )
-            )
+            .clip(RoundedCornerShape(50))
+            .background(LobbyAccent.copy(alpha = 0.12f))
+            .padding(horizontal = 11.dp, vertical = 6.dp)
     )
 }
 
+private fun playerCountText(count: Int): String {
+    val suffix = when {
+        count % 100 in 11..14 -> "игроков"
+        count % 10 == 1 -> "игрок"
+        count % 10 in 2..4 -> "игрока"
+        else -> "игроков"
+    }
+    return "$count $suffix"
+}
+
 @Composable
-fun UsersList(
-    players: List<Player>,
-    onUserClick: (Player) -> Unit
-) {
-    LazyColumn (
+private fun UsersList(players: List<Player>, onPlayerClick: (Player) -> Unit) {
+    LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        contentPadding = PaddingValues(bottom = 124.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        items(players) { user ->
-            val playerName = user.nickname?: user.id
-            UserCard(
-                playerName = playerName.take(9),
-                onClick = { onUserClick(user) }
-            )
+        items(players, key = { player -> player.id }) { player ->
+            UserCard(player, onPlayerClick)
+        }
+        item {
+            Row(
+                modifier = Modifier.padding(start = 2.dp, top = 15.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null,
+                    tint = LobbyMuted.copy(alpha = 0.75f),
+                    modifier = Modifier.size(15.dp)
+                )
+                Spacer(modifier = Modifier.width(7.dp))
+                Text(
+                    text = "Список обновляется автоматически",
+                    color = LobbyMuted.copy(alpha = 0.75f),
+                    fontSize = 12.sp
+                )
+            }
         }
     }
 }
 
 @Composable
-fun UserCard(
-    playerName: String,
-    onClick: () -> Unit
-) {
-    Box(
+private fun UserCard(player: Player, onPlayerClick: (Player) -> Unit) {
+    val name = player.nickname?.takeIf { it.isNotBlank() } ?: player.id.take(9)
+    val avatarColor = LobbyAvatarColors[
+        (player.id.hashCode() and Int.MAX_VALUE) % LobbyAvatarColors.size
+    ]
+
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 64.dp)
-            .clickable { onClick() }
-            .background(
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.06f),
-                        Color.White.copy(alpha = 0.03f)
-                    )
-                ),
-                shape = RoundedCornerShape(16.dp)
-//                shape = DiagonalCutShape() //TODO закастомить тоже?
-            )
-            .border(
-                color = Color.White.copy(alpha = 0.08f),
-                shape = RoundedCornerShape(16.dp),
-                width = 1.dp
-            )
+            .heightIn(min = 76.dp)
+            .clip(RoundedCornerShape(17.dp))
+            .background(LobbyCardColor)
+            .border(1.dp, Color.White.copy(alpha = 0.07f), RoundedCornerShape(17.dp))
+            .padding(horizontal = 13.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .size(43.dp)
+                .clip(RoundedCornerShape(13.dp))
+                .background(avatarColor.copy(alpha = 0.20f)),
+            contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(
-                        color = Color.White.copy(alpha = 0.08f),
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_panda),
-                    contentDescription = null,
-                    modifier = Modifier.size(22.dp),
-                    colorFilter = ColorFilter.tint(Color.White)
+            Icon(
+                painter = painterResource(R.drawable.ic_panda),
+                contentDescription = null,
+                tint = avatarColor,
+                modifier = Modifier.size(25.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(11.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = name,
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier.size(6.dp).clip(CircleShape).background(LobbyGreen)
                 )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("В сети", color = LobbyMuted, fontSize = 11.sp)
             }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    stringResource(R.string.lobby_player_card_player),
-                    color = Color.White.copy(alpha = 0.5f)
-                )
-                Text(
-                    playerName,
-                    color = Color.White.copy(alpha = 0.9f)
-                )
-            }
-
-            Box(
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .size(6.dp)
-                    .background(
-                        color = Color(0xFF6CFF8F),
-                        shape = CircleShape
-                    )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Button(
+            onClick = { onPlayerClick(player) },
+            modifier = Modifier.height(38.dp),
+            shape = RoundedCornerShape(11.dp),
+            border = BorderStroke(1.dp, LobbyAccent.copy(alpha = 0.45f)),
+            colors = ButtonDefaults.buttonColors(backgroundColor = LobbyAccent.copy(alpha = 0.12f)),
+            elevation = ButtonDefaults.elevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
+            contentPadding = PaddingValues(horizontal = 10.dp)
+        ) {
+            Text(
+                text = "Пригласить",
+                color = Color(0xFFB6C4FF),
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold
             )
         }
     }
 }
-
-
-//@Preview(
-//    name = "Лобби",
-//    showSystemUi = true,
-//    showBackground = true
-//)
-//@Composable
-//fun LobbyScreenPreview() {
-//    LobbyScreen(
-//        viewModel = viewModel(),
-//        onInvitesClick = {}
-//    )
-//}
-
-//@Preview(
-//    name = "Лобби",
-//    showSystemUi = true,
-//    showBackground = true
-//)
-//@Composable
-//fun PlayerCardPreview() {
-//    UserCard(
-//        user = User(id = "12345-67890"),
-//        onClick = {}
-//    )
-//}
-
-//@Preview(
-//    name = "Лобби",
-//    showSystemUi = true,
-//    showBackground = true
-//)
-//@Composable
-//fun UserBarPrev() {
-//    UserBar(
-//        playerName = "12345",
-//        onInvitesClick = {}
-//    )
-//}
-
 
 @Composable
-fun LobbyScreenContent() {
-    Box(
-        Modifier.background(Color(0xFF0C0813))
+private fun LobbyMessage(title: String, description: String) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(bottom = 124.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        LobbyBackground()
-
-        Column (
-            modifier = Modifier.fillMaxSize()
-        ) {
-            UserBar(
-                playerName = "guest-1111111111",
-                notificationCount = 5,
-                onInvitesClick = {}
-            )
-
-            HeaderDivider()
-
-            Box {
-                UsersList(
-                    players = listOf(
-                        Player(
-                            id = "1234567890",
-                            nickname = "Winfeo"
-                        )
-                    ),
-                    onUserClick = {}
-                )
-            }
-        }
+        Text(
+            text = title,
+            color = Color.White,
+            fontSize = 17.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(9.dp))
+        Text(
+            text = description,
+            color = LobbyMuted,
+            fontSize = 13.sp,
+            lineHeight = 19.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 14.dp)
+        )
     }
 }
 
-@Preview(
-    name = "Лобби",
-    showSystemUi = true,
-    showBackground = true
-)
+@Preview(showBackground = true)
 @Composable
 fun LobbyScreenPrev() {
-    LobbyScreenContent()
+    MaterialTheme {
+        LobbyContent(
+            state = LobbyState(
+                players = listOf(
+                    Player("1", "Алексей"),
+                    Player("2", "Мария"),
+                    Player("3", "winfeo")
+                ),
+                isLoading = false
+            ),
+            isConnected = true,
+            notificationCount = 2,
+            onInvitesClick = {},
+            onPlayerClick = {}
+        )
+    }
 }
-
