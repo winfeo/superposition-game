@@ -8,6 +8,27 @@
     <string name="lobby_empty_list">Нет игроков в сети</string>
     <string name="lobby_player_card_player">Игрок</string>
 
+    <!-- Игра с ИИ -->
+    <string name="ai_game_nav_label">Игра с AI</string>
+    <string name="ai_game_title">Игра с AI</string>
+    <string name="ai_game_subtitle">Выберите сложность и начните партию</string>
+    <string name="ai_game_difficulty_title">Сложность соперника</string>
+    <string name="ai_game_low_title">Лёгкий</string>
+    <string name="ai_game_low_description">Подходит для знакомства с игрой</string>
+    <string name="ai_game_mcts_title">Продвинутый</string>
+    <string name="ai_game_mcts_description">Просчитывает наилучшие ходы</string>
+    <string name="ai_game_unranked_info">Без рейтинга и записи в историю</string>
+    <string name="ai_game_start_button">Начать игру</string>
+    <string name="ai_game_starting">Создаём партию…</string>
+    <string name="ai_game_waiting_connection">Подключаемся к игровому серверу…</string>
+    <string name="ai_game_error_no_connection">Нет соединения с игровым сервером</string>
+    <string name="ai_game_error_session_unavailable">Сессия недоступна. Войдите снова или перезапустите приложение</string>
+    <string name="ai_game_error_invalid_session">Гостевой ID недействителен. Перезапустите приложение</string>
+    <string name="ai_game_error_already_in_game">У вас уже есть незавершённая партия</string>
+    <string name="ai_game_error_server_unavailable">Игровой сервер временно недоступен</string>
+    <string name="ai_game_error_network">Сетевая ошибка. Проверьте подключение</string>
+    <string name="ai_game_error_unknown">Не удалось начать игру. Попробуйте ещё раз</string>
+
     <!-- Экран приглашений (уведомлений) -->
     <string name="invites_title">Приглашения</string>
     <string name="invites_empty_list">Пока здесь ничего нет</string>

@@ -21,6 +21,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.github.winfeo.superpositiongame.android.data.source.AppModule
 import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
+import io.github.winfeo.superpositiongame.android.ui.nav.route.AiRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.AuthRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.GameHistory
 import io.github.winfeo.superpositiongame.android.ui.nav.route.InvitesRoute
@@ -29,6 +30,8 @@ import io.github.winfeo.superpositiongame.android.ui.nav.route.LobbyRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.ProfileRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.SettingsRoute
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.ReconnectGameDialog
+import io.github.winfeo.superpositiongame.android.ui.screen.ai.AiGameScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.ai.AiGameViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.game.GameActivity
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitesScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.invites.InvitationViewModel
@@ -45,12 +48,14 @@ import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileScree
 import io.github.winfeo.superpositiongame.android.ui.screen.profile.ProfileViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.settings.SettingsScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.settings.SettingsViewModel
+import kotlinx.coroutines.flow.collect
 
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val currentUserId by UserSession.currentUserId.collectAsState()
 
 
     /* --------------- ViewModel-и --------------- */
@@ -77,6 +82,19 @@ fun Navigation() {
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return LibraryViewModel(AppModule.cardsRepository) as T
+            }
+        }
+    )
+
+    val aiGameViewModel: AiGameViewModel = viewModel(
+        key = "ai-game-$currentUserId",
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return AiGameViewModel(
+                    aiGameRepository = AppModule.aiGameRepository,
+                    gameRepository = AppModule.gameRepository,
+                    settingsManager = AppModule.settingsManager
+                ) as T
             }
         }
     )
@@ -118,7 +136,6 @@ fun Navigation() {
 
 
     /* --------------- Запуск игры --------------- */
-    val currentUserId by UserSession.currentUserId.collectAsState()
     val context = LocalContext.current
     val viewModel: GameLauncher = viewModel(
         key = currentUserId,
@@ -135,6 +152,12 @@ fun Navigation() {
     val gameId by viewModel.gameFlow.collectAsState()
     val activeGame by viewModel.activeGame.collectAsState()
     val isReconnectInProgress by viewModel.isReconnectInProgress.collectAsState()
+    LaunchedEffect(aiGameViewModel, viewModel) {
+        aiGameViewModel.gameCreated.collect { createdGameId ->
+            viewModel.onAiGameCreated(createdGameId)
+        }
+    }
+
     val gameActivityLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) {
@@ -169,6 +192,10 @@ fun Navigation() {
                         navController.navigate(InvitesRoute)
                     }
                 )
+            }
+
+            composable<AiRoute> {
+                AiGameScreen(viewModel = aiGameViewModel)
             }
 
             composable<InvitesRoute> {
@@ -233,6 +260,7 @@ fun Navigation() {
 
         val showBottomBar = currentRoute in listOf(
             LobbyRoute::class.qualifiedName,
+            AiRoute::class.qualifiedName,
             LibraryRoute::class.qualifiedName,
             ProfileRoute::class.qualifiedName
         )

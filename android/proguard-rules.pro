@@ -25,7 +25,7 @@
 -dontwarn com.badlogic.gdx.backends.android.AndroidFragmentApplication
 
 # Needed by the gdx-controllers official extension.
--keep class com.badlogic.gdx.controllers.android.AndroidControllers
+#-keep class com.badlogic.gdx.controllers.android.AndroidControllers
 
 # Needed by the Box2D official extension.
 -keepclassmembers class com.badlogic.gdx.physics.box2d.World {
