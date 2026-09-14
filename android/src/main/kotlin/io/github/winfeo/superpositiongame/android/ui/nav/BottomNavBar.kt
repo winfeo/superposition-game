@@ -19,10 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,15 +31,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LibraryRoute
+import io.github.winfeo.superpositiongame.android.ui.nav.route.AiRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LobbyRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.ProfileRoute
+import io.github.winfeo.superpositiongame.R
 
 @Composable
 fun BottomNavBar(
@@ -56,19 +56,25 @@ fun BottomNavBar(
     val items = listOf(
         BottomNavItem(
             route = LobbyRoute,
-            icon = Icons.Default.Home,
+            icon = ImageVector.vectorResource(R.drawable.ic_gamepad),
             label = "Лобби"
         ),
 
         BottomNavItem(
+            route = AiRoute,
+            icon = ImageVector.vectorResource(R.drawable.ic_bot),
+            label = "Игра с AI"
+        ),
+
+        BottomNavItem(
             route = LibraryRoute,
-            icon = Icons.Default.Info,
+            icon = ImageVector.vectorResource(R.drawable.ic_graduation_cap),
             label = "Картотека"
         ),
 
         BottomNavItem(
             route = ProfileRoute,
-            icon = Icons.Default.Person,
+            icon = ImageVector.vectorResource(R.drawable.ic_user),
             label = "Профиль"
         )
     )
