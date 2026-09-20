@@ -33,7 +33,8 @@ import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBl
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onReplayOnboarding: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
@@ -80,6 +81,16 @@ fun SettingsScreen(
                     title = stringResource(R.string.settings_invite_sound),
                     checked = state.isInviteSoundEnabled,
                     onCheckedChange = { viewModel.toggleInviteSound(it) }
+                )
+            }
+
+            //Обучение
+            val onboardingTitle = stringResource(R.string.settings_onboarding_section)
+            SettingsSection(title = onboardingTitle) {
+                SettingsActionItem(
+                    icon = Icons.Default.Info,
+                    title = stringResource(R.string.settings_onboarding_replay),
+                    onClick = onReplayOnboarding
                 )
             }
 

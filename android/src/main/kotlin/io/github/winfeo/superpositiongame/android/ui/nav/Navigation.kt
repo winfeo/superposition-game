@@ -27,6 +27,7 @@ import io.github.winfeo.superpositiongame.android.ui.nav.route.GameHistory
 import io.github.winfeo.superpositiongame.android.ui.nav.route.InvitesRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LibraryRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.LobbyRoute
+import io.github.winfeo.superpositiongame.android.ui.nav.route.OnboardingRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.ProfileRoute
 import io.github.winfeo.superpositiongame.android.ui.nav.route.SettingsRoute
 import io.github.winfeo.superpositiongame.android.ui.dialog.game.ReconnectGameDialog
@@ -39,6 +40,8 @@ import io.github.winfeo.superpositiongame.android.ui.screen.library.LibraryScree
 import io.github.winfeo.superpositiongame.android.ui.screen.library.LibraryViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.lobby.LobbyViewModel
+import io.github.winfeo.superpositiongame.android.ui.screen.onboarding.OnboardingScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.onboarding.OnboardingViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.auth.AuthScreen
 import io.github.winfeo.superpositiongame.android.ui.screen.auth.AuthViewModel
 import io.github.winfeo.superpositiongame.android.ui.screen.game.GameLauncher
@@ -253,7 +256,20 @@ fun Navigation() {
             composable<SettingsRoute> {
                 SettingsScreen(
                     viewModel = settingsViewModel,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onReplayOnboarding = {
+                        navController.navigate(OnboardingRoute)
+                    }
+                )
+            }
+
+            composable<OnboardingRoute> {
+                val onboardingViewModel: OnboardingViewModel = viewModel()
+
+                OnboardingScreen(
+                    viewModel = onboardingViewModel,
+                    onFinished = { navController.popBackStack() },
+                    onSkipped = { navController.popBackStack() }
                 )
             }
         }
