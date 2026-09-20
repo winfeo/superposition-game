@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.CircularProgressIndicator
@@ -15,12 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.winfeo.superpositiongame.android.data.source.socket.Network
 import io.github.winfeo.superpositiongame.android.data.source.AppModule
 import io.github.winfeo.superpositiongame.android.data.source.local.NotificationManager
 import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
 import io.github.winfeo.superpositiongame.android.data.util.toDomain
 import io.github.winfeo.superpositiongame.android.ui.nav.Navigation
+import io.github.winfeo.superpositiongame.android.ui.screen.onboarding.OnboardingScreen
+import io.github.winfeo.superpositiongame.android.ui.screen.onboarding.OnboardingViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -60,8 +64,18 @@ class AndroidLauncher : ComponentActivity() {
 
         setContent {
             val userIdState by UserSession.currentUserId.collectAsState()
+            val isOnboardingCompleted by AppModule.settingsManager.isOnboardingCompleted.collectAsState()
             val currentUserId = userIdState
-            if (currentUserId == null) {
+
+            if (!isOnboardingCompleted) {
+                val onboardingViewModel: OnboardingViewModel = viewModel(key = "first-launch-onboarding")
+
+                OnboardingScreen(
+                    viewModel = onboardingViewModel,
+                    onFinished = ::completeFirstLaunchOnboarding,
+                    onSkipped = ::completeFirstLaunchOnboarding
+                )
+            } else if (currentUserId == null) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -104,6 +118,13 @@ class AndroidLauncher : ComponentActivity() {
     private fun connectAsGuest(guestId: String) {
         UserSession.setUserId(guestId)
         Network.connect(userId = guestId)
+    }
+
+    private fun completeFirstLaunchOnboarding() {
+        AppModule.settingsManager.setOnboardingCompleted(true)
+        UserSession.currentUserId.value?.let { userId ->
+            Network.connect(userId = userId)
+        }
     }
 
     override fun onDestroy() {
