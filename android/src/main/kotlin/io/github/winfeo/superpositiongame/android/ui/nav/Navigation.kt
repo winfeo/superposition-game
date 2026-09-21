@@ -115,7 +115,7 @@ fun Navigation() {
     val profileViewModel: ProfileViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return ProfileViewModel(AppModule.profileRepository, AppModule.guestRepository) as T
+                return ProfileViewModel(AppModule.profileRepository) as T
             }
         }
     )

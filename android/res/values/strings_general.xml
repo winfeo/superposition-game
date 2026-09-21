@@ -62,7 +62,7 @@
     <!-- Экран профиля (авторизованный) -->
     <string name="authorized_profile_tag_victory">Победа</string>
     <string name="authorized_profile_tag_defeat">Поражение</string>
-    <string name="authorized_profile_logOut_button">Выйти</string>
+    <string name="profile_settings_content_description">Открыть настройки</string>
     <string name="authorized_profile_rating">Рейтинг</string>
     <string name="authorized_profile_victory_amount">Победы</string>
     <string name="authorized_profile_recent_games">Недавние игры</string>
@@ -79,6 +79,7 @@
 
     <string name="settings_account_section">Аккаунт</string>
     <string name="settings_change_email">Сменить почту</string>
+    <string name="settings_logout">Выйти из аккаунта</string>
     <string name="settings_delete_account">Удалить аккаунт</string>
 
     <string name="settings_info_section">О приложении</string>
@@ -86,6 +87,7 @@
     <string name="settings_version">Версия</string>
 
     <string name="settings_toast_email_successful">Email успешно изменён</string>
+    <string name="settings_toast_logout_successful">Вы вышли из аккаунта</string>
     <string name="settings_toast_delete_successful">Аккаунт удалён</string>
 
 </resources>

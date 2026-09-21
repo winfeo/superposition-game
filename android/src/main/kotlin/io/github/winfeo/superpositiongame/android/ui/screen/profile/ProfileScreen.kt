@@ -37,7 +37,8 @@ fun ProfileScreen(
         }
         else -> {
             UnauthorizedProfileScreen(
-                onLoginClick = onNavigateToAuth
+                onLoginClick = onNavigateToAuth,
+                onNavigateToSettings = onNavigateToSettings
             )
         }
     }

@@ -32,11 +32,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
+import io.github.winfeo.superpositiongame.android.ui.screen.profile.components.ProfileSettingsButton
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 
 @Composable
 fun UnauthorizedProfileScreen(
     onLoginClick: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -49,6 +51,13 @@ fun UnauthorizedProfileScreen(
             modifier = Modifier
                 .matchParentSize()
                 .background(Color.White.copy(alpha = 0.015f))
+        )
+
+        ProfileSettingsButton(
+            onClick = onNavigateToSettings,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 22.dp, end = 24.dp)
         )
 
         Column(
@@ -152,6 +161,7 @@ fun UnauthorizedProfileScreen(
 @Composable
 fun UnauthorizedProfileScreenPrev() {
     UnauthorizedProfileScreen(
-        onLoginClick = {}
+        onLoginClick = {},
+        onNavigateToSettings = {}
     )
 }
