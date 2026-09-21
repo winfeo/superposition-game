@@ -50,6 +50,10 @@
     <string name="dialog_settings_delete_account">Удалить аккаунт</string>
     <string name="dialog_settings_delete_info">Вы уверены? Ваши данные будут удалены безвозвратно</string>
     <string name="dialog_settings_delete_confirm">Удалить</string>
+    <string name="dialog_settings_logout_title">Выйти из аккаунта</string>
+    <string name="dialog_settings_logout_info">Вы уверены, что хотите выйти? Приложение продолжит работу в гостевом режиме</string>
+    <string name="dialog_settings_logout_confirm">Выйти</string>
+    <string name="dialog_settings_logout_cancel">Вернуться</string>
 
     <!-- Диалог (снекбар) подтвержения отправки приглашения -->
     <string name="dialog_invitation_confirm_success">Приглашение отправлено игроку</string>
