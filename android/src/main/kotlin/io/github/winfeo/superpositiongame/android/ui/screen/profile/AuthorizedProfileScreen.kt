@@ -33,7 +33,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.Composable
@@ -55,12 +54,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
-import io.github.winfeo.superpositiongame.android.data.repository.GuestRepositoryImpl
 import io.github.winfeo.superpositiongame.android.data.repository.ProfileRepositoryImpl
 import io.github.winfeo.superpositiongame.android.data.source.rest.GameHistoryApi
-import io.github.winfeo.superpositiongame.android.data.source.rest.GuestApi
 import io.github.winfeo.superpositiongame.android.data.source.rest.UserApi
 import io.github.winfeo.superpositiongame.android.ui.dialog.EditNicknameDialog
+import io.github.winfeo.superpositiongame.android.ui.screen.profile.components.ProfileSettingsButton
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 import io.ktor.client.HttpClient
 
@@ -156,42 +154,7 @@ fun AuthorizedProfileScreen(
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Кнопка ВЫХОД
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color.White.copy(alpha = 0.05f))
-                            .clickable { viewModel.logout() }
-                            .padding(horizontal = 14.dp, vertical = 10.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.authorized_profile_logOut_button),
-                            color = Color.White.copy(alpha = 0.75f),
-                            style = MaterialTheme.typography.body2
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.04f))
-                            .border(
-                                width = 1.dp,
-                                color = Color.White.copy(alpha = 0.06f),
-                                shape = CircleShape
-                            )
-                            .clickable { onNavigateToSettings() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = null,
-                            tint = Color.White.copy(alpha = 0.75f)
-                        )
-                    }
+                    ProfileSettingsButton(onClick = onNavigateToSettings)
                 }
 
                 //Ава
@@ -726,8 +689,7 @@ fun MatchCard(
 fun AuthorizedProfileScreenPreview() {
     AuthorizedProfileScreen(
         viewModel = ProfileViewModel(
-            repository = ProfileRepositoryImpl(UserApi(HttpClient()), GameHistoryApi(HttpClient())),
-            guestRepository = GuestRepositoryImpl(GuestApi(HttpClient()))
+            repository = ProfileRepositoryImpl(UserApi(HttpClient()), GameHistoryApi(HttpClient()))
         ),
         onNavigateToGameHistory = {},
         onNavigateToSettings = {}

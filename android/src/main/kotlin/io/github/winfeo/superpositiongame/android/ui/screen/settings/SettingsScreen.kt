@@ -12,7 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,17 +23,20 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import io.github.winfeo.superpositiongame.R
 import io.github.winfeo.superpositiongame.android.data.source.local.UserSession
 import io.github.winfeo.superpositiongame.android.ui.dialog.DeleteAccountDialog
 import io.github.winfeo.superpositiongame.android.ui.dialog.EmailChangeDialog
+import io.github.winfeo.superpositiongame.android.ui.dialog.LogoutDialog
 import io.github.winfeo.superpositiongame.android.ui.theme.elements.BackgroundBlur
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onReplayOnboarding: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
@@ -41,6 +44,7 @@ fun SettingsScreen(
     val versionName = packageInfo.versionName
 
     var showEmailDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var emailError by remember { mutableStateOf<String?>(null) }
 
@@ -83,27 +87,52 @@ fun SettingsScreen(
                 )
             }
 
-            //Акк
-            val accountTitle = stringResource(R.string.settings_account_section)
-            SettingsSection(title = accountTitle) {
+            //Обучение
+            val onboardingTitle = stringResource(R.string.settings_onboarding_section)
+            SettingsSection(title = onboardingTitle) {
                 SettingsActionItem(
-                    icon = Icons.Default.Email,
-                    title = stringResource(R.string.settings_change_email),
-                    onClick = { showEmailDialog = true }
+                    icon = ImageVector.vectorResource(R.drawable.ic_lightbulb),
+                    title = stringResource(R.string.settings_onboarding_replay),
+                    onClick = onReplayOnboarding
                 )
-                SettingsActionItem(
-                    icon = Icons.Default.Delete,
-                    title = stringResource(R.string.settings_delete_account),
-                    onClick = { showDeleteDialog = true },
-                    titleColor = Color(0xFFFF6B6B)
-                )
+            }
+
+            if (state.isAuthorized) {
+                val accountTitle = stringResource(R.string.settings_account_section)
+                SettingsSection(title = accountTitle) {
+                    SettingsActionItem(
+                        icon = Icons.Default.Email,
+                        title = stringResource(R.string.settings_change_email),
+                        onClick = { showEmailDialog = true }
+                    )
+
+                    SettingsDivider()
+
+                    SettingsActionItem(
+                        icon = Icons.Default.ExitToApp,
+                        title = stringResource(R.string.settings_logout),
+                        onClick = { showLogoutDialog = true },
+                        titleColor = Color(0xFFFFB08A),
+                        iconTint = Color(0xFFFFB08A)
+                    )
+
+                    SettingsDivider()
+
+                    SettingsActionItem(
+                        icon = Icons.Default.Delete,
+                        title = stringResource(R.string.settings_delete_account),
+                        onClick = { showDeleteDialog = true },
+                        titleColor = Color(0xFFFF6B6B),
+                        iconTint = Color(0xFFFF6B6B)
+                    )
+                }
             }
 
             //О приложении
             val infoTitle = stringResource(R.string.settings_info_section)
             SettingsSection(title = infoTitle) {
                 SettingsInfoItem(
-                    icon = Icons.Default.Info,
+                    icon = ImageVector.vectorResource(R.drawable.ic_info_outline),
                     title = stringResource(R.string.settings_version),
                     value = versionName?: "1.0.0"
                 )
@@ -112,7 +141,7 @@ fun SettingsScreen(
     }
 
     //Смена почты
-    if (showEmailDialog) {
+    if (state.isAuthorized && showEmailDialog) {
         val textSuccessful = stringResource(R.string.settings_toast_email_successful)
         EmailChangeDialog(
             currentEmail = UserSession.currentUser.value?.email ?: "",
@@ -134,8 +163,25 @@ fun SettingsScreen(
         )
     }
 
-    //Удаление акка
-    if (showDeleteDialog) {
+    //Выход из аккаунта
+    if (state.isAuthorized && showLogoutDialog) {
+        val textSuccessful = stringResource(R.string.settings_toast_logout_successful)
+        LogoutDialog(
+            onConfirm = {
+                viewModel.logout(
+                    onSuccess = {
+                        showLogoutDialog = false
+                        Toast.makeText(context, textSuccessful, Toast.LENGTH_SHORT).show()
+                        onBack()
+                    }
+                )
+            },
+            onDismiss = { showLogoutDialog = false }
+        )
+    }
+
+    //Удаление аккаунта
+    if (state.isAuthorized && showDeleteDialog) {
         val textSuccessful = stringResource(R.string.settings_toast_delete_successful)
         DeleteAccountDialog(
             onConfirm = {
@@ -285,7 +331,8 @@ fun SettingsActionItem(
     icon: ImageVector,
     title: String,
     onClick: () -> Unit,
-    titleColor: Color = Color.White.copy(alpha = 0.9f)
+    titleColor: Color = Color.White.copy(alpha = 0.9f),
+    iconTint: Color = Color.White.copy(alpha = 0.7f)
 ) {
     Row(
         modifier = Modifier
@@ -297,7 +344,7 @@ fun SettingsActionItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = Color.White.copy(alpha = 0.7f),
+            tint = iconTint,
             modifier = Modifier.size(24.dp)
         )
         Spacer(modifier = Modifier.width(16.dp))
@@ -314,6 +361,15 @@ fun SettingsActionItem(
 //            modifier = Modifier.size(20.dp)
 //        )
     }
+}
+
+@Composable
+private fun SettingsDivider() {
+    Divider(
+        modifier = Modifier.padding(start = 56.dp, end = 16.dp),
+        color = Color.White.copy(alpha = 0.07f),
+        thickness = 1.dp
+    )
 }
 
 @Composable
