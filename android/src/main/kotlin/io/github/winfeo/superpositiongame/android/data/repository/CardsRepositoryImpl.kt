@@ -87,10 +87,6 @@ class CardsRepositoryImpl: CardsRepository {
                     imageRes = R.drawable.reshuffle
                 ),
                 Card(
-                    id = "barrier",
-                    imageRes = R.drawable.barrier
-                ),
-                Card(
                     id = "quantum_lucky",
                     imageRes = R.drawable.quantum_lucky
                 ),

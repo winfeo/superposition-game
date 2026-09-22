@@ -82,13 +82,14 @@ class SlotActor(
 
         if (cardActor == null) {
             cardActor = cardActorBuilder.buildCardActor(lastCard)
+            val cardInset = GameConfig.getCardBorderThickness()
 
             cardActor!!.setSize(
-                GameConfig.cardWidth,
-                GameConfig.cardHeight
+                GameConfig.cardWidth - cardInset * 2f,
+                GameConfig.cardHeight - cardInset * 2f
             )
 
-            cardActor!!.setPosition(0f, 0f)
+            cardActor!!.setPosition(cardInset, cardInset)
             addActor(cardActor)
             cardActor!!.setZIndex(0)
         } else {
