@@ -256,7 +256,7 @@ fun getCardImageResource(card: Card): Int {
         CardType.IDENTITY -> R.drawable.identity
         CardType.BARRIER -> R.drawable.barrier
         CardType.RESHUFFLE -> R.drawable.reshuffle
-//        CardType.QUANTUM_LUCKY -> R.drawable.quantum_lucky
+        CardType.QUANTUM_LUCKY -> R.drawable.quantum_lucky
     }
 }
 

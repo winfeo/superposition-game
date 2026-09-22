@@ -11,6 +11,7 @@ object RuleEngine {
     private val rules = listOf(
         FrozenSlotRule(),
         QuantumNoiseRule(),
+        QuantumLuckyRule(),
 //        ArrowCompatibilityRule(),
         TripleEffectBorderRule(),
         KroneckerMultiplicationRule()

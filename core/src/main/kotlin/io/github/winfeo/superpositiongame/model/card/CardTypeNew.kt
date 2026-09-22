@@ -18,6 +18,7 @@ enum class CardTypeNew {
     MEASUREMENT,
     KRONECKER_MULTIPLICATION,
     QUANTUM_NOISE,
+    QUANTUM_LUCKY,
     SWAP,
     RESHUFFLE
 }

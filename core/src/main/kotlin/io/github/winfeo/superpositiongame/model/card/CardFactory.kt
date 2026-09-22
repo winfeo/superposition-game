@@ -19,6 +19,7 @@ object CardFactory {
         CardTypeNew.MEASUREMENT to "measurement",
         CardTypeNew.KRONECKER_MULTIPLICATION to "kronecker_multiplication",
         CardTypeNew.QUANTUM_NOISE to "quantum_noise",
+        CardTypeNew.QUANTUM_LUCKY to "quantum_lucky",
         CardTypeNew.SWAP to "swap",
         CardTypeNew.RESHUFFLE to "reshuffle"
     )

@@ -13,14 +13,16 @@ class QuantumNoiseRule: Rule {
 
         if (card.type != CardType.QUANTUM_NOISE) return null
 
-        ///TODO можно ли применить на пустой слот? Вроде можно
         if (slot.appliedCards.isEmpty()) {
             return returnResult(message = "Невозможно использовать карту (слот пустой)")
         }
 
         val lastCard = slot.appliedCards.last()
-        //Нельзя применять на x-3 и Rotate гейты
-        if (lastCard.actionRadius == 3 || lastCard.type == CardType.ROTATE) {
+        if (
+            lastCard.actionRadius == 3 ||
+            lastCard.type == CardType.ROTATE ||
+            lastCard.type == CardType.QUANTUM_LUCKY
+        ) {
             return returnResult(message = "Невозможно использовать на этот тип карты")
         }
 

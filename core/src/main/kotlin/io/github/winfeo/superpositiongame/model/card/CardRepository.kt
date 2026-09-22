@@ -18,6 +18,7 @@ import io.github.winfeo.superpositiongame.model.card.description.instance.specia
 import io.github.winfeo.superpositiongame.model.card.description.instance.special.KroneckerMultiplication
 import io.github.winfeo.superpositiongame.model.card.description.instance.special.Measurement
 import io.github.winfeo.superpositiongame.model.card.description.instance.special.QuantumNoise
+import io.github.winfeo.superpositiongame.model.card.description.instance.special.QuantumLucky
 import io.github.winfeo.superpositiongame.model.card.description.instance.special.Reshuffle
 import io.github.winfeo.superpositiongame.model.card.description.instance.special.Swap
 
@@ -38,6 +39,7 @@ object CardRepository {
         "hadamard_h3" to Hadamard3(),
         "swap" to Swap(),
         "quantum_noise" to QuantumNoise(),
+        "quantum_lucky" to QuantumLucky(),
         "kronecker_multiplication" to KroneckerMultiplication(),
         "measurement" to Measurement(),
         "identity" to Identity(),
