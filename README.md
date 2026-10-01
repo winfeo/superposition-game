@@ -5,7 +5,7 @@
   <img src="https://github.com/user-attachments/assets/a951686b-9964-4ad1-8ac2-0a6d6954d41b" />
 
   <p>
-    Многопользовательская интерактивная игра по тематике квантовых вычислений
+    Интерактивная игра по тематике квантовых вычислений
   </p>
 
   <p>
@@ -26,12 +26,13 @@
 ## Содержание
 
 - [Обзор](#readme-technical-overview)
-- [Смежные репозитории](#readme-related-repositories)
+- [Связанные проекты](#readme-related-projects)
 - [Основные возможности клиента](#readme-features)
 - [Технологический стек](#readme-technology-stack)
 - [Модульная структура](#readme-modules)
 - [Архитектура Android-клиента](#readme-android-architecture)
 - [Интеграция Compose и libGDX в игре](#readme-compose-libgdx)
+- [Игра против AI](#readme-ai-game)
 - [Сетевая архитектура](#readme-network-architecture)
 - [REST API](#readme-rest-api)
 - [STOMP/WebSocket](#readme-stomp-websocket)
@@ -46,9 +47,12 @@
 
 Суперпозиция - сетевой игровой клиент, в котором Android-интерфейс на
 Jetpack Compose объединён с игровым полем на libGDX (в проекте используется 
-расширение для Kotlin - libKTX). Клиент использует два транспортных механизма:
+расширение для Kotlin - libKTX).
 
-- REST API для регистрации, авторизации, профиля, гостевого режима и истории матчей;
+Играть можно с человеком онлайн или против AI-оппонента. В обоих режимах
+используются игровые задания, карты и одно игровое поле. Клиент использует два транспортных механизма:
+
+- REST API для регистрации, авторизации, профиля, гостевого режима, истории матчей и создания партии против AI;
 - WebSocket (STOMP) для лобби, приглашений, запуска матчей, игровых состояний,
   ходов и серверного таймера.
 
@@ -66,34 +70,34 @@ Android-часть организована по слоям `ui → domain → d
 └──────────────────────────┘
 ~~~
 
-<a name="readme-related-repositories"></a>
+<a name="readme-related-projects"></a>
 
-## Смежные репозитории
+## Связанные проекты
 
-Мобильный клиент — часть системы из трёх репозиториев. Backend уже развёрнут, клиент подключается к нему без локального запуска сервера. Исходники серверной части и AI-соперника вынесены отдельно.
-
-| Компонент | Репозиторий | Назначение |
-|---|---|---|
-| Backend | [winfeo/superposition-game-backend](https://github.com/winfeo/superposition-game-backend) | серверная часть: Spring Boot, REST, STOMP/WebSocket, JWT, PostgreSQL |
-| AI API | [all11n/superposition-ai-api](https://github.com/all11n/superposition-ai-api) | FastAPI-сервис решений соперника c уровнями |
-| Сервер контроллера ESP32 для локальной версии | [MrNightFury/QuantumGame](https://github.com/MrNightFury/QuantumGame) | прошивка платы и веб-клиент настольной локальной версии|
-| Локальный Android-клиент | [winfeo/superposition-game-local](https://github.com/winfeo/superposition-game-local) | клиент для игры с платой ESP32: лобби, поле и выбор целевого кубита на телефоне, подключение к ESP32 по WebSocket |
+Мобильный клиент входит в экосистему нескольких связанных проектов:
+- [Основной игровой сервер](https://github.com/winfeo/superposition-game-backend) - обрабатывает партии и игровые ходы, а также взаимодействует с сервером ИИ.
+- [Сервер AI-оппонента](https://github.com/all11n/superposition-ai-api) - выбирает действия компьютерного соперника.
+- [Проект физической платы](https://github.com/MrNightFury/QuantumGame) - аппаратное направление «Суперпозиции».
+- [Мобильный клиент для платы](https://github.com/winfeo/superposition-game-local) - отдельный клиент для локальной версии игры с платой.
 
 <a name="readme-features"></a>
 
 ## Основные возможности клиента
 
 - регистрация и JWT-авторизация
-- гостевой режим работы (без авторизации)
+- гостевой режим работы
 - онлайн-лобби
 - отправка, принятие и отклонение приглашений
 - получение уведомлений о приглашениях
 - запуск сетевого матча
+- игра против AI с двумя уровнями сложности
 - синхронизация игрового состояния через STOMP
 - отправка типизированных игровых ходов
-- профиль, рейтинг и статистика пользователя
+- игровой таймер и восстановление активного матча после потери соединения
+- профиль, рейтинг и статистика авторизованного пользователя
 - история матчей
 - библиотека игровых карт
+- пошаговое обучение при первом запуске
 
 <a name="readme-technology-stack"></a>
 
@@ -291,6 +295,37 @@ GameViewModel
 обновление экрана, libGDX отрисовка игрового поля
 ~~~
 
+<a name="readme-ai-game"></a>
+
+## Игра против AI
+
+В приложении доступен отдельный экран создания партии против AI. Перед началом
+игры пользователь выбирает один из двух уровней сложности:
+
+- `LOW` - быстрый выбор действия на основе оценки ближайшего результата;
+- `MCTS` - поиск по вариантам продолжения партии.
+
+Мобильный клиент отправляет запрос на создание партии **основному игровому
+серверу**, а не напрямую серверу AI. После получения `gameId` открывается
+обычный игровой экран. Дальнейшее получение состояний, отправка ходов и
+обновление таймера используют тот же механизм, что и в онлайн-партии.
+
+~~~text
+Мобильный клиент
+    │ POST /api/games/ai
+    ▼
+Основной игровой сервер
+    │ запрос на выбор действия
+    ▼
+Сервер AI
+    │ выбранное действие
+    ▼
+Основной игровой сервер
+    │ проверка, применение действия и новое состояние партии
+    ▼
+Мобильный клиент
+~~~
+
 <a name="readme-network-architecture"></a>
 
 ## Сетевая архитектура
@@ -375,6 +410,7 @@ http://...
 | `PUT` | `/api/users` | `UpdateUserDTO` | `AuthorizedUserDTO` | обновление профиля |
 | `DELETE` | `/api/users/{userId}` | — | без тела | удаление аккаунта |
 | `GET` | `/api/history/{userId}` | — | `List<GameHistoryDTO>` | история матчей |
+| `POST` | `/api/games/ai` | `CreateAiGameRequestDTO` | `CreateAiGameResponseDTO` | создание партии против AI |
 
 ### Авторизация
 
@@ -447,11 +483,18 @@ http://...
 | SEND | `/app/invitations` | пустая строка | запрос текущих приглашений |
 | SEND | `/app/invite.accept` | `InvitationDTO` | принятие приглашения |
 | SEND | `/app/invite.reject` | `InvitationDTO` | отклонение приглашения |
-| SUBSCRIBE | `/user/queue/game.start` | `GameStartEvent` | получение `gameId` созданного матча |
-| SUBSCRIBE | `/user/queue/game/{gameId}` | `GameStateDTO` | серверное состояние матча |
+| SUBSCRIBE | `/user/queue/game.start` | `GameStartEvent` | получение `gameId` созданного онлайн-матча |
 | SEND | `/app/game/{gameId}/ready` | пустая строка | подтверждение готовности клиента |
-| SEND | `/app/game/{gameId}/move` | полиморфный `MoveDTO` | отправка игрового действия |
+| SUBSCRIBE | `/user/queue/game/{gameId}` | `GameStateDTO` | серверное состояние матча |
+| SEND | `/app/game/{gameId}/move` | `MoveCommandDTO` | отправка игрового действия |
 | SUBSCRIBE | `/user/queue/game/{gameId}/timer` | `TimerUpdatePacketDTO` | синхронизация таймера |
+| SUBSCRIBE | `/user/queue/game/{gameId}/lifecycle` | `GameLifecycleEventDTO` | события жизненного цикла матча |
+| SEND | `/app/game/active` | пустая строка | запрос активного матча |
+| SUBSCRIBE | `/user/queue/game.active` | `ActiveGameResponseDTO` | ответ об активном матче |
+| SEND | `/app/game/{gameId}/heartbeat` | пустая строка | подтверждение активности клиента |
+| SEND | `/app/game/{gameId}/reconnect` | пустая строка | запрос переподключения к матчу |
+| SEND | `/app/game/{gameId}/reconnect.decline` | пустая строка | отказ от переподключения |
+| SEND | `/app/game/{gameId}/inactive` | пустая строка | уведомление о неактивности клиента |
 | SEND | `/app/ping` | пустая строка | измерение RTT |
 | SUBSCRIBE | `/user/queue/pong` | служебный payload | ответ на ping |
 
@@ -507,11 +550,10 @@ backend, базу данных или дополнительное програ�
 - перейти на HTTPS/WSS
 - заменить ручной service locator на полноценный DI
 - реализовать лидерборд с рейтингом
-- добавить интеграцию ИИ-противника
-
-## Правила игры
 
 <a name="readme-game-rules"></a>
+
+## Правила игры
 
 Полные правила мобильной версии игры "Суперпозиция".
 
