@@ -26,6 +26,7 @@
 ## Содержание
 
 - [Обзор](#readme-technical-overview)
+- [Смежные репозитории](#readme-related-repositories)
 - [Основные возможности клиента](#readme-features)
 - [Технологический стек](#readme-technology-stack)
 - [Модульная структура](#readme-modules)
@@ -64,6 +65,19 @@ Android-часть организована по слоям `ui → domain → d
 │        Data Layer        │ - репозитории и источники данных
 └──────────────────────────┘
 ~~~
+
+<a name="readme-related-repositories"></a>
+
+## Смежные репозитории
+
+Мобильный клиент — часть системы из трёх репозиториев. Backend уже развёрнут, клиент подключается к нему без локального запуска сервера. Исходники серверной части и AI-соперника вынесены отдельно.
+
+| Компонент | Репозиторий | Назначение |
+|---|---|---|
+| Backend | [winfeo/superposition-game-backend](https://github.com/winfeo/superposition-game-backend) | серверная часть: Spring Boot, REST, STOMP/WebSocket, JWT, PostgreSQL |
+| AI API | [all11n/superposition-ai-api](https://github.com/all11n/superposition-ai-api) | FastAPI-сервис решений соперника c уровнями |
+| Сервер контроллера ESP32 для локальной версии | [MrNightFury/QuantumGame](https://github.com/MrNightFury/QuantumGame) | прошивка платы и веб-клиент настольной локальной версии|
+| Локальный Android-клиент | [winfeo/superposition-game-local](https://github.com/winfeo/superposition-game-local) | клиент для игры с платой ESP32: лобби, поле и выбор целевого кубита на телефоне, подключение к ESP32 по WebSocket |
 
 <a name="readme-features"></a>
 
